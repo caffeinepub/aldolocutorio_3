@@ -1,0 +1,16 @@
+export default function BlogPage() {
+  return (
+    <div className="space-y-4">
+      <h1 className="font-display text-2xl font-bold text-foreground">Blog</h1>
+      <div className="bg-card rounded-xl shadow-card p-8 text-center">
+        <p className="text-4xl mb-4">📝</p>
+        <p className="font-display text-lg font-semibold text-foreground">
+          Próximamente disponible
+        </p>
+        <p className="text-sm text-muted-foreground mt-2">
+          La gestión del blog estará disponible próximamente.
+        </p>
+      </div>
+    </div>
+  );
+}
