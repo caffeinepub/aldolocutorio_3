@@ -89,16 +89,90 @@ export class ExternalBlob {
         return this;
     }
 }
+export interface PortfolioProjectUpdate {
+    id: bigint;
+    galleryImages: Array<ExternalBlob>;
+    title: string;
+    thumbnail?: ExternalBlob;
+    clientName: string;
+    displayOrder: bigint;
+    technologiesUsed: Array<string>;
+    tags: Array<string>;
+    publishStatus: PublishStatus;
+    description: string;
+    results: Array<string>;
+    linkedTestimonialId?: bigint;
+    category: PortfolioCategory;
+    industry: string;
+}
+export interface PortfolioProject {
+    id: bigint;
+    galleryImages: Array<ExternalBlob>;
+    title: string;
+    thumbnail?: ExternalBlob;
+    clientName: string;
+    displayOrder: bigint;
+    technologiesUsed: Array<string>;
+    tags: Array<string>;
+    createdDate?: bigint;
+    publishStatus: PublishStatus;
+    description: string;
+    results: Array<string>;
+    linkedTestimonialId?: bigint;
+    category: PortfolioCategory;
+    lastUpdatedDate?: bigint;
+    industry: string;
+}
+export interface PortfolioFilter {
+    status?: PublishStatus;
+    search?: string;
+    category?: PortfolioCategory;
+}
+export interface _CaffeineStorageRefillInformation {
+    proposed_top_up_amount?: bigint;
+}
+export interface PaginatedPortfolioProjects {
+    total: bigint;
+    items: Array<PortfolioProject>;
+}
 export interface _CaffeineStorageCreateCertificateResult {
     method: string;
     blob_hash: string;
+}
+export interface PortfolioProjectInput {
+    galleryImages: Array<ExternalBlob>;
+    title: string;
+    thumbnail?: ExternalBlob;
+    clientName: string;
+    displayOrder: bigint;
+    technologiesUsed: Array<string>;
+    tags: Array<string>;
+    publishStatus: PublishStatus;
+    description: string;
+    results: Array<string>;
+    linkedTestimonialId?: bigint;
+    category: PortfolioCategory;
+    industry: string;
+}
+export interface UserProfile {
+    name: string;
 }
 export interface _CaffeineStorageRefillResult {
     success?: boolean;
     topped_up_amount?: bigint;
 }
-export interface _CaffeineStorageRefillInformation {
-    proposed_top_up_amount?: bigint;
+export enum PortfolioCategory {
+    ai = "ai",
+    web = "web",
+    saas = "saas",
+    blockchain = "blockchain",
+    mobile = "mobile",
+    branding = "branding"
+}
+export enum PublishStatus {
+    published = "published",
+    draft = "draft",
+    archived = "archived"
 }
 export enum UserRole {
     admin = "admin",
@@ -114,10 +188,21 @@ export interface backendInterface {
     _caffeineStorageUpdateGatewayPrincipals(): Promise<void>;
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    bulkDeletePortfolioProjects(ids: Array<bigint>): Promise<bigint>;
+    bulkUpdatePortfolioStatus(ids: Array<bigint>, status: PublishStatus): Promise<bigint>;
+    createPortfolioProject(input: PortfolioProjectInput): Promise<PortfolioProject>;
+    deletePortfolioProject(id: bigint): Promise<boolean>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getPortfolioProject(id: bigint): Promise<PortfolioProject | null>;
+    getPortfolioProjects(page: bigint, pageSize: bigint, filter: PortfolioFilter | null): Promise<PaginatedPortfolioProjects>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
+    reorderPortfolioProjects(ids: Array<bigint>): Promise<boolean>;
+    saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    updatePortfolioProject(input: PortfolioProjectUpdate): Promise<PortfolioProject | null>;
 }
-import type { UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
+import type { ExternalBlob as _ExternalBlob, PaginatedPortfolioProjects as _PaginatedPortfolioProjects, PortfolioCategory as _PortfolioCategory, PortfolioFilter as _PortfolioFilter, PortfolioProject as _PortfolioProject, PortfolioProjectInput as _PortfolioProjectInput, PortfolioProjectUpdate as _PortfolioProjectUpdate, PublishStatus as _PublishStatus, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _caffeineStorageBlobIsLive(arg0: Uint8Array): Promise<boolean> {
@@ -232,18 +317,130 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async bulkDeletePortfolioProjects(arg0: Array<bigint>): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.bulkDeletePortfolioProjects(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.bulkDeletePortfolioProjects(arg0);
+            return result;
+        }
+    }
+    async bulkUpdatePortfolioStatus(arg0: Array<bigint>, arg1: PublishStatus): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.bulkUpdatePortfolioStatus(arg0, to_candid_PublishStatus_n10(this._uploadFile, this._downloadFile, arg1));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.bulkUpdatePortfolioStatus(arg0, to_candid_PublishStatus_n10(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
+    async createPortfolioProject(arg0: PortfolioProjectInput): Promise<PortfolioProject> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createPortfolioProject(await to_candid_PortfolioProjectInput_n12(this._uploadFile, this._downloadFile, arg0));
+                return from_candid_PortfolioProject_n18(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createPortfolioProject(await to_candid_PortfolioProjectInput_n12(this._uploadFile, this._downloadFile, arg0));
+            return from_candid_PortfolioProject_n18(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async deletePortfolioProject(arg0: bigint): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deletePortfolioProject(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deletePortfolioProject(arg0);
+            return result;
+        }
+    }
+    async getCallerUserProfile(): Promise<UserProfile | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCallerUserProfile();
+                return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCallerUserProfile();
+            return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async getCallerUserRole(): Promise<UserRole> {
         if (this.processError) {
             try {
                 const result = await this.actor.getCallerUserRole();
-                return from_candid_UserRole_n10(this._uploadFile, this._downloadFile, result);
+                return from_candid_UserRole_n29(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getCallerUserRole();
-            return from_candid_UserRole_n10(this._uploadFile, this._downloadFile, result);
+            return from_candid_UserRole_n29(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getPortfolioProject(arg0: bigint): Promise<PortfolioProject | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getPortfolioProject(arg0);
+                return from_candid_opt_n31(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getPortfolioProject(arg0);
+            return from_candid_opt_n31(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getPortfolioProjects(arg0: bigint, arg1: bigint, arg2: PortfolioFilter | null): Promise<PaginatedPortfolioProjects> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getPortfolioProjects(arg0, arg1, to_candid_opt_n32(this._uploadFile, this._downloadFile, arg2));
+                return from_candid_PaginatedPortfolioProjects_n35(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getPortfolioProjects(arg0, arg1, to_candid_opt_n32(this._uploadFile, this._downloadFile, arg2));
+            return from_candid_PaginatedPortfolioProjects_n35(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getUserProfile(arg0);
+                return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getUserProfile(arg0);
+            return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
         }
     }
     async isCallerAdmin(): Promise<boolean> {
@@ -260,18 +457,153 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async reorderPortfolioProjects(arg0: Array<bigint>): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.reorderPortfolioProjects(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.reorderPortfolioProjects(arg0);
+            return result;
+        }
+    }
+    async saveCallerUserProfile(arg0: UserProfile): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.saveCallerUserProfile(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.saveCallerUserProfile(arg0);
+            return result;
+        }
+    }
+    async updatePortfolioProject(arg0: PortfolioProjectUpdate): Promise<PortfolioProject | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updatePortfolioProject(await to_candid_PortfolioProjectUpdate_n38(this._uploadFile, this._downloadFile, arg0));
+                return from_candid_opt_n31(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updatePortfolioProject(await to_candid_PortfolioProjectUpdate_n38(this._uploadFile, this._downloadFile, arg0));
+            return from_candid_opt_n31(this._uploadFile, this._downloadFile, result);
+        }
+    }
 }
-function from_candid_UserRole_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
-    return from_candid_variant_n11(_uploadFile, _downloadFile, value);
+async function from_candid_ExternalBlob_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExternalBlob): Promise<ExternalBlob> {
+    return await _downloadFile(value);
+}
+async function from_candid_PaginatedPortfolioProjects_n35(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _PaginatedPortfolioProjects): Promise<PaginatedPortfolioProjects> {
+    return await from_candid_record_n36(_uploadFile, _downloadFile, value);
+}
+function from_candid_PortfolioCategory_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _PortfolioCategory): PortfolioCategory {
+    return from_candid_variant_n27(_uploadFile, _downloadFile, value);
+}
+async function from_candid_PortfolioProject_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _PortfolioProject): Promise<PortfolioProject> {
+    return await from_candid_record_n19(_uploadFile, _downloadFile, value);
+}
+function from_candid_PublishStatus_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _PublishStatus): PublishStatus {
+    return from_candid_variant_n25(_uploadFile, _downloadFile, value);
+}
+function from_candid_UserRole_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
+    return from_candid_variant_n30(_uploadFile, _downloadFile, value);
 }
 function from_candid__CaffeineStorageRefillResult_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: __CaffeineStorageRefillResult): _CaffeineStorageRefillResult {
     return from_candid_record_n5(_uploadFile, _downloadFile, value);
+}
+async function from_candid_opt_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_ExternalBlob]): Promise<ExternalBlob | null> {
+    return value.length === 0 ? null : await from_candid_ExternalBlob_n21(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_opt_n23(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [bigint]): bigint | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
+    return value.length === 0 ? null : value[0];
+}
+async function from_candid_opt_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_PortfolioProject]): Promise<PortfolioProject | null> {
+    return value.length === 0 ? null : await from_candid_PortfolioProject_n18(_uploadFile, _downloadFile, value[0]);
 }
 function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [boolean]): boolean | null {
     return value.length === 0 ? null : value[0];
 }
 function from_candid_opt_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [bigint]): bigint | null {
     return value.length === 0 ? null : value[0];
+}
+async function from_candid_record_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    galleryImages: Array<_ExternalBlob>;
+    title: string;
+    thumbnail: [] | [_ExternalBlob];
+    clientName: string;
+    displayOrder: bigint;
+    technologiesUsed: Array<string>;
+    tags: Array<string>;
+    createdDate: [] | [bigint];
+    publishStatus: _PublishStatus;
+    description: string;
+    results: Array<string>;
+    linkedTestimonialId: [] | [bigint];
+    category: _PortfolioCategory;
+    lastUpdatedDate: [] | [bigint];
+    industry: string;
+}): Promise<{
+    id: bigint;
+    galleryImages: Array<ExternalBlob>;
+    title: string;
+    thumbnail?: ExternalBlob;
+    clientName: string;
+    displayOrder: bigint;
+    technologiesUsed: Array<string>;
+    tags: Array<string>;
+    createdDate?: bigint;
+    publishStatus: PublishStatus;
+    description: string;
+    results: Array<string>;
+    linkedTestimonialId?: bigint;
+    category: PortfolioCategory;
+    lastUpdatedDate?: bigint;
+    industry: string;
+}> {
+    return {
+        id: value.id,
+        galleryImages: await from_candid_vec_n20(_uploadFile, _downloadFile, value.galleryImages),
+        title: value.title,
+        thumbnail: record_opt_to_undefined(await from_candid_opt_n22(_uploadFile, _downloadFile, value.thumbnail)),
+        clientName: value.clientName,
+        displayOrder: value.displayOrder,
+        technologiesUsed: value.technologiesUsed,
+        tags: value.tags,
+        createdDate: record_opt_to_undefined(from_candid_opt_n23(_uploadFile, _downloadFile, value.createdDate)),
+        publishStatus: from_candid_PublishStatus_n24(_uploadFile, _downloadFile, value.publishStatus),
+        description: value.description,
+        results: value.results,
+        linkedTestimonialId: record_opt_to_undefined(from_candid_opt_n7(_uploadFile, _downloadFile, value.linkedTestimonialId)),
+        category: from_candid_PortfolioCategory_n26(_uploadFile, _downloadFile, value.category),
+        lastUpdatedDate: record_opt_to_undefined(from_candid_opt_n23(_uploadFile, _downloadFile, value.lastUpdatedDate)),
+        industry: value.industry
+    };
+}
+async function from_candid_record_n36(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    total: bigint;
+    items: Array<_PortfolioProject>;
+}): Promise<{
+    total: bigint;
+    items: Array<PortfolioProject>;
+}> {
+    return {
+        total: value.total,
+        items: await from_candid_vec_n37(_uploadFile, _downloadFile, value.items)
+    };
 }
 function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     success: [] | [boolean];
@@ -285,7 +617,31 @@ function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint
         topped_up_amount: record_opt_to_undefined(from_candid_opt_n7(_uploadFile, _downloadFile, value.topped_up_amount))
     };
 }
-function from_candid_variant_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_variant_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    published: null;
+} | {
+    draft: null;
+} | {
+    archived: null;
+}): PublishStatus {
+    return "published" in value ? PublishStatus.published : "draft" in value ? PublishStatus.draft : "archived" in value ? PublishStatus.archived : value;
+}
+function from_candid_variant_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    ai: null;
+} | {
+    web: null;
+} | {
+    saas: null;
+} | {
+    blockchain: null;
+} | {
+    mobile: null;
+} | {
+    branding: null;
+}): PortfolioCategory {
+    return "ai" in value ? PortfolioCategory.ai : "web" in value ? PortfolioCategory.web : "saas" in value ? PortfolioCategory.saas : "blockchain" in value ? PortfolioCategory.blockchain : "mobile" in value ? PortfolioCategory.mobile : "branding" in value ? PortfolioCategory.branding : value;
+}
+function from_candid_variant_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     admin: null;
 } | {
     user: null;
@@ -293,6 +649,30 @@ function from_candid_variant_n11(_uploadFile: (file: ExternalBlob) => Promise<Ui
     guest: null;
 }): UserRole {
     return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
+}
+async function from_candid_vec_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_ExternalBlob>): Promise<Array<ExternalBlob>> {
+    return await Promise.all(value.map(async (x)=>await from_candid_ExternalBlob_n21(_uploadFile, _downloadFile, x)));
+}
+async function from_candid_vec_n37(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_PortfolioProject>): Promise<Array<PortfolioProject>> {
+    return await Promise.all(value.map(async (x)=>await from_candid_PortfolioProject_n18(_uploadFile, _downloadFile, x)));
+}
+async function to_candid_ExternalBlob_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ExternalBlob): Promise<_ExternalBlob> {
+    return await _uploadFile(value);
+}
+function to_candid_PortfolioCategory_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: PortfolioCategory): _PortfolioCategory {
+    return to_candid_variant_n17(_uploadFile, _downloadFile, value);
+}
+function to_candid_PortfolioFilter_n33(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: PortfolioFilter): _PortfolioFilter {
+    return to_candid_record_n34(_uploadFile, _downloadFile, value);
+}
+async function to_candid_PortfolioProjectInput_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: PortfolioProjectInput): Promise<_PortfolioProjectInput> {
+    return await to_candid_record_n13(_uploadFile, _downloadFile, value);
+}
+async function to_candid_PortfolioProjectUpdate_n38(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: PortfolioProjectUpdate): Promise<_PortfolioProjectUpdate> {
+    return await to_candid_record_n39(_uploadFile, _downloadFile, value);
+}
+function to_candid_PublishStatus_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: PublishStatus): _PublishStatus {
+    return to_candid_variant_n11(_uploadFile, _downloadFile, value);
 }
 function to_candid_UserRole_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): _UserRole {
     return to_candid_variant_n9(_uploadFile, _downloadFile, value);
@@ -303,6 +683,54 @@ function to_candid__CaffeineStorageRefillInformation_n2(_uploadFile: (file: Exte
 function to_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _CaffeineStorageRefillInformation | null): [] | [__CaffeineStorageRefillInformation] {
     return value === null ? candid_none() : candid_some(to_candid__CaffeineStorageRefillInformation_n2(_uploadFile, _downloadFile, value));
 }
+function to_candid_opt_n32(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: PortfolioFilter | null): [] | [_PortfolioFilter] {
+    return value === null ? candid_none() : candid_some(to_candid_PortfolioFilter_n33(_uploadFile, _downloadFile, value));
+}
+async function to_candid_record_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    galleryImages: Array<ExternalBlob>;
+    title: string;
+    thumbnail?: ExternalBlob;
+    clientName: string;
+    displayOrder: bigint;
+    technologiesUsed: Array<string>;
+    tags: Array<string>;
+    publishStatus: PublishStatus;
+    description: string;
+    results: Array<string>;
+    linkedTestimonialId?: bigint;
+    category: PortfolioCategory;
+    industry: string;
+}): Promise<{
+    galleryImages: Array<_ExternalBlob>;
+    title: string;
+    thumbnail: [] | [_ExternalBlob];
+    clientName: string;
+    displayOrder: bigint;
+    technologiesUsed: Array<string>;
+    tags: Array<string>;
+    publishStatus: _PublishStatus;
+    description: string;
+    results: Array<string>;
+    linkedTestimonialId: [] | [bigint];
+    category: _PortfolioCategory;
+    industry: string;
+}> {
+    return {
+        galleryImages: await to_candid_vec_n14(_uploadFile, _downloadFile, value.galleryImages),
+        title: value.title,
+        thumbnail: value.thumbnail ? candid_some(await to_candid_ExternalBlob_n15(_uploadFile, _downloadFile, value.thumbnail)) : candid_none(),
+        clientName: value.clientName,
+        displayOrder: value.displayOrder,
+        technologiesUsed: value.technologiesUsed,
+        tags: value.tags,
+        publishStatus: to_candid_PublishStatus_n10(_uploadFile, _downloadFile, value.publishStatus),
+        description: value.description,
+        results: value.results,
+        linkedTestimonialId: value.linkedTestimonialId ? candid_some(value.linkedTestimonialId) : candid_none(),
+        category: to_candid_PortfolioCategory_n16(_uploadFile, _downloadFile, value.category),
+        industry: value.industry
+    };
+}
 function to_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     proposed_top_up_amount?: bigint;
 }): {
@@ -311,6 +739,111 @@ function to_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
     return {
         proposed_top_up_amount: value.proposed_top_up_amount ? candid_some(value.proposed_top_up_amount) : candid_none()
     };
+}
+function to_candid_record_n34(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    status?: PublishStatus;
+    search?: string;
+    category?: PortfolioCategory;
+}): {
+    status: [] | [_PublishStatus];
+    search: [] | [string];
+    category: [] | [_PortfolioCategory];
+} {
+    return {
+        status: value.status ? candid_some(to_candid_PublishStatus_n10(_uploadFile, _downloadFile, value.status)) : candid_none(),
+        search: value.search ? candid_some(value.search) : candid_none(),
+        category: value.category ? candid_some(to_candid_PortfolioCategory_n16(_uploadFile, _downloadFile, value.category)) : candid_none()
+    };
+}
+async function to_candid_record_n39(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    galleryImages: Array<ExternalBlob>;
+    title: string;
+    thumbnail?: ExternalBlob;
+    clientName: string;
+    displayOrder: bigint;
+    technologiesUsed: Array<string>;
+    tags: Array<string>;
+    publishStatus: PublishStatus;
+    description: string;
+    results: Array<string>;
+    linkedTestimonialId?: bigint;
+    category: PortfolioCategory;
+    industry: string;
+}): Promise<{
+    id: bigint;
+    galleryImages: Array<_ExternalBlob>;
+    title: string;
+    thumbnail: [] | [_ExternalBlob];
+    clientName: string;
+    displayOrder: bigint;
+    technologiesUsed: Array<string>;
+    tags: Array<string>;
+    publishStatus: _PublishStatus;
+    description: string;
+    results: Array<string>;
+    linkedTestimonialId: [] | [bigint];
+    category: _PortfolioCategory;
+    industry: string;
+}> {
+    return {
+        id: value.id,
+        galleryImages: await to_candid_vec_n14(_uploadFile, _downloadFile, value.galleryImages),
+        title: value.title,
+        thumbnail: value.thumbnail ? candid_some(await to_candid_ExternalBlob_n15(_uploadFile, _downloadFile, value.thumbnail)) : candid_none(),
+        clientName: value.clientName,
+        displayOrder: value.displayOrder,
+        technologiesUsed: value.technologiesUsed,
+        tags: value.tags,
+        publishStatus: to_candid_PublishStatus_n10(_uploadFile, _downloadFile, value.publishStatus),
+        description: value.description,
+        results: value.results,
+        linkedTestimonialId: value.linkedTestimonialId ? candid_some(value.linkedTestimonialId) : candid_none(),
+        category: to_candid_PortfolioCategory_n16(_uploadFile, _downloadFile, value.category),
+        industry: value.industry
+    };
+}
+function to_candid_variant_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: PublishStatus): {
+    published: null;
+} | {
+    draft: null;
+} | {
+    archived: null;
+} {
+    return value == PublishStatus.published ? {
+        published: null
+    } : value == PublishStatus.draft ? {
+        draft: null
+    } : value == PublishStatus.archived ? {
+        archived: null
+    } : value;
+}
+function to_candid_variant_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: PortfolioCategory): {
+    ai: null;
+} | {
+    web: null;
+} | {
+    saas: null;
+} | {
+    blockchain: null;
+} | {
+    mobile: null;
+} | {
+    branding: null;
+} {
+    return value == PortfolioCategory.ai ? {
+        ai: null
+    } : value == PortfolioCategory.web ? {
+        web: null
+    } : value == PortfolioCategory.saas ? {
+        saas: null
+    } : value == PortfolioCategory.blockchain ? {
+        blockchain: null
+    } : value == PortfolioCategory.mobile ? {
+        mobile: null
+    } : value == PortfolioCategory.branding ? {
+        branding: null
+    } : value;
 }
 function to_candid_variant_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): {
     admin: null;
@@ -326,6 +859,9 @@ function to_candid_variant_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8
     } : value == UserRole.guest ? {
         guest: null
     } : value;
+}
+async function to_candid_vec_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<ExternalBlob>): Promise<Array<_ExternalBlob>> {
+    return await Promise.all(value.map(async (x)=>await to_candid_ExternalBlob_n15(_uploadFile, _downloadFile, x)));
 }
 export interface CreateActorOptions {
     agent?: Agent;

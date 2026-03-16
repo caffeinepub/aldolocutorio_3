@@ -10,6 +10,75 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export type ExternalBlob = Uint8Array;
+export interface PaginatedPortfolioProjects {
+  'total' : bigint,
+  'items' : Array<PortfolioProject>,
+}
+export type PortfolioCategory = { 'ai' : null } |
+  { 'web' : null } |
+  { 'saas' : null } |
+  { 'blockchain' : null } |
+  { 'mobile' : null } |
+  { 'branding' : null };
+export interface PortfolioFilter {
+  'status' : [] | [PublishStatus],
+  'search' : [] | [string],
+  'category' : [] | [PortfolioCategory],
+}
+export interface PortfolioProject {
+  'id' : bigint,
+  'galleryImages' : Array<ExternalBlob>,
+  'title' : string,
+  'thumbnail' : [] | [ExternalBlob],
+  'clientName' : string,
+  'displayOrder' : bigint,
+  'technologiesUsed' : Array<string>,
+  'tags' : Array<string>,
+  'createdDate' : [] | [bigint],
+  'publishStatus' : PublishStatus,
+  'description' : string,
+  'results' : Array<string>,
+  'linkedTestimonialId' : [] | [bigint],
+  'category' : PortfolioCategory,
+  'lastUpdatedDate' : [] | [bigint],
+  'industry' : string,
+}
+export interface PortfolioProjectInput {
+  'galleryImages' : Array<ExternalBlob>,
+  'title' : string,
+  'thumbnail' : [] | [ExternalBlob],
+  'clientName' : string,
+  'displayOrder' : bigint,
+  'technologiesUsed' : Array<string>,
+  'tags' : Array<string>,
+  'publishStatus' : PublishStatus,
+  'description' : string,
+  'results' : Array<string>,
+  'linkedTestimonialId' : [] | [bigint],
+  'category' : PortfolioCategory,
+  'industry' : string,
+}
+export interface PortfolioProjectUpdate {
+  'id' : bigint,
+  'galleryImages' : Array<ExternalBlob>,
+  'title' : string,
+  'thumbnail' : [] | [ExternalBlob],
+  'clientName' : string,
+  'displayOrder' : bigint,
+  'technologiesUsed' : Array<string>,
+  'tags' : Array<string>,
+  'publishStatus' : PublishStatus,
+  'description' : string,
+  'results' : Array<string>,
+  'linkedTestimonialId' : [] | [bigint],
+  'category' : PortfolioCategory,
+  'industry' : string,
+}
+export type PublishStatus = { 'published' : null } |
+  { 'draft' : null } |
+  { 'archived' : null };
+export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
@@ -42,8 +111,31 @@ export interface _SERVICE {
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'bulkDeletePortfolioProjects' : ActorMethod<[Array<bigint>], bigint>,
+  'bulkUpdatePortfolioStatus' : ActorMethod<
+    [Array<bigint>, PublishStatus],
+    bigint
+  >,
+  'createPortfolioProject' : ActorMethod<
+    [PortfolioProjectInput],
+    PortfolioProject
+  >,
+  'deletePortfolioProject' : ActorMethod<[bigint], boolean>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getPortfolioProject' : ActorMethod<[bigint], [] | [PortfolioProject]>,
+  'getPortfolioProjects' : ActorMethod<
+    [bigint, bigint, [] | [PortfolioFilter]],
+    PaginatedPortfolioProjects
+  >,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'reorderPortfolioProjects' : ActorMethod<[Array<bigint>], boolean>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'updatePortfolioProject' : ActorMethod<
+    [PortfolioProjectUpdate],
+    [] | [PortfolioProject]
+  >,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

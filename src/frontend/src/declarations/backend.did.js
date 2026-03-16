@@ -24,6 +24,79 @@ export const UserRole = IDL.Variant({
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
+export const PublishStatus = IDL.Variant({
+  'published' : IDL.Null,
+  'draft' : IDL.Null,
+  'archived' : IDL.Null,
+});
+export const ExternalBlob = IDL.Vec(IDL.Nat8);
+export const PortfolioCategory = IDL.Variant({
+  'ai' : IDL.Null,
+  'web' : IDL.Null,
+  'saas' : IDL.Null,
+  'blockchain' : IDL.Null,
+  'mobile' : IDL.Null,
+  'branding' : IDL.Null,
+});
+export const PortfolioProjectInput = IDL.Record({
+  'galleryImages' : IDL.Vec(ExternalBlob),
+  'title' : IDL.Text,
+  'thumbnail' : IDL.Opt(ExternalBlob),
+  'clientName' : IDL.Text,
+  'displayOrder' : IDL.Nat,
+  'technologiesUsed' : IDL.Vec(IDL.Text),
+  'tags' : IDL.Vec(IDL.Text),
+  'publishStatus' : PublishStatus,
+  'description' : IDL.Text,
+  'results' : IDL.Vec(IDL.Text),
+  'linkedTestimonialId' : IDL.Opt(IDL.Nat),
+  'category' : PortfolioCategory,
+  'industry' : IDL.Text,
+});
+export const PortfolioProject = IDL.Record({
+  'id' : IDL.Nat,
+  'galleryImages' : IDL.Vec(ExternalBlob),
+  'title' : IDL.Text,
+  'thumbnail' : IDL.Opt(ExternalBlob),
+  'clientName' : IDL.Text,
+  'displayOrder' : IDL.Nat,
+  'technologiesUsed' : IDL.Vec(IDL.Text),
+  'tags' : IDL.Vec(IDL.Text),
+  'createdDate' : IDL.Opt(IDL.Int),
+  'publishStatus' : PublishStatus,
+  'description' : IDL.Text,
+  'results' : IDL.Vec(IDL.Text),
+  'linkedTestimonialId' : IDL.Opt(IDL.Nat),
+  'category' : PortfolioCategory,
+  'lastUpdatedDate' : IDL.Opt(IDL.Int),
+  'industry' : IDL.Text,
+});
+export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const PortfolioFilter = IDL.Record({
+  'status' : IDL.Opt(PublishStatus),
+  'search' : IDL.Opt(IDL.Text),
+  'category' : IDL.Opt(PortfolioCategory),
+});
+export const PaginatedPortfolioProjects = IDL.Record({
+  'total' : IDL.Nat,
+  'items' : IDL.Vec(PortfolioProject),
+});
+export const PortfolioProjectUpdate = IDL.Record({
+  'id' : IDL.Nat,
+  'galleryImages' : IDL.Vec(ExternalBlob),
+  'title' : IDL.Text,
+  'thumbnail' : IDL.Opt(ExternalBlob),
+  'clientName' : IDL.Text,
+  'displayOrder' : IDL.Nat,
+  'technologiesUsed' : IDL.Vec(IDL.Text),
+  'tags' : IDL.Vec(IDL.Text),
+  'publishStatus' : PublishStatus,
+  'description' : IDL.Text,
+  'results' : IDL.Vec(IDL.Text),
+  'linkedTestimonialId' : IDL.Opt(IDL.Nat),
+  'category' : PortfolioCategory,
+  'industry' : IDL.Text,
+});
 
 export const idlService = IDL.Service({
   '_caffeineStorageBlobIsLive' : IDL.Func(
@@ -54,8 +127,43 @@ export const idlService = IDL.Service({
   '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'bulkDeletePortfolioProjects' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Nat], []),
+  'bulkUpdatePortfolioStatus' : IDL.Func(
+      [IDL.Vec(IDL.Nat), PublishStatus],
+      [IDL.Nat],
+      [],
+    ),
+  'createPortfolioProject' : IDL.Func(
+      [PortfolioProjectInput],
+      [PortfolioProject],
+      [],
+    ),
+  'deletePortfolioProject' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getPortfolioProject' : IDL.Func(
+      [IDL.Nat],
+      [IDL.Opt(PortfolioProject)],
+      ['query'],
+    ),
+  'getPortfolioProjects' : IDL.Func(
+      [IDL.Nat, IDL.Nat, IDL.Opt(PortfolioFilter)],
+      [PaginatedPortfolioProjects],
+      ['query'],
+    ),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'reorderPortfolioProjects' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Bool], []),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'updatePortfolioProject' : IDL.Func(
+      [PortfolioProjectUpdate],
+      [IDL.Opt(PortfolioProject)],
+      [],
+    ),
 });
 
 export const idlInitArgs = [];
@@ -76,6 +184,79 @@ export const idlFactory = ({ IDL }) => {
     'admin' : IDL.Null,
     'user' : IDL.Null,
     'guest' : IDL.Null,
+  });
+  const PublishStatus = IDL.Variant({
+    'published' : IDL.Null,
+    'draft' : IDL.Null,
+    'archived' : IDL.Null,
+  });
+  const ExternalBlob = IDL.Vec(IDL.Nat8);
+  const PortfolioCategory = IDL.Variant({
+    'ai' : IDL.Null,
+    'web' : IDL.Null,
+    'saas' : IDL.Null,
+    'blockchain' : IDL.Null,
+    'mobile' : IDL.Null,
+    'branding' : IDL.Null,
+  });
+  const PortfolioProjectInput = IDL.Record({
+    'galleryImages' : IDL.Vec(ExternalBlob),
+    'title' : IDL.Text,
+    'thumbnail' : IDL.Opt(ExternalBlob),
+    'clientName' : IDL.Text,
+    'displayOrder' : IDL.Nat,
+    'technologiesUsed' : IDL.Vec(IDL.Text),
+    'tags' : IDL.Vec(IDL.Text),
+    'publishStatus' : PublishStatus,
+    'description' : IDL.Text,
+    'results' : IDL.Vec(IDL.Text),
+    'linkedTestimonialId' : IDL.Opt(IDL.Nat),
+    'category' : PortfolioCategory,
+    'industry' : IDL.Text,
+  });
+  const PortfolioProject = IDL.Record({
+    'id' : IDL.Nat,
+    'galleryImages' : IDL.Vec(ExternalBlob),
+    'title' : IDL.Text,
+    'thumbnail' : IDL.Opt(ExternalBlob),
+    'clientName' : IDL.Text,
+    'displayOrder' : IDL.Nat,
+    'technologiesUsed' : IDL.Vec(IDL.Text),
+    'tags' : IDL.Vec(IDL.Text),
+    'createdDate' : IDL.Opt(IDL.Int),
+    'publishStatus' : PublishStatus,
+    'description' : IDL.Text,
+    'results' : IDL.Vec(IDL.Text),
+    'linkedTestimonialId' : IDL.Opt(IDL.Nat),
+    'category' : PortfolioCategory,
+    'lastUpdatedDate' : IDL.Opt(IDL.Int),
+    'industry' : IDL.Text,
+  });
+  const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const PortfolioFilter = IDL.Record({
+    'status' : IDL.Opt(PublishStatus),
+    'search' : IDL.Opt(IDL.Text),
+    'category' : IDL.Opt(PortfolioCategory),
+  });
+  const PaginatedPortfolioProjects = IDL.Record({
+    'total' : IDL.Nat,
+    'items' : IDL.Vec(PortfolioProject),
+  });
+  const PortfolioProjectUpdate = IDL.Record({
+    'id' : IDL.Nat,
+    'galleryImages' : IDL.Vec(ExternalBlob),
+    'title' : IDL.Text,
+    'thumbnail' : IDL.Opt(ExternalBlob),
+    'clientName' : IDL.Text,
+    'displayOrder' : IDL.Nat,
+    'technologiesUsed' : IDL.Vec(IDL.Text),
+    'tags' : IDL.Vec(IDL.Text),
+    'publishStatus' : PublishStatus,
+    'description' : IDL.Text,
+    'results' : IDL.Vec(IDL.Text),
+    'linkedTestimonialId' : IDL.Opt(IDL.Nat),
+    'category' : PortfolioCategory,
+    'industry' : IDL.Text,
   });
   
   return IDL.Service({
@@ -107,8 +288,43 @@ export const idlFactory = ({ IDL }) => {
     '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'bulkDeletePortfolioProjects' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Nat], []),
+    'bulkUpdatePortfolioStatus' : IDL.Func(
+        [IDL.Vec(IDL.Nat), PublishStatus],
+        [IDL.Nat],
+        [],
+      ),
+    'createPortfolioProject' : IDL.Func(
+        [PortfolioProjectInput],
+        [PortfolioProject],
+        [],
+      ),
+    'deletePortfolioProject' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getPortfolioProject' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Opt(PortfolioProject)],
+        ['query'],
+      ),
+    'getPortfolioProjects' : IDL.Func(
+        [IDL.Nat, IDL.Nat, IDL.Opt(PortfolioFilter)],
+        [PaginatedPortfolioProjects],
+        ['query'],
+      ),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'reorderPortfolioProjects' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Bool], []),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'updatePortfolioProject' : IDL.Func(
+        [PortfolioProjectUpdate],
+        [IDL.Opt(PortfolioProject)],
+        [],
+      ),
   });
 };
 
