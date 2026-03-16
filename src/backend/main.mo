@@ -243,7 +243,7 @@ actor {
 
     let total = filteredProjects.size();
     if (pageSize == 0) { Runtime.trap("Page size must be greater than 0") };
-    let start = page * pageSize;
+    let start = (if (page > 0) { page - 1 } else { 0 }) * pageSize;
     if (start >= total) {
       return {
         items = [];
@@ -311,6 +311,229 @@ actor {
     for (id in ids.values()) {
       if (portfolioProjects.containsKey(id)) {
         portfolioProjects.remove(id);
+        count += 1;
+      };
+    };
+    count;
+  };
+
+  // ─── Testimonial Types ───────────────────────────────────────────────────────
+
+  public type Testimonial = {
+    id : Nat;
+    quote : Text;
+    authorName : Text;
+    jobTitle : Text;
+    companyName : Text;
+    photo : ?Storage.ExternalBlob;
+    linkedPortfolioId : ?Nat;
+    rating : Nat; // 1-5
+    displayOrder : Nat;
+    isVisible : Bool;
+    createdDate : ?Int;
+    lastUpdatedDate : ?Int;
+  };
+
+  public type TestimonialInput = {
+    quote : Text;
+    authorName : Text;
+    jobTitle : Text;
+    companyName : Text;
+    photo : ?Storage.ExternalBlob;
+    linkedPortfolioId : ?Nat;
+    rating : Nat;
+    displayOrder : Nat;
+    isVisible : Bool;
+  };
+
+  public type TestimonialUpdate = {
+    id : Nat;
+    quote : Text;
+    authorName : Text;
+    jobTitle : Text;
+    companyName : Text;
+    photo : ?Storage.ExternalBlob;
+    linkedPortfolioId : ?Nat;
+    rating : Nat;
+    displayOrder : Nat;
+    isVisible : Bool;
+  };
+
+  public type PaginatedTestimonials = {
+    items : [Testimonial];
+    total : Nat;
+  };
+
+  public type TestimonialFilter = {
+    isVisible : ?Bool;
+    minRating : ?Nat;
+    maxRating : ?Nat;
+    search : ?Text;
+  };
+
+  // Testimonial State
+  let testimonials = Map.empty<Nat, Testimonial>();
+  var lastTestimonialId = 0;
+
+  // ─── Testimonial CRUD ────────────────────────────────────────────────────────
+
+  public shared ({ caller }) func createTestimonial(input : TestimonialInput) : async Testimonial {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can create testimonials");
+    };
+
+    let newId = lastTestimonialId + 1;
+    lastTestimonialId := newId;
+
+    let testimonial : Testimonial = {
+      id = newId;
+      quote = input.quote;
+      authorName = input.authorName;
+      jobTitle = input.jobTitle;
+      companyName = input.companyName;
+      photo = input.photo;
+      linkedPortfolioId = input.linkedPortfolioId;
+      rating = input.rating;
+      displayOrder = input.displayOrder;
+      isVisible = input.isVisible;
+      createdDate = ?Time.now();
+      lastUpdatedDate = ?Time.now();
+    };
+
+    testimonials.add(newId, testimonial);
+    testimonial;
+  };
+
+  public shared ({ caller }) func updateTestimonial(input : TestimonialUpdate) : async ?Testimonial {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can update testimonials");
+    };
+
+    switch (testimonials.get(input.id)) {
+      case (null) { null };
+      case (?existing) {
+        let updated : Testimonial = {
+          id = input.id;
+          quote = input.quote;
+          authorName = input.authorName;
+          jobTitle = input.jobTitle;
+          companyName = input.companyName;
+          photo = input.photo;
+          linkedPortfolioId = input.linkedPortfolioId;
+          rating = input.rating;
+          displayOrder = input.displayOrder;
+          isVisible = input.isVisible;
+          createdDate = existing.createdDate;
+          lastUpdatedDate = ?Time.now();
+        };
+        testimonials.add(input.id, updated);
+        ?updated;
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteTestimonial(id : Nat) : async Bool {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can delete testimonials");
+    };
+    switch (testimonials.get(id)) {
+      case (null) { false };
+      case (?_) {
+        testimonials.remove(id);
+        true;
+      };
+    };
+  };
+
+  public query func getTestimonial(id : Nat) : async ?Testimonial {
+    testimonials.get(id);
+  };
+
+  public query func getTestimonials(page : Nat, pageSize : Nat, filter : ?TestimonialFilter) : async PaginatedTestimonials {
+    if (pageSize == 0) { Runtime.trap("Page size must be greater than 0") };
+
+    let all = testimonials.values().toArray();
+
+    let filtered = switch (filter) {
+      case (null) { all };
+      case (?f) {
+        all.filter(func(t) {
+          let matchesVisible = switch (f.isVisible) {
+            case (null) { true };
+            case (?v) { t.isVisible == v };
+          };
+          let matchesMin = switch (f.minRating) {
+            case (null) { true };
+            case (?min) { t.rating >= min };
+          };
+          let matchesMax = switch (f.maxRating) {
+            case (null) { true };
+            case (?max) { t.rating <= max };
+          };
+          let matchesSearch = switch (f.search) {
+            case (null) { true };
+            case (?s) {
+              let q = s.toLower();
+              t.authorName.toLower().contains(#text(q)) or
+              t.companyName.toLower().contains(#text(q)) or
+              t.quote.toLower().contains(#text(q));
+            };
+          };
+          matchesVisible and matchesMin and matchesMax and matchesSearch;
+        });
+      };
+    };
+
+    let total = filtered.size();
+    let start = (if (page > 0) { page - 1 } else { 0 }) * pageSize;
+    if (start >= total) {
+      return { items = []; total };
+    };
+    let end = Nat.min(start + pageSize, total);
+    { items = filtered.sliceToArray(start, end); total };
+  };
+
+  public shared ({ caller }) func reorderTestimonials(ids : [Nat]) : async Bool {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can reorder testimonials");
+    };
+    let total = testimonials.values().toArray().size();
+    for ((index, id) in ids.enumerate()) {
+      switch (testimonials.get(id)) {
+        case (?t) {
+          testimonials.add(id, { t with displayOrder = total - index; lastUpdatedDate = ?Time.now() });
+        };
+        case (null) {};
+      };
+    };
+    true;
+  };
+
+  public shared ({ caller }) func bulkUpdateTestimonialVisibility(ids : [Nat], isVisible : Bool) : async Nat {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can bulk update testimonials");
+    };
+    var count = 0;
+    for (id in ids.values()) {
+      switch (testimonials.get(id)) {
+        case (?t) {
+          testimonials.add(id, { t with isVisible; lastUpdatedDate = ?Time.now() });
+          count += 1;
+        };
+        case (null) {};
+      };
+    };
+    count;
+  };
+
+  public shared ({ caller }) func bulkDeleteTestimonials(ids : [Nat]) : async Nat {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can bulk delete testimonials");
+    };
+    var count = 0;
+    for (id in ids.values()) {
+      if (testimonials.containsKey(id)) {
+        testimonials.remove(id);
         count += 1;
       };
     };

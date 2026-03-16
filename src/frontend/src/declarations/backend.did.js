@@ -97,6 +97,53 @@ export const PortfolioProjectUpdate = IDL.Record({
   'category' : PortfolioCategory,
   'industry' : IDL.Text,
 });
+export const TestimonialInput = IDL.Record({
+  'quote' : IDL.Text,
+  'authorName' : IDL.Text,
+  'jobTitle' : IDL.Text,
+  'companyName' : IDL.Text,
+  'photo' : IDL.Opt(ExternalBlob),
+  'linkedPortfolioId' : IDL.Opt(IDL.Nat),
+  'rating' : IDL.Nat,
+  'displayOrder' : IDL.Nat,
+  'isVisible' : IDL.Bool,
+});
+export const Testimonial = IDL.Record({
+  'id' : IDL.Nat,
+  'quote' : IDL.Text,
+  'authorName' : IDL.Text,
+  'jobTitle' : IDL.Text,
+  'companyName' : IDL.Text,
+  'photo' : IDL.Opt(ExternalBlob),
+  'linkedPortfolioId' : IDL.Opt(IDL.Nat),
+  'rating' : IDL.Nat,
+  'displayOrder' : IDL.Nat,
+  'isVisible' : IDL.Bool,
+  'createdDate' : IDL.Opt(IDL.Int),
+  'lastUpdatedDate' : IDL.Opt(IDL.Int),
+});
+export const TestimonialFilter = IDL.Record({
+  'isVisible' : IDL.Opt(IDL.Bool),
+  'minRating' : IDL.Opt(IDL.Nat),
+  'maxRating' : IDL.Opt(IDL.Nat),
+  'search' : IDL.Opt(IDL.Text),
+});
+export const PaginatedTestimonials = IDL.Record({
+  'total' : IDL.Nat,
+  'items' : IDL.Vec(Testimonial),
+});
+export const TestimonialUpdate = IDL.Record({
+  'id' : IDL.Nat,
+  'quote' : IDL.Text,
+  'authorName' : IDL.Text,
+  'jobTitle' : IDL.Text,
+  'companyName' : IDL.Text,
+  'photo' : IDL.Opt(ExternalBlob),
+  'linkedPortfolioId' : IDL.Opt(IDL.Nat),
+  'rating' : IDL.Nat,
+  'displayOrder' : IDL.Nat,
+  'isVisible' : IDL.Bool,
+});
 
 export const idlService = IDL.Service({
   '_caffeineStorageBlobIsLive' : IDL.Func(
@@ -162,6 +209,26 @@ export const idlService = IDL.Service({
   'updatePortfolioProject' : IDL.Func(
       [PortfolioProjectUpdate],
       [IDL.Opt(PortfolioProject)],
+      [],
+    ),
+  'bulkDeleteTestimonials' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Nat], []),
+  'bulkUpdateTestimonialVisibility' : IDL.Func(
+      [IDL.Vec(IDL.Nat), IDL.Bool],
+      [IDL.Nat],
+      [],
+    ),
+  'createTestimonial' : IDL.Func([TestimonialInput], [Testimonial], []),
+  'deleteTestimonial' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+  'getTestimonial' : IDL.Func([IDL.Nat], [IDL.Opt(Testimonial)], ['query']),
+  'getTestimonials' : IDL.Func(
+      [IDL.Nat, IDL.Nat, IDL.Opt(TestimonialFilter)],
+      [PaginatedTestimonials],
+      ['query'],
+    ),
+  'reorderTestimonials' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Bool], []),
+  'updateTestimonial' : IDL.Func(
+      [TestimonialUpdate],
+      [IDL.Opt(Testimonial)],
       [],
     ),
 });
@@ -258,7 +325,54 @@ export const idlFactory = ({ IDL }) => {
     'category' : PortfolioCategory,
     'industry' : IDL.Text,
   });
-  
+  const TestimonialInput = IDL.Record({
+    'quote' : IDL.Text,
+    'authorName' : IDL.Text,
+    'jobTitle' : IDL.Text,
+    'companyName' : IDL.Text,
+    'photo' : IDL.Opt(ExternalBlob),
+    'linkedPortfolioId' : IDL.Opt(IDL.Nat),
+    'rating' : IDL.Nat,
+    'displayOrder' : IDL.Nat,
+    'isVisible' : IDL.Bool,
+  });
+  const Testimonial = IDL.Record({
+    'id' : IDL.Nat,
+    'quote' : IDL.Text,
+    'authorName' : IDL.Text,
+    'jobTitle' : IDL.Text,
+    'companyName' : IDL.Text,
+    'photo' : IDL.Opt(ExternalBlob),
+    'linkedPortfolioId' : IDL.Opt(IDL.Nat),
+    'rating' : IDL.Nat,
+    'displayOrder' : IDL.Nat,
+    'isVisible' : IDL.Bool,
+    'createdDate' : IDL.Opt(IDL.Int),
+    'lastUpdatedDate' : IDL.Opt(IDL.Int),
+  });
+  const TestimonialFilter = IDL.Record({
+    'isVisible' : IDL.Opt(IDL.Bool),
+    'minRating' : IDL.Opt(IDL.Nat),
+    'maxRating' : IDL.Opt(IDL.Nat),
+    'search' : IDL.Opt(IDL.Text),
+  });
+  const PaginatedTestimonials = IDL.Record({
+    'total' : IDL.Nat,
+    'items' : IDL.Vec(Testimonial),
+  });
+  const TestimonialUpdate = IDL.Record({
+    'id' : IDL.Nat,
+    'quote' : IDL.Text,
+    'authorName' : IDL.Text,
+    'jobTitle' : IDL.Text,
+    'companyName' : IDL.Text,
+    'photo' : IDL.Opt(ExternalBlob),
+    'linkedPortfolioId' : IDL.Opt(IDL.Nat),
+    'rating' : IDL.Nat,
+    'displayOrder' : IDL.Nat,
+    'isVisible' : IDL.Bool,
+  });
+
   return IDL.Service({
     '_caffeineStorageBlobIsLive' : IDL.Func(
         [IDL.Vec(IDL.Nat8)],
@@ -323,6 +437,26 @@ export const idlFactory = ({ IDL }) => {
     'updatePortfolioProject' : IDL.Func(
         [PortfolioProjectUpdate],
         [IDL.Opt(PortfolioProject)],
+        [],
+      ),
+    'bulkDeleteTestimonials' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Nat], []),
+    'bulkUpdateTestimonialVisibility' : IDL.Func(
+        [IDL.Vec(IDL.Nat), IDL.Bool],
+        [IDL.Nat],
+        [],
+      ),
+    'createTestimonial' : IDL.Func([TestimonialInput], [Testimonial], []),
+    'deleteTestimonial' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+    'getTestimonial' : IDL.Func([IDL.Nat], [IDL.Opt(Testimonial)], ['query']),
+    'getTestimonials' : IDL.Func(
+        [IDL.Nat, IDL.Nat, IDL.Opt(TestimonialFilter)],
+        [PaginatedTestimonials],
+        ['query'],
+      ),
+    'reorderTestimonials' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Bool], []),
+    'updateTestimonial' : IDL.Func(
+        [TestimonialUpdate],
+        [IDL.Opt(Testimonial)],
         [],
       ),
   });

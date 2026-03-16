@@ -93,6 +93,53 @@ export interface _CaffeineStorageRefillResult {
   'success' : [] | [boolean],
   'topped_up_amount' : [] | [bigint],
 }
+export interface Testimonial {
+  'id' : bigint,
+  'quote' : string,
+  'authorName' : string,
+  'jobTitle' : string,
+  'companyName' : string,
+  'photo' : [] | [ExternalBlob],
+  'linkedPortfolioId' : [] | [bigint],
+  'rating' : bigint,
+  'displayOrder' : bigint,
+  'isVisible' : boolean,
+  'createdDate' : [] | [bigint],
+  'lastUpdatedDate' : [] | [bigint],
+}
+export interface TestimonialInput {
+  'quote' : string,
+  'authorName' : string,
+  'jobTitle' : string,
+  'companyName' : string,
+  'photo' : [] | [ExternalBlob],
+  'linkedPortfolioId' : [] | [bigint],
+  'rating' : bigint,
+  'displayOrder' : bigint,
+  'isVisible' : boolean,
+}
+export interface TestimonialUpdate {
+  'id' : bigint,
+  'quote' : string,
+  'authorName' : string,
+  'jobTitle' : string,
+  'companyName' : string,
+  'photo' : [] | [ExternalBlob],
+  'linkedPortfolioId' : [] | [bigint],
+  'rating' : bigint,
+  'displayOrder' : bigint,
+  'isVisible' : boolean,
+}
+export interface TestimonialFilter {
+  'isVisible' : [] | [boolean],
+  'minRating' : [] | [bigint],
+  'maxRating' : [] | [bigint],
+  'search' : [] | [string],
+}
+export interface PaginatedTestimonials {
+  'total' : bigint,
+  'items' : Array<Testimonial>,
+}
 export interface _SERVICE {
   '_caffeineStorageBlobIsLive' : ActorMethod<[Uint8Array], boolean>,
   '_caffeineStorageBlobsToDelete' : ActorMethod<[], Array<Uint8Array>>,
@@ -136,6 +183,17 @@ export interface _SERVICE {
     [PortfolioProjectUpdate],
     [] | [PortfolioProject]
   >,
+  'bulkDeleteTestimonials' : ActorMethod<[Array<bigint>], bigint>,
+  'bulkUpdateTestimonialVisibility' : ActorMethod<[Array<bigint>, boolean], bigint>,
+  'createTestimonial' : ActorMethod<[TestimonialInput], Testimonial>,
+  'deleteTestimonial' : ActorMethod<[bigint], boolean>,
+  'getTestimonial' : ActorMethod<[bigint], [] | [Testimonial]>,
+  'getTestimonials' : ActorMethod<
+    [bigint, bigint, [] | [TestimonialFilter]],
+    PaginatedTestimonials
+  >,
+  'reorderTestimonials' : ActorMethod<[Array<bigint>], boolean>,
+  'updateTestimonial' : ActorMethod<[TestimonialUpdate], [] | [Testimonial]>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];
