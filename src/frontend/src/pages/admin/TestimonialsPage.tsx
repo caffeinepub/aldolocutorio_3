@@ -69,31 +69,13 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ExternalBlobRef = { url: string; mimeType: string; size: bigint };
-
-type Testimonial = {
-  id: bigint;
-  quote: string;
-  authorName: string;
-  jobTitle: string;
-  companyName: string;
-  photo: [] | [ExternalBlobRef];
-  linkedPortfolioId: [] | [bigint];
-  rating: bigint;
-  displayOrder: bigint;
-  isVisible: boolean;
-  createdDate: [] | [bigint];
-  lastUpdatedDate: [] | [bigint];
-};
-
-type TestimonialFilter = {
-  isVisible: [] | [boolean];
-  minRating: [] | [bigint];
-  maxRating: [] | [bigint];
-  search: [] | [string];
-};
-
-type PaginatedTestimonials = { items: Testimonial[]; total: bigint };
+import type {
+  PaginatedTestimonials,
+  Testimonial,
+  TestimonialFilter,
+  TestimonialInput,
+  TestimonialUpdate,
+} from "../../backend";
 
 type FormState = {
   quote: string;
@@ -224,21 +206,19 @@ export default function TestimonialsPage() {
 
   // ─── Queries ──────────────────────────────────────────────────────────────
 
-  const buildFilter = useCallback((): [] | [TestimonialFilter] => {
+  const buildFilter = useCallback((): TestimonialFilter | null => {
     const vis = convertSentinelToNull(visibilityFilter);
     const minR = convertSentinelToNull(minRatingFilter);
     const maxR = convertSentinelToNull(maxRatingFilter);
     const hasFilter =
       vis !== null || minR !== null || maxR !== null || searchText.trim();
-    if (!hasFilter) return [];
-    return [
-      {
-        isVisible: vis !== null ? [vis === "visible"] : [],
-        minRating: minR !== null ? [BigInt(minR)] : [],
-        maxRating: maxR !== null ? [BigInt(maxR)] : [],
-        search: searchText.trim() ? [searchText.trim()] : [],
-      },
-    ];
+    if (!hasFilter) return null;
+    return {
+      isVisible: vis !== null ? vis === "visible" : undefined,
+      minRating: minR !== null ? BigInt(minR) : undefined,
+      maxRating: maxR !== null ? BigInt(maxR) : undefined,
+      search: searchText.trim() ? searchText.trim() : undefined,
+    };
   }, [visibilityFilter, minRatingFilter, maxRatingFilter, searchText]);
 
   const testimonialsQuery = useQuery<PaginatedTestimonials>({
@@ -254,11 +234,7 @@ export default function TestimonialsPage() {
     queryFn: async () => {
       if (!actor) return { items: [], total: BigInt(0) };
       const filter = buildFilter();
-      return (actor as any).getTestimonials(
-        BigInt(page),
-        BigInt(pageSize),
-        filter,
-      ) as Promise<PaginatedTestimonials>;
+      return actor.getTestimonials(BigInt(page), BigInt(pageSize), filter);
     },
     enabled: !!actor && !actorLoading,
     placeholderData: keepPreviousData,
@@ -288,9 +264,9 @@ export default function TestimonialsPage() {
     queryClient.invalidateQueries({ queryKey: ["testimonials"] });
 
   const createMutation = useMutation({
-    mutationFn: async (input: Record<string, unknown>) => {
+    mutationFn: async (input: TestimonialInput) => {
       if (!actor) throw new Error("Actor no disponible");
-      return (actor as any).createTestimonial(input);
+      return actor.createTestimonial(input);
     },
     onSuccess: () => {
       toast.success("Testimonio creado");
@@ -301,9 +277,9 @@ export default function TestimonialsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (input: Record<string, unknown>) => {
+    mutationFn: async (input: TestimonialUpdate) => {
       if (!actor) throw new Error("Actor no disponible");
-      return (actor as any).updateTestimonial(input);
+      return actor.updateTestimonial(input);
     },
     onSuccess: () => {
       toast.success("Testimonio actualizado");
@@ -316,7 +292,7 @@ export default function TestimonialsPage() {
   const deleteMutation = useMutation({
     mutationFn: async (id: bigint) => {
       if (!actor) throw new Error("Actor no disponible");
-      return (actor as any).deleteTestimonial(id);
+      return actor.deleteTestimonial(id);
     },
     onSuccess: () => {
       toast.success("Testimonio eliminado");
@@ -335,7 +311,7 @@ export default function TestimonialsPage() {
       isVisible: boolean;
     }) => {
       if (!actor) throw new Error("Actor no disponible");
-      return (actor as any).bulkUpdateTestimonialVisibility(ids, isVisible);
+      return actor.bulkUpdateTestimonialVisibility(ids, isVisible);
     },
     onSuccess: () => {
       toast.success("Visibilidad actualizada");
@@ -348,7 +324,7 @@ export default function TestimonialsPage() {
   const bulkDeleteMutation = useMutation({
     mutationFn: async (ids: bigint[]) => {
       if (!actor) throw new Error("Actor no disponible");
-      return (actor as any).bulkDeleteTestimonials(ids);
+      return actor.bulkDeleteTestimonials(ids);
     },
     onSuccess: () => {
       toast.success("Testimonios eliminados");
@@ -362,7 +338,7 @@ export default function TestimonialsPage() {
   const reorderMutation = useMutation({
     mutationFn: async (ids: bigint[]) => {
       if (!actor) throw new Error("Actor no disponible");
-      return (actor as any).reorderTestimonials(ids);
+      return actor.reorderTestimonials(ids);
     },
     onSuccess: () => {
       toast.success("Orden actualizado");
@@ -414,13 +390,13 @@ export default function TestimonialsPage() {
       displayOrder: String(t.displayOrder),
       isVisible: t.isVisible,
       linkedPortfolioId:
-        t.linkedPortfolioId.length > 0
-          ? String(t.linkedPortfolioId[0])
+        t.linkedPortfolioId !== undefined
+          ? String(t.linkedPortfolioId)
           : SENTINEL_NONE,
     });
     // If existing photo, set preview from URL
-    if (t.photo.length > 0) {
-      setPhotoPreview(t.photo[0]?.url ?? "");
+    if (t.photo) {
+      setPhotoPreview(t.photo.directURL ?? "");
     } else {
       setPhotoPreview("");
     }
@@ -447,18 +423,14 @@ export default function TestimonialsPage() {
     const linkedPortfolioIdNull = convertSentinelToNull(form.linkedPortfolioId);
 
     // Determine photo: new upload or existing
-    let photoField: [] | [ExternalBlob];
+    let photoField: ExternalBlob | undefined;
     if (photoBlob) {
-      photoField = [photoBlob];
-    } else if (
-      editingTestimonial &&
-      editingTestimonial.photo.length > 0 &&
-      photoPreview
-    ) {
+      photoField = photoBlob;
+    } else if (editingTestimonial?.photo && photoPreview) {
       // Keep existing photo reference (as ExternalBlob)
-      photoField = editingTestimonial.photo as [] | [ExternalBlob];
+      photoField = editingTestimonial.photo;
     } else {
-      photoField = [];
+      photoField = undefined;
     }
 
     if (editingTestimonial) {
@@ -470,7 +442,9 @@ export default function TestimonialsPage() {
         companyName: form.companyName,
         photo: photoField,
         linkedPortfolioId:
-          linkedPortfolioIdNull !== null ? [BigInt(linkedPortfolioIdNull)] : [],
+          linkedPortfolioIdNull !== null
+            ? BigInt(linkedPortfolioIdNull)
+            : undefined,
         rating: BigInt(form.rating),
         displayOrder: BigInt(safeConvertToNumber(form.displayOrder) ?? 0),
         isVisible: form.isVisible,
@@ -483,7 +457,9 @@ export default function TestimonialsPage() {
         companyName: form.companyName,
         photo: photoField,
         linkedPortfolioId:
-          linkedPortfolioIdNull !== null ? [BigInt(linkedPortfolioIdNull)] : [],
+          linkedPortfolioIdNull !== null
+            ? BigInt(linkedPortfolioIdNull)
+            : undefined,
         rating: BigInt(form.rating),
         displayOrder: BigInt(safeConvertToNumber(form.displayOrder) ?? 0),
         isVisible: form.isVisible,
@@ -549,7 +525,7 @@ export default function TestimonialsPage() {
       authorName: t.authorName,
       jobTitle: t.jobTitle,
       companyName: t.companyName,
-      photo: t.photo as [] | [ExternalBlob],
+      photo: t.photo,
       linkedPortfolioId: t.linkedPortfolioId,
       rating: t.rating,
       displayOrder: t.displayOrder,

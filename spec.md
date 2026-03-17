@@ -1,54 +1,29 @@
-# AldoLocutorio — Portfolio Management
+# AldoLocutorio
 
 ## Current State
-The app has:
-- Internet Identity authentication with admin role check
-- Dashboard with navigation to /admin/portfolio (placeholder page)
-- Backend: authorization + blob-storage mixins only
-- Error prevention utilities: BigIntSerializer, SafeSelect, NumericConverter, ApiResponseHandler
-- TanStack Router v6, TanStack Query, Zustand store
+- `/admin/services` exists as a placeholder stub (18 lines, no functionality)
+- Portfolio and Testimonials are fully implemented in `main.mo` and `backend.did.js`
+- Shared utilities exist: BigIntSerializer, SafeSelect, NumericConverter, ApiResponseHandler, StorageClient
+- Blob-storage and authorization components are integrated
 
 ## Requested Changes (Diff)
 
 ### Add
-- Backend: PortfolioProject type + CRUD functions in main.mo:
-  - `createPortfolioProject(project: PortfolioProjectInput): async PortfolioProject`
-  - `updatePortfolioProject(id: Nat, project: PortfolioProjectInput): async ?PortfolioProject`
-  - `deletePortfolioProject(id: Nat): async Bool`
-  - `getPortfolioProjects(page: Nat, pageSize: Nat, filters: PortfolioFilters): async PaginatedPortfolioResult`
-  - `getPortfolioProject(id: Nat): async ?PortfolioProject`
-  - `reorderPortfolioProjects(ids: [Nat]): async Bool`
-  - `bulkUpdatePortfolioStatus(ids: [Nat], status: PortfolioStatus): async Nat`
-  - `bulkDeletePortfolioProjects(ids: [Nat]): async Nat`
-- Frontend: Full /admin/portfolio page replacing the placeholder
-  - Header with H2 "Portafolio" + Agregar Proyecto (plus icon) + Filtros (filter icon) buttons
-  - Desktop table view (≥768px): columns Orden (drag), Título, Cliente, Industria, Categoría, Estado, Acciones
-  - Mobile card grid (<768px): 1-per-row cards with drag handle
-  - Pagination: lazy-loaded 10/25/50 per page, Previous/Next, page numbers, "Mostrando X-X de Y proyectos"
-  - Add/Edit modal with all form sections
-  - Filter panel (slide-in)
-  - Bulk actions bar
-  - Image upload with blob storage (thumbnail + gallery)
-  - Loading skeletons during page transitions
+- Service data type in `main.mo`: id, title, icon (Storage.ExternalBlob), shortDescription, fullDescription, useCases, processSteps, targetAudience, faqs, displayOrder, isVisible, createdDate, lastUpdatedDate
+- Backend CRUD functions: createService, updateService, deleteService, getService, getServices, reorderServices, bulkUpdateServiceVisibility, bulkDeleteServices
+- Service IDL types and methods in `backend.did.js`
+- Full `/admin/services` page with: header (H2 + Agregar/Filtros buttons), desktop table view, mobile card view, lazy-loaded pagination (10/25/50), drag-and-drop reorder, add/edit modal with all form sections, icon picker (upload or URL), filter panel, bulk operations
 
 ### Modify
-- `src/backend/main.mo`: Add portfolio types and CRUD functions (no new .mo file)
-- `src/frontend/src/pages/admin/PortfolioPage.tsx`: Replace placeholder with full implementation
+- `main.mo`: append Service types and functions (no separate .mo file)
+- `backend.did.js`: add Service IDL types and methods to idlService and idlFactory
+- `ServicesPage.tsx`: replace stub with full implementation
 
 ### Remove
-- Placeholder content in PortfolioPage.tsx
+- Placeholder stub content in ServicesPage.tsx
 
 ## Implementation Plan
-1. Update main.mo with PortfolioProject type + all CRUD functions
-2. Regenerate backend bindings (generate_motoko_code)
-3. Build PortfolioPage with:
-   - usePortfolioProjects hook (TanStack Query with keepPreviousData, prefetch next page)
-   - PortfolioTable (desktop) + PortfolioCards (mobile)
-   - ProjectModal (add/edit form with all sections, blob storage uploads)
-   - FilterPanel (category, industry, status, tags, search)
-   - BulkActionsBar
-   - Pagination controls
-   - Image upload hooks with progress, retry, cancel, concurrency limit
-   - Blob cleanup on delete/replace
-4. Use SafeSelect for all dropdowns, parseJSONWithBigInt/stringifyWithBigInt, safeConvertToNumber
-5. All text in Spanish
+1. Add Service types + CRUD to main.mo
+2. Add Service IDL to backend.did.js (both idlService and idlFactory)
+3. Build ServicesPage.tsx with all required features
+4. Validate and deploy

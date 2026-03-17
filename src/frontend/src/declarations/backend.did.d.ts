@@ -140,6 +140,62 @@ export interface PaginatedTestimonials {
   'total' : bigint,
   'items' : Array<Testimonial>,
 }
+export interface ServiceProcessStep {
+  'step' : string,
+  'description' : string,
+}
+export interface ServiceFaq {
+  'question' : string,
+  'answer' : string,
+}
+export interface Service {
+  'id' : bigint,
+  'title' : string,
+  'icon' : [] | [ExternalBlob],
+  'shortDescription' : string,
+  'fullDescription' : string,
+  'useCases' : Array<string>,
+  'processSteps' : Array<ServiceProcessStep>,
+  'targetAudience' : string,
+  'faqs' : Array<ServiceFaq>,
+  'displayOrder' : bigint,
+  'isVisible' : boolean,
+  'createdDate' : [] | [bigint],
+  'lastUpdatedDate' : [] | [bigint],
+}
+export interface ServiceInput {
+  'title' : string,
+  'icon' : [] | [ExternalBlob],
+  'shortDescription' : string,
+  'fullDescription' : string,
+  'useCases' : Array<string>,
+  'processSteps' : Array<ServiceProcessStep>,
+  'targetAudience' : string,
+  'faqs' : Array<ServiceFaq>,
+  'displayOrder' : bigint,
+  'isVisible' : boolean,
+}
+export interface ServiceUpdate {
+  'id' : bigint,
+  'title' : string,
+  'icon' : [] | [ExternalBlob],
+  'shortDescription' : string,
+  'fullDescription' : string,
+  'useCases' : Array<string>,
+  'processSteps' : Array<ServiceProcessStep>,
+  'targetAudience' : string,
+  'faqs' : Array<ServiceFaq>,
+  'displayOrder' : bigint,
+  'isVisible' : boolean,
+}
+export interface ServiceFilter {
+  'isVisible' : [] | [boolean],
+  'search' : [] | [string],
+}
+export interface PaginatedServices {
+  'total' : bigint,
+  'items' : Array<Service>,
+}
 export interface _SERVICE {
   '_caffeineStorageBlobIsLive' : ActorMethod<[Uint8Array], boolean>,
   '_caffeineStorageBlobsToDelete' : ActorMethod<[], Array<Uint8Array>>,
@@ -194,6 +250,17 @@ export interface _SERVICE {
   >,
   'reorderTestimonials' : ActorMethod<[Array<bigint>], boolean>,
   'updateTestimonial' : ActorMethod<[TestimonialUpdate], [] | [Testimonial]>,
+  'bulkDeleteServices' : ActorMethod<[Array<bigint>], bigint>,
+  'bulkUpdateServiceVisibility' : ActorMethod<[Array<bigint>, boolean], bigint>,
+  'createService' : ActorMethod<[ServiceInput], Service>,
+  'deleteService' : ActorMethod<[bigint], boolean>,
+  'getService' : ActorMethod<[bigint], [] | [Service]>,
+  'getServices' : ActorMethod<
+    [bigint, bigint, [] | [ServiceFilter]],
+    PaginatedServices
+  >,
+  'reorderServices' : ActorMethod<[Array<bigint>], boolean>,
+  'updateService' : ActorMethod<[ServiceUpdate], [] | [Service]>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

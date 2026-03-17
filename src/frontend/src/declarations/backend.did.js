@@ -144,6 +144,62 @@ export const TestimonialUpdate = IDL.Record({
   'displayOrder' : IDL.Nat,
   'isVisible' : IDL.Bool,
 });
+export const ServiceProcessStep = IDL.Record({
+  'step' : IDL.Text,
+  'description' : IDL.Text,
+});
+export const ServiceFaq = IDL.Record({
+  'question' : IDL.Text,
+  'answer' : IDL.Text,
+});
+export const ServiceInput = IDL.Record({
+  'title' : IDL.Text,
+  'icon' : IDL.Opt(ExternalBlob),
+  'shortDescription' : IDL.Text,
+  'fullDescription' : IDL.Text,
+  'useCases' : IDL.Vec(IDL.Text),
+  'processSteps' : IDL.Vec(ServiceProcessStep),
+  'targetAudience' : IDL.Text,
+  'faqs' : IDL.Vec(ServiceFaq),
+  'displayOrder' : IDL.Nat,
+  'isVisible' : IDL.Bool,
+});
+export const Service = IDL.Record({
+  'id' : IDL.Nat,
+  'title' : IDL.Text,
+  'icon' : IDL.Opt(ExternalBlob),
+  'shortDescription' : IDL.Text,
+  'fullDescription' : IDL.Text,
+  'useCases' : IDL.Vec(IDL.Text),
+  'processSteps' : IDL.Vec(ServiceProcessStep),
+  'targetAudience' : IDL.Text,
+  'faqs' : IDL.Vec(ServiceFaq),
+  'displayOrder' : IDL.Nat,
+  'isVisible' : IDL.Bool,
+  'createdDate' : IDL.Opt(IDL.Int),
+  'lastUpdatedDate' : IDL.Opt(IDL.Int),
+});
+export const ServiceUpdate = IDL.Record({
+  'id' : IDL.Nat,
+  'title' : IDL.Text,
+  'icon' : IDL.Opt(ExternalBlob),
+  'shortDescription' : IDL.Text,
+  'fullDescription' : IDL.Text,
+  'useCases' : IDL.Vec(IDL.Text),
+  'processSteps' : IDL.Vec(ServiceProcessStep),
+  'targetAudience' : IDL.Text,
+  'faqs' : IDL.Vec(ServiceFaq),
+  'displayOrder' : IDL.Nat,
+  'isVisible' : IDL.Bool,
+});
+export const ServiceFilter = IDL.Record({
+  'isVisible' : IDL.Opt(IDL.Bool),
+  'search' : IDL.Opt(IDL.Text),
+});
+export const PaginatedServices = IDL.Record({
+  'total' : IDL.Nat,
+  'items' : IDL.Vec(Service),
+});
 
 export const idlService = IDL.Service({
   '_caffeineStorageBlobIsLive' : IDL.Func(
@@ -229,6 +285,26 @@ export const idlService = IDL.Service({
   'updateTestimonial' : IDL.Func(
       [TestimonialUpdate],
       [IDL.Opt(Testimonial)],
+      [],
+    ),
+  'bulkDeleteServices' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Nat], []),
+  'bulkUpdateServiceVisibility' : IDL.Func(
+      [IDL.Vec(IDL.Nat), IDL.Bool],
+      [IDL.Nat],
+      [],
+    ),
+  'createService' : IDL.Func([ServiceInput], [Service], []),
+  'deleteService' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+  'getService' : IDL.Func([IDL.Nat], [IDL.Opt(Service)], ['query']),
+  'getServices' : IDL.Func(
+      [IDL.Nat, IDL.Nat, IDL.Opt(ServiceFilter)],
+      [PaginatedServices],
+      ['query'],
+    ),
+  'reorderServices' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Bool], []),
+  'updateService' : IDL.Func(
+      [ServiceUpdate],
+      [IDL.Opt(Service)],
       [],
     ),
 });
@@ -372,6 +448,62 @@ export const idlFactory = ({ IDL }) => {
     'displayOrder' : IDL.Nat,
     'isVisible' : IDL.Bool,
   });
+  const ServiceProcessStep = IDL.Record({
+    'step' : IDL.Text,
+    'description' : IDL.Text,
+  });
+  const ServiceFaq = IDL.Record({
+    'question' : IDL.Text,
+    'answer' : IDL.Text,
+  });
+  const ServiceInput = IDL.Record({
+    'title' : IDL.Text,
+    'icon' : IDL.Opt(ExternalBlob),
+    'shortDescription' : IDL.Text,
+    'fullDescription' : IDL.Text,
+    'useCases' : IDL.Vec(IDL.Text),
+    'processSteps' : IDL.Vec(ServiceProcessStep),
+    'targetAudience' : IDL.Text,
+    'faqs' : IDL.Vec(ServiceFaq),
+    'displayOrder' : IDL.Nat,
+    'isVisible' : IDL.Bool,
+  });
+  const Service = IDL.Record({
+    'id' : IDL.Nat,
+    'title' : IDL.Text,
+    'icon' : IDL.Opt(ExternalBlob),
+    'shortDescription' : IDL.Text,
+    'fullDescription' : IDL.Text,
+    'useCases' : IDL.Vec(IDL.Text),
+    'processSteps' : IDL.Vec(ServiceProcessStep),
+    'targetAudience' : IDL.Text,
+    'faqs' : IDL.Vec(ServiceFaq),
+    'displayOrder' : IDL.Nat,
+    'isVisible' : IDL.Bool,
+    'createdDate' : IDL.Opt(IDL.Int),
+    'lastUpdatedDate' : IDL.Opt(IDL.Int),
+  });
+  const ServiceUpdate = IDL.Record({
+    'id' : IDL.Nat,
+    'title' : IDL.Text,
+    'icon' : IDL.Opt(ExternalBlob),
+    'shortDescription' : IDL.Text,
+    'fullDescription' : IDL.Text,
+    'useCases' : IDL.Vec(IDL.Text),
+    'processSteps' : IDL.Vec(ServiceProcessStep),
+    'targetAudience' : IDL.Text,
+    'faqs' : IDL.Vec(ServiceFaq),
+    'displayOrder' : IDL.Nat,
+    'isVisible' : IDL.Bool,
+  });
+  const ServiceFilter = IDL.Record({
+    'isVisible' : IDL.Opt(IDL.Bool),
+    'search' : IDL.Opt(IDL.Text),
+  });
+  const PaginatedServices = IDL.Record({
+    'total' : IDL.Nat,
+    'items' : IDL.Vec(Service),
+  });
 
   return IDL.Service({
     '_caffeineStorageBlobIsLive' : IDL.Func(
@@ -457,6 +589,26 @@ export const idlFactory = ({ IDL }) => {
     'updateTestimonial' : IDL.Func(
         [TestimonialUpdate],
         [IDL.Opt(Testimonial)],
+        [],
+      ),
+    'bulkDeleteServices' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Nat], []),
+    'bulkUpdateServiceVisibility' : IDL.Func(
+        [IDL.Vec(IDL.Nat), IDL.Bool],
+        [IDL.Nat],
+        [],
+      ),
+    'createService' : IDL.Func([ServiceInput], [Service], []),
+    'deleteService' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+    'getService' : IDL.Func([IDL.Nat], [IDL.Opt(Service)], ['query']),
+    'getServices' : IDL.Func(
+        [IDL.Nat, IDL.Nat, IDL.Opt(ServiceFilter)],
+        [PaginatedServices],
+        ['query'],
+      ),
+    'reorderServices' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Bool], []),
+    'updateService' : IDL.Func(
+        [ServiceUpdate],
+        [IDL.Opt(Service)],
         [],
       ),
   });

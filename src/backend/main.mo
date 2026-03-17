@@ -539,4 +539,224 @@ actor {
     };
     count;
   };
+
+  // ─── Service Types ───────────────────────────────────────────────────────────
+
+  public type ServiceProcessStep = {
+    step : Text;
+    description : Text;
+  };
+
+  public type ServiceFaq = {
+    question : Text;
+    answer : Text;
+  };
+
+  public type Service = {
+    id : Nat;
+    title : Text;
+    icon : ?Storage.ExternalBlob;
+    shortDescription : Text;
+    fullDescription : Text;
+    useCases : [Text];
+    processSteps : [ServiceProcessStep];
+    targetAudience : Text;
+    faqs : [ServiceFaq];
+    displayOrder : Nat;
+    isVisible : Bool;
+    createdDate : ?Int;
+    lastUpdatedDate : ?Int;
+  };
+
+  public type ServiceInput = {
+    title : Text;
+    icon : ?Storage.ExternalBlob;
+    shortDescription : Text;
+    fullDescription : Text;
+    useCases : [Text];
+    processSteps : [ServiceProcessStep];
+    targetAudience : Text;
+    faqs : [ServiceFaq];
+    displayOrder : Nat;
+    isVisible : Bool;
+  };
+
+  public type ServiceUpdate = {
+    id : Nat;
+    title : Text;
+    icon : ?Storage.ExternalBlob;
+    shortDescription : Text;
+    fullDescription : Text;
+    useCases : [Text];
+    processSteps : [ServiceProcessStep];
+    targetAudience : Text;
+    faqs : [ServiceFaq];
+    displayOrder : Nat;
+    isVisible : Bool;
+  };
+
+  public type PaginatedServices = {
+    items : [Service];
+    total : Nat;
+  };
+
+  public type ServiceFilter = {
+    isVisible : ?Bool;
+    search : ?Text;
+  };
+
+  // Service State
+  let services = Map.empty<Nat, Service>();
+  var lastServiceId = 0;
+
+  // ─── Service CRUD ────────────────────────────────────────────────────────────
+
+  public shared ({ caller }) func createService(input : ServiceInput) : async Service {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can create services");
+    };
+    let newId = lastServiceId + 1;
+    lastServiceId := newId;
+    let service : Service = {
+      id = newId;
+      title = input.title;
+      icon = input.icon;
+      shortDescription = input.shortDescription;
+      fullDescription = input.fullDescription;
+      useCases = input.useCases;
+      processSteps = input.processSteps;
+      targetAudience = input.targetAudience;
+      faqs = input.faqs;
+      displayOrder = input.displayOrder;
+      isVisible = input.isVisible;
+      createdDate = ?Time.now();
+      lastUpdatedDate = ?Time.now();
+    };
+    services.add(newId, service);
+    service;
+  };
+
+  public shared ({ caller }) func updateService(input : ServiceUpdate) : async ?Service {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can update services");
+    };
+    switch (services.get(input.id)) {
+      case (null) { null };
+      case (?existing) {
+        let updated : Service = {
+          id = input.id;
+          title = input.title;
+          icon = input.icon;
+          shortDescription = input.shortDescription;
+          fullDescription = input.fullDescription;
+          useCases = input.useCases;
+          processSteps = input.processSteps;
+          targetAudience = input.targetAudience;
+          faqs = input.faqs;
+          displayOrder = input.displayOrder;
+          isVisible = input.isVisible;
+          createdDate = existing.createdDate;
+          lastUpdatedDate = ?Time.now();
+        };
+        services.add(input.id, updated);
+        ?updated;
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteService(id : Nat) : async Bool {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can delete services");
+    };
+    switch (services.get(id)) {
+      case (null) { false };
+      case (?_) {
+        services.remove(id);
+        true;
+      };
+    };
+  };
+
+  public query func getService(id : Nat) : async ?Service {
+    services.get(id);
+  };
+
+  public query func getServices(page : Nat, pageSize : Nat, filter : ?ServiceFilter) : async PaginatedServices {
+    if (pageSize == 0) { Runtime.trap("Page size must be greater than 0") };
+    let all = services.values().toArray();
+    let filtered = switch (filter) {
+      case (null) { all };
+      case (?f) {
+        all.filter(func(s) {
+          let matchesVisible = switch (f.isVisible) {
+            case (null) { true };
+            case (?v) { s.isVisible == v };
+          };
+          let matchesSearch = switch (f.search) {
+            case (null) { true };
+            case (?q) {
+              let ql = q.toLower();
+              s.title.toLower().contains(#text(ql)) or
+              s.shortDescription.toLower().contains(#text(ql));
+            };
+          };
+          matchesVisible and matchesSearch;
+        });
+      };
+    };
+    let total = filtered.size();
+    let start = (if (page > 0) { page - 1 } else { 0 }) * pageSize;
+    if (start >= total) {
+      return { items = []; total };
+    };
+    let end = Nat.min(start + pageSize, total);
+    { items = filtered.sliceToArray(start, end); total };
+  };
+
+  public shared ({ caller }) func reorderServices(ids : [Nat]) : async Bool {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can reorder services");
+    };
+    let total = services.values().toArray().size();
+    for ((index, id) in ids.enumerate()) {
+      switch (services.get(id)) {
+        case (?s) {
+          services.add(id, { s with displayOrder = total - index; lastUpdatedDate = ?Time.now() });
+        };
+        case (null) {};
+      };
+    };
+    true;
+  };
+
+  public shared ({ caller }) func bulkUpdateServiceVisibility(ids : [Nat], isVisible : Bool) : async Nat {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can bulk update services");
+    };
+    var count = 0;
+    for (id in ids.values()) {
+      switch (services.get(id)) {
+        case (?s) {
+          services.add(id, { s with isVisible; lastUpdatedDate = ?Time.now() });
+          count += 1;
+        };
+        case (null) {};
+      };
+    };
+    count;
+  };
+
+  public shared ({ caller }) func bulkDeleteServices(ids : [Nat]) : async Nat {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can bulk delete services");
+    };
+    var count = 0;
+    for (id in ids.values()) {
+      if (services.containsKey(id)) {
+        services.remove(id);
+        count += 1;
+      };
+    };
+    count;
+  };
 };

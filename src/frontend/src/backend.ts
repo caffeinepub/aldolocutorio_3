@@ -179,6 +179,110 @@ export enum UserRole {
     user = "user",
     guest = "guest"
 }
+export interface TestimonialInput {
+    quote: string;
+    authorName: string;
+    jobTitle: string;
+    companyName: string;
+    photo?: ExternalBlob;
+    linkedPortfolioId?: bigint;
+    rating: bigint;
+    displayOrder: bigint;
+    isVisible: boolean;
+}
+export interface TestimonialUpdate {
+    id: bigint;
+    quote: string;
+    authorName: string;
+    jobTitle: string;
+    companyName: string;
+    photo?: ExternalBlob;
+    linkedPortfolioId?: bigint;
+    rating: bigint;
+    displayOrder: bigint;
+    isVisible: boolean;
+}
+export interface Testimonial {
+    id: bigint;
+    quote: string;
+    authorName: string;
+    jobTitle: string;
+    companyName: string;
+    photo?: ExternalBlob;
+    linkedPortfolioId?: bigint;
+    rating: bigint;
+    displayOrder: bigint;
+    isVisible: boolean;
+    createdDate?: bigint;
+    lastUpdatedDate?: bigint;
+}
+export interface TestimonialFilter {
+    isVisible?: boolean;
+    minRating?: bigint;
+    maxRating?: bigint;
+    search?: string;
+}
+export interface PaginatedTestimonials {
+    total: bigint;
+    items: Array<Testimonial>;
+}
+
+export interface ServiceProcessStep {
+    step: string;
+    description: string;
+}
+export interface ServiceFaq {
+    question: string;
+    answer: string;
+}
+export interface ServiceInput {
+    title: string;
+    icon?: ExternalBlob;
+    shortDescription: string;
+    fullDescription: string;
+    useCases: string[];
+    processSteps: ServiceProcessStep[];
+    targetAudience: string;
+    faqs: ServiceFaq[];
+    displayOrder: bigint;
+    isVisible: boolean;
+}
+export interface ServiceUpdate {
+    id: bigint;
+    title: string;
+    icon?: ExternalBlob;
+    shortDescription: string;
+    fullDescription: string;
+    useCases: string[];
+    processSteps: ServiceProcessStep[];
+    targetAudience: string;
+    faqs: ServiceFaq[];
+    displayOrder: bigint;
+    isVisible: boolean;
+}
+export interface Service {
+    id: bigint;
+    title: string;
+    icon?: ExternalBlob;
+    shortDescription: string;
+    fullDescription: string;
+    useCases: string[];
+    processSteps: ServiceProcessStep[];
+    targetAudience: string;
+    faqs: ServiceFaq[];
+    displayOrder: bigint;
+    isVisible: boolean;
+    createdDate?: bigint;
+    lastUpdatedDate?: bigint;
+}
+export interface ServiceFilter {
+    isVisible?: boolean;
+    search?: string;
+}
+export interface PaginatedServices {
+    total: bigint;
+    items: Array<Service>;
+}
 export interface backendInterface {
     _caffeineStorageBlobIsLive(hash: Uint8Array): Promise<boolean>;
     _caffeineStorageBlobsToDelete(): Promise<Array<Uint8Array>>;
@@ -201,8 +305,24 @@ export interface backendInterface {
     reorderPortfolioProjects(ids: Array<bigint>): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     updatePortfolioProject(input: PortfolioProjectUpdate): Promise<PortfolioProject | null>;
+    bulkDeleteTestimonials(ids: Array<bigint>): Promise<bigint>;
+    bulkUpdateTestimonialVisibility(ids: Array<bigint>, isVisible: boolean): Promise<bigint>;
+    createTestimonial(input: TestimonialInput): Promise<Testimonial>;
+    deleteTestimonial(id: bigint): Promise<boolean>;
+    getTestimonial(id: bigint): Promise<Testimonial | null>;
+    getTestimonials(page: bigint, pageSize: bigint, filter: TestimonialFilter | null): Promise<PaginatedTestimonials>;
+    reorderTestimonials(ids: Array<bigint>): Promise<boolean>;
+    updateTestimonial(input: TestimonialUpdate): Promise<Testimonial | null>;
+    bulkDeleteServices(ids: Array<bigint>): Promise<bigint>;
+    bulkUpdateServiceVisibility(ids: Array<bigint>, isVisible: boolean): Promise<bigint>;
+    createService(input: ServiceInput): Promise<Service>;
+    deleteService(id: bigint): Promise<boolean>;
+    getService(id: bigint): Promise<Service | null>;
+    getServices(page: bigint, pageSize: bigint, filter: ServiceFilter | null): Promise<PaginatedServices>;
+    reorderServices(ids: Array<bigint>): Promise<boolean>;
+    updateService(input: ServiceUpdate): Promise<Service | null>;
 }
-import type { ExternalBlob as _ExternalBlob, PaginatedPortfolioProjects as _PaginatedPortfolioProjects, PortfolioCategory as _PortfolioCategory, PortfolioFilter as _PortfolioFilter, PortfolioProject as _PortfolioProject, PortfolioProjectInput as _PortfolioProjectInput, PortfolioProjectUpdate as _PortfolioProjectUpdate, PublishStatus as _PublishStatus, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
+import type { ExternalBlob as _ExternalBlob, PaginatedPortfolioProjects as _PaginatedPortfolioProjects, PortfolioCategory as _PortfolioCategory, PortfolioFilter as _PortfolioFilter, PortfolioProject as _PortfolioProject, PortfolioProjectInput as _PortfolioProjectInput, PortfolioProjectUpdate as _PortfolioProjectUpdate, PublishStatus as _PublishStatus, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult, Testimonial as _Testimonial, TestimonialInput as _TestimonialInput, TestimonialUpdate as _TestimonialUpdate, TestimonialFilter as _TestimonialFilter, PaginatedTestimonials as _PaginatedTestimonials, Service as _Service, ServiceInput as _ServiceInput, ServiceUpdate as _ServiceUpdate, ServiceFilter as _ServiceFilter, PaginatedServices as _PaginatedServices, ServiceProcessStep as _ServiceProcessStep, ServiceFaq as _ServiceFaq } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _caffeineStorageBlobIsLive(arg0: Uint8Array): Promise<boolean> {
@@ -499,6 +619,136 @@ export class Backend implements backendInterface {
             return from_candid_opt_n31(this._uploadFile, this._downloadFile, result);
         }
     }
+    async createTestimonial(arg0: TestimonialInput): Promise<Testimonial> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createTestimonial(await to_candid_TestimonialInput(this._uploadFile, this._downloadFile, arg0));
+                return await from_candid_Testimonial(this._uploadFile, this._downloadFile, result);
+            } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else {
+            const result = await this.actor.createTestimonial(await to_candid_TestimonialInput(this._uploadFile, this._downloadFile, arg0));
+            return await from_candid_Testimonial(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async updateTestimonial(arg0: TestimonialUpdate): Promise<Testimonial | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateTestimonial(await to_candid_TestimonialUpdate(this._uploadFile, this._downloadFile, arg0));
+                return result.length === 0 ? null : await from_candid_Testimonial(this._uploadFile, this._downloadFile, result[0]);
+            } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else {
+            const result = await this.actor.updateTestimonial(await to_candid_TestimonialUpdate(this._uploadFile, this._downloadFile, arg0));
+            return result.length === 0 ? null : await from_candid_Testimonial(this._uploadFile, this._downloadFile, result[0]);
+        }
+    }
+    async deleteTestimonial(arg0: bigint): Promise<boolean> {
+        if (this.processError) {
+            try { return await this.actor.deleteTestimonial(arg0); } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else { return await this.actor.deleteTestimonial(arg0); }
+    }
+    async getTestimonial(arg0: bigint): Promise<Testimonial | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getTestimonial(arg0);
+                return result.length === 0 ? null : await from_candid_Testimonial(this._uploadFile, this._downloadFile, result[0]);
+            } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else {
+            const result = await this.actor.getTestimonial(arg0);
+            return result.length === 0 ? null : await from_candid_Testimonial(this._uploadFile, this._downloadFile, result[0]);
+        }
+    }
+    async getTestimonials(arg0: bigint, arg1: bigint, arg2: TestimonialFilter | null): Promise<PaginatedTestimonials> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getTestimonials(arg0, arg1, to_candid_opt_TestimonialFilter(this._uploadFile, this._downloadFile, arg2));
+                return await from_candid_PaginatedTestimonials(this._uploadFile, this._downloadFile, result);
+            } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else {
+            const result = await this.actor.getTestimonials(arg0, arg1, to_candid_opt_TestimonialFilter(this._uploadFile, this._downloadFile, arg2));
+            return await from_candid_PaginatedTestimonials(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async reorderTestimonials(arg0: Array<bigint>): Promise<boolean> {
+        if (this.processError) {
+            try { return await this.actor.reorderTestimonials(arg0); } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else { return await this.actor.reorderTestimonials(arg0); }
+    }
+    async bulkUpdateTestimonialVisibility(arg0: Array<bigint>, arg1: boolean): Promise<bigint> {
+        if (this.processError) {
+            try { return await this.actor.bulkUpdateTestimonialVisibility(arg0, arg1); } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else { return await this.actor.bulkUpdateTestimonialVisibility(arg0, arg1); }
+    }
+    async bulkDeleteTestimonials(arg0: Array<bigint>): Promise<bigint> {
+        if (this.processError) {
+            try { return await this.actor.bulkDeleteTestimonials(arg0); } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else { return await this.actor.bulkDeleteTestimonials(arg0); }
+    }
+
+    async createService(arg0: ServiceInput): Promise<Service> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createService(await to_candid_ServiceInput(this._uploadFile, this._downloadFile, arg0));
+                return await from_candid_Service(this._uploadFile, this._downloadFile, result);
+            } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else {
+            const result = await this.actor.createService(await to_candid_ServiceInput(this._uploadFile, this._downloadFile, arg0));
+            return await from_candid_Service(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async updateService(arg0: ServiceUpdate): Promise<Service | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateService(await to_candid_ServiceUpdate(this._uploadFile, this._downloadFile, arg0));
+                return result.length === 0 ? null : await from_candid_Service(this._uploadFile, this._downloadFile, result[0]);
+            } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else {
+            const result = await this.actor.updateService(await to_candid_ServiceUpdate(this._uploadFile, this._downloadFile, arg0));
+            return result.length === 0 ? null : await from_candid_Service(this._uploadFile, this._downloadFile, result[0]);
+        }
+    }
+    async deleteService(arg0: bigint): Promise<boolean> {
+        if (this.processError) {
+            try { return await this.actor.deleteService(arg0); } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else { return await this.actor.deleteService(arg0); }
+    }
+    async getService(arg0: bigint): Promise<Service | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getService(arg0);
+                return result.length === 0 ? null : await from_candid_Service(this._uploadFile, this._downloadFile, result[0]);
+            } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else {
+            const result = await this.actor.getService(arg0);
+            return result.length === 0 ? null : await from_candid_Service(this._uploadFile, this._downloadFile, result[0]);
+        }
+    }
+    async getServices(arg0: bigint, arg1: bigint, arg2: ServiceFilter | null): Promise<PaginatedServices> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getServices(arg0, arg1, to_candid_opt_ServiceFilter(this._uploadFile, this._downloadFile, arg2));
+                return await from_candid_PaginatedServices(this._uploadFile, this._downloadFile, result);
+            } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else {
+            const result = await this.actor.getServices(arg0, arg1, to_candid_opt_ServiceFilter(this._uploadFile, this._downloadFile, arg2));
+            return await from_candid_PaginatedServices(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async reorderServices(arg0: Array<bigint>): Promise<boolean> {
+        if (this.processError) {
+            try { return await this.actor.reorderServices(arg0); } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else { return await this.actor.reorderServices(arg0); }
+    }
+    async bulkUpdateServiceVisibility(arg0: Array<bigint>, arg1: boolean): Promise<bigint> {
+        if (this.processError) {
+            try { return await this.actor.bulkUpdateServiceVisibility(arg0, arg1); } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else { return await this.actor.bulkUpdateServiceVisibility(arg0, arg1); }
+    }
+    async bulkDeleteServices(arg0: Array<bigint>): Promise<bigint> {
+        if (this.processError) {
+            try { return await this.actor.bulkDeleteServices(arg0); } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else { return await this.actor.bulkDeleteServices(arg0); }
+    }
+
 }
 async function from_candid_ExternalBlob_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExternalBlob): Promise<ExternalBlob> {
     return await _downloadFile(value);
@@ -863,6 +1113,125 @@ function to_candid_variant_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8
 async function to_candid_vec_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<ExternalBlob>): Promise<Array<_ExternalBlob>> {
     return await Promise.all(value.map(async (x)=>await to_candid_ExternalBlob_n15(_uploadFile, _downloadFile, x)));
 }
+async function from_candid_Testimonial(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Testimonial): Promise<Testimonial> {
+    return {
+        id: value.id,
+        quote: value.quote,
+        authorName: value.authorName,
+        jobTitle: value.jobTitle,
+        companyName: value.companyName,
+        photo: record_opt_to_undefined(value.photo.length === 0 ? null : await _downloadFile(value.photo[0])),
+        linkedPortfolioId: record_opt_to_undefined(value.linkedPortfolioId.length === 0 ? null : value.linkedPortfolioId[0]),
+        rating: value.rating,
+        displayOrder: value.displayOrder,
+        isVisible: value.isVisible,
+        createdDate: record_opt_to_undefined(value.createdDate.length === 0 ? null : value.createdDate[0]),
+        lastUpdatedDate: record_opt_to_undefined(value.lastUpdatedDate.length === 0 ? null : value.lastUpdatedDate[0]),
+    };
+}
+async function from_candid_PaginatedTestimonials(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _PaginatedTestimonials): Promise<PaginatedTestimonials> {
+    return {
+        total: value.total,
+        items: await Promise.all(value.items.map(async (x) => await from_candid_Testimonial(_uploadFile, _downloadFile, x))),
+    };
+}
+async function to_candid_TestimonialInput(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: TestimonialInput): Promise<_TestimonialInput> {
+    return {
+        quote: value.quote,
+        authorName: value.authorName,
+        jobTitle: value.jobTitle,
+        companyName: value.companyName,
+        photo: value.photo ? [await _uploadFile(value.photo)] : [],
+        linkedPortfolioId: value.linkedPortfolioId ? [value.linkedPortfolioId] : [],
+        rating: value.rating,
+        displayOrder: value.displayOrder,
+        isVisible: value.isVisible,
+    };
+}
+async function to_candid_TestimonialUpdate(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: TestimonialUpdate): Promise<_TestimonialUpdate> {
+    return {
+        id: value.id,
+        quote: value.quote,
+        authorName: value.authorName,
+        jobTitle: value.jobTitle,
+        companyName: value.companyName,
+        photo: value.photo ? [await _uploadFile(value.photo)] : [],
+        linkedPortfolioId: value.linkedPortfolioId ? [value.linkedPortfolioId] : [],
+        rating: value.rating,
+        displayOrder: value.displayOrder,
+        isVisible: value.isVisible,
+    };
+}
+function to_candid_opt_TestimonialFilter(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: TestimonialFilter | null): [] | [_TestimonialFilter] {
+    if (value === null) return [];
+    return [{
+        isVisible: value.isVisible !== undefined ? [value.isVisible] : [],
+        minRating: value.minRating !== undefined ? [value.minRating] : [],
+        maxRating: value.maxRating !== undefined ? [value.maxRating] : [],
+        search: value.search !== undefined ? [value.search] : [],
+    }];
+}
+
+async function from_candid_Service(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Service): Promise<Service> {
+    return {
+        id: value.id,
+        title: value.title,
+        icon: record_opt_to_undefined(value.icon.length === 0 ? null : await _downloadFile(value.icon[0])),
+        shortDescription: value.shortDescription,
+        fullDescription: value.fullDescription,
+        useCases: Array.from(value.useCases),
+        processSteps: Array.from(value.processSteps).map(s => ({ step: s.step, description: s.description })),
+        targetAudience: value.targetAudience,
+        faqs: Array.from(value.faqs).map(f => ({ question: f.question, answer: f.answer })),
+        displayOrder: value.displayOrder,
+        isVisible: value.isVisible,
+        createdDate: record_opt_to_undefined(value.createdDate.length === 0 ? null : value.createdDate[0]),
+        lastUpdatedDate: record_opt_to_undefined(value.lastUpdatedDate.length === 0 ? null : value.lastUpdatedDate[0]),
+    };
+}
+async function from_candid_PaginatedServices(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _PaginatedServices): Promise<PaginatedServices> {
+    return {
+        total: value.total,
+        items: await Promise.all(value.items.map(async (x) => await from_candid_Service(_uploadFile, _downloadFile, x))),
+    };
+}
+async function to_candid_ServiceInput(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ServiceInput): Promise<_ServiceInput> {
+    return {
+        title: value.title,
+        icon: value.icon ? [await _uploadFile(value.icon)] : [],
+        shortDescription: value.shortDescription,
+        fullDescription: value.fullDescription,
+        useCases: value.useCases,
+        processSteps: value.processSteps.map(s => ({ step: s.step, description: s.description })),
+        targetAudience: value.targetAudience,
+        faqs: value.faqs.map(f => ({ question: f.question, answer: f.answer })),
+        displayOrder: value.displayOrder,
+        isVisible: value.isVisible,
+    };
+}
+async function to_candid_ServiceUpdate(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ServiceUpdate): Promise<_ServiceUpdate> {
+    return {
+        id: value.id,
+        title: value.title,
+        icon: value.icon ? [await _uploadFile(value.icon)] : [],
+        shortDescription: value.shortDescription,
+        fullDescription: value.fullDescription,
+        useCases: value.useCases,
+        processSteps: value.processSteps.map(s => ({ step: s.step, description: s.description })),
+        targetAudience: value.targetAudience,
+        faqs: value.faqs.map(f => ({ question: f.question, answer: f.answer })),
+        displayOrder: value.displayOrder,
+        isVisible: value.isVisible,
+    };
+}
+function to_candid_opt_ServiceFilter(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ServiceFilter | null): [] | [_ServiceFilter] {
+    if (value === null) return [];
+    return [{
+        isVisible: value.isVisible !== undefined ? [value.isVisible] : [],
+        search: value.search !== undefined ? [value.search] : [],
+    }];
+}
+
 export interface CreateActorOptions {
     agent?: Agent;
     agentOptions?: HttpAgentOptions;
