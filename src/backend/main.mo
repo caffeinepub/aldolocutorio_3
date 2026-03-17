@@ -4,7 +4,6 @@ import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Int "mo:core/Int";
 import Nat "mo:core/Nat";
-import List "mo:core/List";
 import Runtime "mo:core/Runtime";
 import Iter "mo:core/Iter";
 import Principal "mo:core/Principal";
@@ -317,7 +316,7 @@ actor {
     count;
   };
 
-  // ─── Testimonial Types ───────────────────────────────────────────────────────
+  // ─── Testimonial Types ───────────────────────────────────────────────
 
   public type Testimonial = {
     id : Nat;
@@ -375,7 +374,7 @@ actor {
   let testimonials = Map.empty<Nat, Testimonial>();
   var lastTestimonialId = 0;
 
-  // ─── Testimonial CRUD ────────────────────────────────────────────────────────
+  // ─── Testimonial CRUD ────────────────────────────────────────────────
 
   public shared ({ caller }) func createTestimonial(input : TestimonialInput) : async Testimonial {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
@@ -540,7 +539,7 @@ actor {
     count;
   };
 
-  // ─── Service Types ───────────────────────────────────────────────────────────
+  // ─── Service Types ────────────────────────────────────────────────
 
   public type ServiceProcessStep = {
     step : Text;
@@ -609,7 +608,7 @@ actor {
   let services = Map.empty<Nat, Service>();
   var lastServiceId = 0;
 
-  // ─── Service CRUD ────────────────────────────────────────────────────────────
+  // ─── Service CRUD ────────────────────────────────────────────────
 
   public shared ({ caller }) func createService(input : ServiceInput) : async Service {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
@@ -759,4 +758,507 @@ actor {
     };
     count;
   };
+
+  // ─── Contact Settings Types ────────────────────────────────────────
+
+  public type BusinessHours = {
+    monday : Text;
+    tuesday : Text;
+    wednesday : Text;
+    thursday : Text;
+    friday : Text;
+    saturday : Text;
+    sunday : Text;
+  };
+
+  public type ContactWhatsApp = {
+    number : ?Text;
+    isEnabled : Bool;
+  };
+
+  public type ContactEmail = {
+    primary : Text;
+    secondary : ?Text;
+    responseTime : Text;
+  };
+
+  public type ContactPhone = {
+    primary : ?Text;
+    secondary : ?Text;
+    isEnabled : Bool;
+  };
+
+  public type ContactAddress = {
+    fullAddress : Text;
+    businessHours : BusinessHours;
+  };
+
+  public type ContactMap = {
+    latitude : Float;
+    longitude : Float;
+  };
+
+  public type ContactSettings = {
+    whatsapp : ContactWhatsApp;
+    email : ContactEmail;
+    phone : ContactPhone;
+    address : ContactAddress;
+    map : ContactMap;
+    lastUpdated : Int;
+  };
+
+  // Contact Settings defaults
+  let defaultContactSettings : ContactSettings = {
+    whatsapp = { number = ?"34695250655"; isEnabled = true };
+    email = {
+      primary = "aldolocutoriomalaga@gmail.com";
+      secondary = null;
+      responseTime = "Usualmente responde en 2 horas";
+    };
+    phone = { primary = null; secondary = null; isEnabled = false };
+    address = {
+      fullAddress = "C. Albertillas, 5, LOCAL, 29003 Málaga";
+      businessHours = {
+        monday = "09:30 - 22:00";
+        tuesday = "09:30 - 22:00";
+        wednesday = "09:30 - 22:00";
+        thursday = "09:30 - 22:00";
+        friday = "09:30 – 14:00, 17:00 – 22:00";
+        saturday = "09:30 – 22:00";
+        sunday = "10:00 – 14:00, 17:00 – 20:00";
+      };
+    };
+    map = { latitude = 36.696990; longitude = -4.447439 };
+    lastUpdated = 0;
+  };
+
+  // Contact Settings stable state
+  var contactSettings : ContactSettings = defaultContactSettings;
+  var previousContactSettings : ?ContactSettings = null;
+
+  // ─── Contact Settings CRUD ─────────────────────────────────────
+
+  public query func getContactSettings() : async ContactSettings {
+    contactSettings;
+  };
+
+  public shared ({ caller }) func updateContactSettings(input : ContactSettings) : async ContactSettings {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can update contact settings");
+    };
+    previousContactSettings := ?contactSettings;
+    let updated : ContactSettings = {
+      input with lastUpdated = Time.now();
+    };
+    contactSettings := updated;
+    updated;
+  };
+
+  public query func getPreviousContactSettings() : async ?ContactSettings {
+    previousContactSettings;
+  };
+
+  public shared ({ caller }) func resetContactSettings() : async ContactSettings {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can reset contact settings");
+    };
+    previousContactSettings := ?contactSettings;
+    let reset : ContactSettings = {
+      defaultContactSettings with lastUpdated = Time.now();
+    };
+    contactSettings := reset;
+    reset;
+  };
+
+  // ─── Data Export ─────────────────────────────────────────────
+
+  public type ExportTotalRecords = {
+    portfolio : Nat;
+    services : Nat;
+    testimonials : Nat;
+  };
+
+  public type ExportMetadata = {
+    exportDate : Int;
+    exportVersion : Text;
+    exportedBy : Principal;
+    totalRecords : ExportTotalRecords;
+  };
+
+  public type ExportData = {
+    metadata : ExportMetadata;
+    portfolio : [PortfolioProject];
+    services : [Service];
+    testimonials : [Testimonial];
+    contactSettings : ?ContactSettings;
+  };
+
+  public shared query ({ caller }) func exportData() : async ExportData {
+    let portfolioItems = portfolioProjects.values().toArray();
+    let serviceItems = services.values().toArray();
+    let testimonialItems = testimonials.values().toArray();
+    {
+      metadata = {
+        exportDate = Time.now();
+        exportVersion = "1.0";
+        exportedBy = caller;
+        totalRecords = {
+          portfolio = portfolioItems.size();
+          services = serviceItems.size();
+          testimonials = testimonialItems.size();
+        };
+      };
+      portfolio = portfolioItems;
+      services = serviceItems;
+      testimonials = testimonialItems;
+      contactSettings = ?contactSettings;
+    };
+  };
+
+  // ─── Data Import ─────────────────────────────────────────────
+
+  public type ImportMode = {
+    #createAndUpdate;
+    #createOnly;
+    #replaceAll;
+    #skip;
+  };
+
+  public type ImportOptions = {
+    portfolioMode : ImportMode;
+    servicesMode : ImportMode;
+    testimonialsMode : ImportMode;
+    importContactSettings : Bool;
+  };
+
+  public type ImportResultCounts = {
+    created : Nat;
+    updated : Nat;
+  };
+
+  public type ImportResult = {
+    portfolio : ImportResultCounts;
+    services : ImportResultCounts;
+    testimonials : ImportResultCounts;
+    contactSettingsUpdated : Bool;
+  };
+
+  public shared ({ caller }) func importData(data : ExportData, options : ImportOptions) : async ImportResult {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can import data");
+    };
+
+    let portfolioIdMap = Map.empty<Nat, Nat>();
+    let testimonialIdMap = Map.empty<Nat, Nat>();
+    let portfolioTestimonialRefs = Map.empty<Nat, Nat>();
+
+    var portfolioCreated = 0;
+    var portfolioUpdated = 0;
+    var servicesCreated = 0;
+    var servicesUpdated = 0;
+    var testimonialsCreated = 0;
+    var testimonialsUpdated = 0;
+    var contactUpdated = false;
+
+    // ── Portfolio ────────────────────────────────────────────────
+    switch (options.portfolioMode) {
+      case (#skip) {};
+      case (#replaceAll) {
+        let pkeys = portfolioProjects.keys().toArray();
+        for (k in pkeys.vals()) { portfolioProjects.remove(k) };
+        for (p in data.portfolio.vals()) {
+          let newId = lastPortfolioProjectId + 1;
+          lastPortfolioProjectId := newId;
+          portfolioIdMap.add(p.id, newId);
+          switch (p.linkedTestimonialId) {
+            case (null) {};
+            case (?tid) { portfolioTestimonialRefs.add(newId, tid) };
+          };
+          portfolioProjects.add(newId, {
+            id = newId; title = p.title; clientName = p.clientName;
+            industry = p.industry; category = p.category; tags = p.tags;
+            thumbnail = p.thumbnail; galleryImages = p.galleryImages;
+            description = p.description; technologiesUsed = p.technologiesUsed;
+            results = p.results; linkedTestimonialId = null;
+            publishStatus = p.publishStatus; displayOrder = p.displayOrder;
+            createdDate = ?Time.now(); lastUpdatedDate = ?Time.now();
+          });
+          portfolioCreated += 1;
+        };
+      };
+      case (#createOnly) {
+        for (p in data.portfolio.vals()) {
+          let existing = portfolioProjects.values().toArray().find(func(e) { e.title == p.title and e.clientName == p.clientName });
+          switch (existing) {
+            case (?e) { portfolioIdMap.add(p.id, e.id) };
+            case (null) {
+              let newId = lastPortfolioProjectId + 1;
+              lastPortfolioProjectId := newId;
+              portfolioIdMap.add(p.id, newId);
+              switch (p.linkedTestimonialId) {
+                case (null) {};
+                case (?tid) { portfolioTestimonialRefs.add(newId, tid) };
+              };
+              portfolioProjects.add(newId, {
+                id = newId; title = p.title; clientName = p.clientName;
+                industry = p.industry; category = p.category; tags = p.tags;
+                thumbnail = p.thumbnail; galleryImages = p.galleryImages;
+                description = p.description; technologiesUsed = p.technologiesUsed;
+                results = p.results; linkedTestimonialId = null;
+                publishStatus = p.publishStatus; displayOrder = p.displayOrder;
+                createdDate = ?Time.now(); lastUpdatedDate = ?Time.now();
+              });
+              portfolioCreated += 1;
+            };
+          };
+        };
+      };
+      case (#createAndUpdate) {
+        for (p in data.portfolio.vals()) {
+          let existing = portfolioProjects.values().toArray().find(func(e) { e.title == p.title and e.clientName == p.clientName });
+          switch (existing) {
+            case (?e) {
+              portfolioIdMap.add(p.id, e.id);
+              switch (p.linkedTestimonialId) {
+                case (null) {};
+                case (?tid) { portfolioTestimonialRefs.add(e.id, tid) };
+              };
+              portfolioProjects.add(e.id, {
+                id = e.id; title = p.title; clientName = p.clientName;
+                industry = p.industry; category = p.category; tags = p.tags;
+                thumbnail = p.thumbnail; galleryImages = p.galleryImages;
+                description = p.description; technologiesUsed = p.technologiesUsed;
+                results = p.results; linkedTestimonialId = null;
+                publishStatus = p.publishStatus; displayOrder = p.displayOrder;
+                createdDate = e.createdDate; lastUpdatedDate = ?Time.now();
+              });
+              portfolioUpdated += 1;
+            };
+            case (null) {
+              let newId = lastPortfolioProjectId + 1;
+              lastPortfolioProjectId := newId;
+              portfolioIdMap.add(p.id, newId);
+              switch (p.linkedTestimonialId) {
+                case (null) {};
+                case (?tid) { portfolioTestimonialRefs.add(newId, tid) };
+              };
+              portfolioProjects.add(newId, {
+                id = newId; title = p.title; clientName = p.clientName;
+                industry = p.industry; category = p.category; tags = p.tags;
+                thumbnail = p.thumbnail; galleryImages = p.galleryImages;
+                description = p.description; technologiesUsed = p.technologiesUsed;
+                results = p.results; linkedTestimonialId = null;
+                publishStatus = p.publishStatus; displayOrder = p.displayOrder;
+                createdDate = ?Time.now(); lastUpdatedDate = ?Time.now();
+              });
+              portfolioCreated += 1;
+            };
+          };
+        };
+      };
+    };
+
+    // ── Services ─────────────────────────────────────────────────
+    switch (options.servicesMode) {
+      case (#skip) {};
+      case (#replaceAll) {
+        let skeys = services.keys().toArray();
+        for (k in skeys.vals()) { services.remove(k) };
+        for (s in data.services.vals()) {
+          let newId = lastServiceId + 1;
+          lastServiceId := newId;
+          services.add(newId, {
+            id = newId; title = s.title; icon = s.icon;
+            shortDescription = s.shortDescription; fullDescription = s.fullDescription;
+            useCases = s.useCases; processSteps = s.processSteps;
+            targetAudience = s.targetAudience; faqs = s.faqs;
+            displayOrder = s.displayOrder; isVisible = s.isVisible;
+            createdDate = ?Time.now(); lastUpdatedDate = ?Time.now();
+          });
+          servicesCreated += 1;
+        };
+      };
+      case (#createOnly) {
+        for (s in data.services.vals()) {
+          let existing = services.values().toArray().find(func(e) { e.title == s.title });
+          switch (existing) {
+            case (?_) {};
+            case (null) {
+              let newId = lastServiceId + 1;
+              lastServiceId := newId;
+              services.add(newId, {
+                id = newId; title = s.title; icon = s.icon;
+                shortDescription = s.shortDescription; fullDescription = s.fullDescription;
+                useCases = s.useCases; processSteps = s.processSteps;
+                targetAudience = s.targetAudience; faqs = s.faqs;
+                displayOrder = s.displayOrder; isVisible = s.isVisible;
+                createdDate = ?Time.now(); lastUpdatedDate = ?Time.now();
+              });
+              servicesCreated += 1;
+            };
+          };
+        };
+      };
+      case (#createAndUpdate) {
+        for (s in data.services.vals()) {
+          let existing = services.values().toArray().find(func(e) { e.title == s.title });
+          switch (existing) {
+            case (?e) {
+              services.add(e.id, {
+                id = e.id; title = s.title; icon = s.icon;
+                shortDescription = s.shortDescription; fullDescription = s.fullDescription;
+                useCases = s.useCases; processSteps = s.processSteps;
+                targetAudience = s.targetAudience; faqs = s.faqs;
+                displayOrder = s.displayOrder; isVisible = s.isVisible;
+                createdDate = e.createdDate; lastUpdatedDate = ?Time.now();
+              });
+              servicesUpdated += 1;
+            };
+            case (null) {
+              let newId = lastServiceId + 1;
+              lastServiceId := newId;
+              services.add(newId, {
+                id = newId; title = s.title; icon = s.icon;
+                shortDescription = s.shortDescription; fullDescription = s.fullDescription;
+                useCases = s.useCases; processSteps = s.processSteps;
+                targetAudience = s.targetAudience; faqs = s.faqs;
+                displayOrder = s.displayOrder; isVisible = s.isVisible;
+                createdDate = ?Time.now(); lastUpdatedDate = ?Time.now();
+              });
+              servicesCreated += 1;
+            };
+          };
+        };
+      };
+    };
+
+    // ── Testimonials ─────────────────────────────────────────────
+    switch (options.testimonialsMode) {
+      case (#skip) {};
+      case (#replaceAll) {
+        let tkeys = testimonials.keys().toArray();
+        for (k in tkeys.vals()) { testimonials.remove(k) };
+        for (t in data.testimonials.vals()) {
+          let newId = lastTestimonialId + 1;
+          lastTestimonialId := newId;
+          testimonialIdMap.add(t.id, newId);
+          let remappedPid : ?Nat = switch (t.linkedPortfolioId) {
+            case (null) { null };
+            case (?pid) { portfolioIdMap.get(pid) };
+          };
+          testimonials.add(newId, {
+            id = newId; quote = t.quote; authorName = t.authorName;
+            jobTitle = t.jobTitle; companyName = t.companyName; photo = t.photo;
+            linkedPortfolioId = remappedPid; rating = t.rating;
+            displayOrder = t.displayOrder; isVisible = t.isVisible;
+            createdDate = ?Time.now(); lastUpdatedDate = ?Time.now();
+          });
+          testimonialsCreated += 1;
+        };
+      };
+      case (#createOnly) {
+        for (t in data.testimonials.vals()) {
+          let existing = testimonials.values().toArray().find(func(e) { e.authorName == t.authorName and e.companyName == t.companyName });
+          switch (existing) {
+            case (?e) { testimonialIdMap.add(t.id, e.id) };
+            case (null) {
+              let newId = lastTestimonialId + 1;
+              lastTestimonialId := newId;
+              testimonialIdMap.add(t.id, newId);
+              let remappedPid : ?Nat = switch (t.linkedPortfolioId) {
+                case (null) { null };
+                case (?pid) { portfolioIdMap.get(pid) };
+              };
+              testimonials.add(newId, {
+                id = newId; quote = t.quote; authorName = t.authorName;
+                jobTitle = t.jobTitle; companyName = t.companyName; photo = t.photo;
+                linkedPortfolioId = remappedPid; rating = t.rating;
+                displayOrder = t.displayOrder; isVisible = t.isVisible;
+                createdDate = ?Time.now(); lastUpdatedDate = ?Time.now();
+              });
+              testimonialsCreated += 1;
+            };
+          };
+        };
+      };
+      case (#createAndUpdate) {
+        for (t in data.testimonials.vals()) {
+          let existing = testimonials.values().toArray().find(func(e) { e.authorName == t.authorName and e.companyName == t.companyName });
+          switch (existing) {
+            case (?e) {
+              testimonialIdMap.add(t.id, e.id);
+              let remappedPid : ?Nat = switch (t.linkedPortfolioId) {
+                case (null) { null };
+                case (?pid) { portfolioIdMap.get(pid) };
+              };
+              testimonials.add(e.id, {
+                id = e.id; quote = t.quote; authorName = t.authorName;
+                jobTitle = t.jobTitle; companyName = t.companyName; photo = t.photo;
+                linkedPortfolioId = remappedPid; rating = t.rating;
+                displayOrder = t.displayOrder; isVisible = t.isVisible;
+                createdDate = e.createdDate; lastUpdatedDate = ?Time.now();
+              });
+              testimonialsUpdated += 1;
+            };
+            case (null) {
+              let newId = lastTestimonialId + 1;
+              lastTestimonialId := newId;
+              testimonialIdMap.add(t.id, newId);
+              let remappedPid : ?Nat = switch (t.linkedPortfolioId) {
+                case (null) { null };
+                case (?pid) { portfolioIdMap.get(pid) };
+              };
+              testimonials.add(newId, {
+                id = newId; quote = t.quote; authorName = t.authorName;
+                jobTitle = t.jobTitle; companyName = t.companyName; photo = t.photo;
+                linkedPortfolioId = remappedPid; rating = t.rating;
+                displayOrder = t.displayOrder; isVisible = t.isVisible;
+                createdDate = ?Time.now(); lastUpdatedDate = ?Time.now();
+              });
+              testimonialsCreated += 1;
+            };
+          };
+        };
+      };
+    };
+
+    // ── Remap portfolio linkedTestimonialId ───────────────────────
+    for ((sysPortfolioId, fileTid) in portfolioTestimonialRefs.entries()) {
+      switch (portfolioProjects.get(sysPortfolioId)) {
+        case (null) {};
+        case (?p) {
+          let remappedTid : ?Nat = testimonialIdMap.get(fileTid);
+          portfolioProjects.add(sysPortfolioId, {
+            id = p.id; title = p.title; clientName = p.clientName;
+            industry = p.industry; category = p.category; tags = p.tags;
+            thumbnail = p.thumbnail; galleryImages = p.galleryImages;
+            description = p.description; technologiesUsed = p.technologiesUsed;
+            results = p.results; linkedTestimonialId = remappedTid;
+            publishStatus = p.publishStatus; displayOrder = p.displayOrder;
+            createdDate = p.createdDate; lastUpdatedDate = p.lastUpdatedDate;
+          });
+        };
+      };
+    };
+
+    // ── Contact Settings ──────────────────────────────────────────
+    if (options.importContactSettings) {
+      switch (data.contactSettings) {
+        case (null) {};
+        case (?cs) {
+          previousContactSettings := ?contactSettings;
+          contactSettings := { cs with lastUpdated = Time.now() };
+          contactUpdated := true;
+        };
+      };
+    };
+
+    {
+      portfolio = { created = portfolioCreated; updated = portfolioUpdated };
+      services = { created = servicesCreated; updated = servicesUpdated };
+      testimonials = { created = testimonialsCreated; updated = testimonialsUpdated };
+      contactSettingsUpdated = contactUpdated;
+    };
+  };
+
 };

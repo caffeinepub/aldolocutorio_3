@@ -196,6 +196,83 @@ export interface PaginatedServices {
   'total' : bigint,
   'items' : Array<Service>,
 }
+export interface BusinessHours {
+  'monday' : string,
+  'tuesday' : string,
+  'wednesday' : string,
+  'thursday' : string,
+  'friday' : string,
+  'saturday' : string,
+  'sunday' : string,
+}
+export interface ContactWhatsApp {
+  'number' : [] | [string],
+  'isEnabled' : boolean,
+}
+export interface ContactEmail {
+  'primary' : string,
+  'secondary' : [] | [string],
+  'responseTime' : string,
+}
+export interface ContactPhone {
+  'primary' : [] | [string],
+  'secondary' : [] | [string],
+  'isEnabled' : boolean,
+}
+export interface ContactAddress {
+  'fullAddress' : string,
+  'businessHours' : BusinessHours,
+}
+export interface ContactMap {
+  'latitude' : number,
+  'longitude' : number,
+}
+export interface ContactSettings {
+  'whatsapp' : ContactWhatsApp,
+  'email' : ContactEmail,
+  'phone' : ContactPhone,
+  'address' : ContactAddress,
+  'map' : ContactMap,
+  'lastUpdated' : bigint,
+}
+export interface ExportTotalRecords {
+  'portfolio' : bigint,
+  'services' : bigint,
+  'testimonials' : bigint,
+}
+export interface ExportMetadata {
+  'exportDate' : bigint,
+  'exportVersion' : string,
+  'exportedBy' : Principal,
+  'totalRecords' : ExportTotalRecords,
+}
+export interface ExportData {
+  'metadata' : ExportMetadata,
+  'portfolio' : Array<PortfolioProject>,
+  'services' : Array<Service>,
+  'testimonials' : Array<Testimonial>,
+  'contactSettings' : [] | [ContactSettings],
+}
+export type ImportMode = { 'createAndUpdate' : null } |
+  { 'createOnly' : null } |
+  { 'replaceAll' : null } |
+  { 'skip' : null };
+export interface ImportOptions {
+  'portfolioMode' : ImportMode,
+  'servicesMode' : ImportMode,
+  'testimonialsMode' : ImportMode,
+  'importContactSettings' : boolean,
+}
+export interface ImportResultCounts {
+  'created' : bigint,
+  'updated' : bigint,
+}
+export interface ImportResult {
+  'portfolio' : ImportResultCounts,
+  'services' : ImportResultCounts,
+  'testimonials' : ImportResultCounts,
+  'contactSettingsUpdated' : boolean,
+}
 export interface _SERVICE {
   '_caffeineStorageBlobIsLive' : ActorMethod<[Uint8Array], boolean>,
   '_caffeineStorageBlobsToDelete' : ActorMethod<[], Array<Uint8Array>>,
@@ -261,6 +338,12 @@ export interface _SERVICE {
   >,
   'reorderServices' : ActorMethod<[Array<bigint>], boolean>,
   'updateService' : ActorMethod<[ServiceUpdate], [] | [Service]>,
+  'getContactSettings' : ActorMethod<[], ContactSettings>,
+  'updateContactSettings' : ActorMethod<[ContactSettings], ContactSettings>,
+  'getPreviousContactSettings' : ActorMethod<[], [] | [ContactSettings]>,
+  'resetContactSettings' : ActorMethod<[], ContactSettings>,
+  'exportData' : ActorMethod<[], ExportData>,
+  'importData' : ActorMethod<[ExportData, ImportOptions], ImportResult>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

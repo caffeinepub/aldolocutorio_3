@@ -283,6 +283,45 @@ export interface PaginatedServices {
     total: bigint;
     items: Array<Service>;
 }
+export interface ExportTotalRecords {
+  portfolio: bigint;
+  services: bigint;
+  testimonials: bigint;
+}
+export interface ExportMetadata {
+  exportDate: bigint;
+  exportVersion: string;
+  exportedBy: Principal;
+  totalRecords: ExportTotalRecords;
+}
+export interface ExportData {
+  metadata: ExportMetadata;
+  portfolio: Array<PortfolioProject>;
+  services: Array<Service>;
+  testimonials: Array<Testimonial>;
+  contactSettings: ContactSettings | null;
+}
+export type ImportMode = 'createAndUpdate' | 'createOnly' | 'replaceAll' | 'skip';
+
+export interface ImportOptions {
+    portfolioMode: ImportMode;
+    servicesMode: ImportMode;
+    testimonialsMode: ImportMode;
+    importContactSettings: boolean;
+}
+
+export interface ImportResultCounts {
+    created: bigint;
+    updated: bigint;
+}
+
+export interface ImportResult {
+    portfolio: ImportResultCounts;
+    services: ImportResultCounts;
+    testimonials: ImportResultCounts;
+    contactSettingsUpdated: boolean;
+}
+
 export interface backendInterface {
     _caffeineStorageBlobIsLive(hash: Uint8Array): Promise<boolean>;
     _caffeineStorageBlobsToDelete(): Promise<Array<Uint8Array>>;
@@ -321,8 +360,14 @@ export interface backendInterface {
     getServices(page: bigint, pageSize: bigint, filter: ServiceFilter | null): Promise<PaginatedServices>;
     reorderServices(ids: Array<bigint>): Promise<boolean>;
     updateService(input: ServiceUpdate): Promise<Service | null>;
+    getContactSettings(): Promise<ContactSettings>;
+    updateContactSettings(input: ContactSettings): Promise<ContactSettings>;
+    getPreviousContactSettings(): Promise<ContactSettings | null>;
+    resetContactSettings(): Promise<ContactSettings>;
+    exportData(): Promise<ExportData>;
+    importData(data: ExportData, options: ImportOptions): Promise<ImportResult>;
 }
-import type { ExternalBlob as _ExternalBlob, PaginatedPortfolioProjects as _PaginatedPortfolioProjects, PortfolioCategory as _PortfolioCategory, PortfolioFilter as _PortfolioFilter, PortfolioProject as _PortfolioProject, PortfolioProjectInput as _PortfolioProjectInput, PortfolioProjectUpdate as _PortfolioProjectUpdate, PublishStatus as _PublishStatus, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult, Testimonial as _Testimonial, TestimonialInput as _TestimonialInput, TestimonialUpdate as _TestimonialUpdate, TestimonialFilter as _TestimonialFilter, PaginatedTestimonials as _PaginatedTestimonials, Service as _Service, ServiceInput as _ServiceInput, ServiceUpdate as _ServiceUpdate, ServiceFilter as _ServiceFilter, PaginatedServices as _PaginatedServices, ServiceProcessStep as _ServiceProcessStep, ServiceFaq as _ServiceFaq } from "./declarations/backend.did.d.ts";
+import type { ImportMode as _ImportMode, ImportOptions as _ImportOptions, ImportResultCounts as _ImportResultCounts, ImportResult as _ImportResult, ExportData as _ExportData, ExportMetadata as _ExportMetadata, ExportTotalRecords as _ExportTotalRecords, ExternalBlob as _ExternalBlob, PaginatedPortfolioProjects as _PaginatedPortfolioProjects, PortfolioCategory as _PortfolioCategory, PortfolioFilter as _PortfolioFilter, PortfolioProject as _PortfolioProject, PortfolioProjectInput as _PortfolioProjectInput, PortfolioProjectUpdate as _PortfolioProjectUpdate, PublishStatus as _PublishStatus, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult, Testimonial as _Testimonial, TestimonialInput as _TestimonialInput, TestimonialUpdate as _TestimonialUpdate, TestimonialFilter as _TestimonialFilter, PaginatedTestimonials as _PaginatedTestimonials, Service as _Service, ServiceInput as _ServiceInput, ServiceUpdate as _ServiceUpdate, ServiceFilter as _ServiceFilter, PaginatedServices as _PaginatedServices, ServiceProcessStep as _ServiceProcessStep, ServiceFaq as _ServiceFaq, ContactSettings as _ContactSettings, BusinessHours as _BusinessHours, ContactWhatsApp as _ContactWhatsApp, ContactEmail as _ContactEmail, ContactPhone as _ContactPhone, ContactAddress as _ContactAddress, ContactMap as _ContactMap } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _caffeineStorageBlobIsLive(arg0: Uint8Array): Promise<boolean> {
@@ -749,6 +794,67 @@ export class Backend implements backendInterface {
         } else { return await this.actor.bulkDeleteServices(arg0); }
     }
 
+
+    async getContactSettings(): Promise<ContactSettings> {
+        if (this.processError) {
+            try { return await this._getContactSettings_impl(); } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else { return await this._getContactSettings_impl(); }
+    }
+    private async _getContactSettings_impl(): Promise<ContactSettings> {
+        const result = await this.actor.getContactSettings();
+        return from_candid_ContactSettings(result);
+    }
+
+    async updateContactSettings(arg0: ContactSettings): Promise<ContactSettings> {
+        if (this.processError) {
+            try { return await this._updateContactSettings_impl(arg0); } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else { return await this._updateContactSettings_impl(arg0); }
+    }
+    private async _updateContactSettings_impl(arg0: ContactSettings): Promise<ContactSettings> {
+        const result = await this.actor.updateContactSettings(to_candid_ContactSettings(arg0));
+        return from_candid_ContactSettings(result);
+    }
+
+    async getPreviousContactSettings(): Promise<ContactSettings | null> {
+        if (this.processError) {
+            try { return await this._getPreviousContactSettings_impl(); } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else { return await this._getPreviousContactSettings_impl(); }
+    }
+    private async _getPreviousContactSettings_impl(): Promise<ContactSettings | null> {
+        const result = await this.actor.getPreviousContactSettings();
+        if (result.length === 0) return null;
+        return from_candid_ContactSettings(result[0]);
+    }
+
+    async resetContactSettings(): Promise<ContactSettings> {
+        if (this.processError) {
+            try { return await this._resetContactSettings_impl(); } catch (e) { this.processError(e); throw new Error("unreachable"); }
+        } else { return await this._resetContactSettings_impl(); }
+    }
+    private async _resetContactSettings_impl(): Promise<ContactSettings> {
+        const result = await this.actor.resetContactSettings();
+        return from_candid_ContactSettings(result);
+    }
+    async exportData(): Promise<ExportData> {
+        if (this.processError) {
+            try { return await this._exportData_impl(); } catch (e) { this.processError(e); throw new Error('unreachable'); }
+        } else { return await this._exportData_impl(); }
+    }
+    private async _exportData_impl(): Promise<ExportData> {
+        const result = await this.actor.exportData();
+        return from_candid_ExportData(this._uploadFile, this._downloadFile, result);
+    }
+    async importData(data: ExportData, options: ImportOptions): Promise<ImportResult> {
+        if (this.processError) {
+            try { return await this._importData_impl(data, options); } catch (e) { this.processError(e); throw new Error('unreachable'); }
+        } else { return await this._importData_impl(data, options); }
+    }
+    private async _importData_impl(data: ExportData, options: ImportOptions): Promise<ImportResult> {
+        const candid_data = await to_candid_ExportData(this._uploadFile, this._downloadFile, data);
+        const candid_options = to_candid_ImportOptions(options);
+        const result = await this.actor.importData(candid_data, candid_options);
+        return from_candid_ImportResult(result);
+    }
 }
 async function from_candid_ExternalBlob_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExternalBlob): Promise<ExternalBlob> {
     return await _downloadFile(value);
@@ -1232,12 +1338,83 @@ function to_candid_opt_ServiceFilter(_uploadFile: (file: ExternalBlob) => Promis
     }];
 }
 
+
+async function from_candid_ExportData(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExportData): Promise<ExportData> {
+    return {
+        metadata: {
+            exportDate: value.metadata.exportDate,
+            exportVersion: value.metadata.exportVersion,
+            exportedBy: value.metadata.exportedBy,
+            totalRecords: {
+                portfolio: value.metadata.totalRecords.portfolio,
+                services: value.metadata.totalRecords.services,
+                testimonials: value.metadata.totalRecords.testimonials,
+            },
+        },
+        portfolio: await Promise.all(value.portfolio.map(p => from_candid_PortfolioProject_n18(_uploadFile, _downloadFile, p))),
+        services: await Promise.all(value.services.map(s => from_candid_Service(_uploadFile, _downloadFile, s))),
+        testimonials: await Promise.all(value.testimonials.map(t => from_candid_Testimonial(_uploadFile, _downloadFile, t))),
+        contactSettings: value.contactSettings.length > 0 ? from_candid_ContactSettings(value.contactSettings[0]) : null,
+    };
+}
+
 export interface CreateActorOptions {
     agent?: Agent;
     agentOptions?: HttpAgentOptions;
     actorOptions?: ActorConfig;
     processError?: (error: unknown) => never;
 }
+
+function from_candid_ContactSettings(value: _ContactSettings): ContactSettings {
+    return {
+        whatsapp: {
+            number: value.whatsapp.number.length > 0 ? value.whatsapp.number[0] : undefined,
+            isEnabled: value.whatsapp.isEnabled,
+        },
+        email: {
+            primary: value.email.primary,
+            secondary: value.email.secondary.length > 0 ? value.email.secondary[0] : undefined,
+            responseTime: value.email.responseTime,
+        },
+        phone: {
+            primary: value.phone.primary.length > 0 ? value.phone.primary[0] : undefined,
+            secondary: value.phone.secondary.length > 0 ? value.phone.secondary[0] : undefined,
+            isEnabled: value.phone.isEnabled,
+        },
+        address: {
+            fullAddress: value.address.fullAddress,
+            businessHours: { ...value.address.businessHours },
+        },
+        map: { latitude: value.map.latitude, longitude: value.map.longitude },
+        lastUpdated: value.lastUpdated,
+    };
+}
+
+function to_candid_ContactSettings(value: ContactSettings): _ContactSettings {
+    return {
+        whatsapp: {
+            number: value.whatsapp.number ? [value.whatsapp.number] : [],
+            isEnabled: value.whatsapp.isEnabled,
+        },
+        email: {
+            primary: value.email.primary,
+            secondary: value.email.secondary ? [value.email.secondary] : [],
+            responseTime: value.email.responseTime,
+        },
+        phone: {
+            primary: value.phone.primary ? [value.phone.primary] : [],
+            secondary: value.phone.secondary ? [value.phone.secondary] : [],
+            isEnabled: value.phone.isEnabled,
+        },
+        address: {
+            fullAddress: value.address.fullAddress,
+            businessHours: { ...value.address.businessHours },
+        },
+        map: { latitude: value.map.latitude, longitude: value.map.longitude },
+        lastUpdated: value.lastUpdated,
+    };
+}
+
 export function createActor(canisterId: string, _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, options: CreateActorOptions = {}): Backend {
     const agent = options.agent || HttpAgent.createSync({
         ...options.agentOptions
@@ -1251,4 +1428,114 @@ export function createActor(canisterId: string, _uploadFile: (file: ExternalBlob
         ...options.actorOptions
     });
     return new Backend(actor, _uploadFile, _downloadFile, options.processError);
+}
+
+function to_candid_ImportMode(value: ImportMode): _ImportMode {
+    if (value === 'createAndUpdate') return { createAndUpdate: null };
+    if (value === 'createOnly') return { createOnly: null };
+    if (value === 'replaceAll') return { replaceAll: null };
+    return { skip: null };
+}
+
+function to_candid_ImportOptions(value: ImportOptions): _ImportOptions {
+    return {
+        portfolioMode: to_candid_ImportMode(value.portfolioMode),
+        servicesMode: to_candid_ImportMode(value.servicesMode),
+        testimonialsMode: to_candid_ImportMode(value.testimonialsMode),
+        importContactSettings: value.importContactSettings,
+    };
+}
+
+function from_candid_ImportResultCounts(value: _ImportResultCounts): ImportResultCounts {
+    return { created: value.created, updated: value.updated };
+}
+
+function from_candid_ImportResult(value: _ImportResult): ImportResult {
+    return {
+        portfolio: from_candid_ImportResultCounts(value.portfolio),
+        services: from_candid_ImportResultCounts(value.services),
+        testimonials: from_candid_ImportResultCounts(value.testimonials),
+        contactSettingsUpdated: value.contactSettingsUpdated,
+    };
+}
+
+async function to_candid_PortfolioProject_full(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: PortfolioProject): Promise<any> {
+    return {
+        id: value.id,
+        galleryImages: await Promise.all((value.galleryImages || []).map(img => _uploadFile(img))),
+        title: value.title,
+        thumbnail: value.thumbnail ? [await _uploadFile(value.thumbnail)] : [],
+        clientName: value.clientName,
+        displayOrder: value.displayOrder,
+        technologiesUsed: value.technologiesUsed || [],
+        tags: value.tags || [],
+        createdDate: value.createdDate !== undefined ? [value.createdDate] : [],
+        publishStatus: to_candid_PublishStatus_n10(_uploadFile, _downloadFile, value.publishStatus),
+        description: value.description,
+        results: value.results || [],
+        linkedTestimonialId: value.linkedTestimonialId !== undefined ? [value.linkedTestimonialId] : [],
+        category: to_candid_PortfolioCategory_n16(_uploadFile, _downloadFile, value.category),
+        lastUpdatedDate: value.lastUpdatedDate !== undefined ? [value.lastUpdatedDate] : [],
+        industry: value.industry,
+    };
+}
+
+async function to_candid_Testimonial_full(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Testimonial): Promise<any> {
+    return {
+        id: value.id,
+        quote: value.quote,
+        authorName: value.authorName,
+        jobTitle: value.jobTitle,
+        companyName: value.companyName,
+        photo: value.photo ? [await _uploadFile(value.photo)] : [],
+        linkedPortfolioId: value.linkedPortfolioId !== undefined ? [value.linkedPortfolioId] : [],
+        rating: value.rating,
+        displayOrder: value.displayOrder,
+        isVisible: value.isVisible,
+        createdDate: value.createdDate !== undefined ? [value.createdDate] : [],
+        lastUpdatedDate: value.lastUpdatedDate !== undefined ? [value.lastUpdatedDate] : [],
+    };
+}
+
+async function to_candid_Service_full(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Service): Promise<any> {
+    return {
+        id: value.id,
+        title: value.title,
+        icon: value.icon ? [await _uploadFile(value.icon)] : [],
+        shortDescription: value.shortDescription,
+        fullDescription: value.fullDescription,
+        useCases: value.useCases || [],
+        processSteps: (value.processSteps || []).map(s => ({ step: s.step, description: s.description })),
+        targetAudience: value.targetAudience,
+        faqs: (value.faqs || []).map(f => ({ question: f.question, answer: f.answer })),
+        displayOrder: value.displayOrder,
+        isVisible: value.isVisible,
+        createdDate: value.createdDate !== undefined ? [value.createdDate] : [],
+        lastUpdatedDate: value.lastUpdatedDate !== undefined ? [value.lastUpdatedDate] : [],
+    };
+}
+
+async function to_candid_ExportData(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ExportData): Promise<_ExportData> {
+    const portfolioArr = await Promise.all((value.portfolio || []).map(p => to_candid_PortfolioProject_full(_uploadFile, _downloadFile, p)));
+    const servicesArr = await Promise.all((value.services || []).map(s => to_candid_Service_full(_uploadFile, _downloadFile, s)));
+    const testimonialsArr = await Promise.all((value.testimonials || []).map(t => to_candid_Testimonial_full(_uploadFile, _downloadFile, t)));
+    const csOpt = (value.contactSettings !== null && value.contactSettings !== undefined)
+        ? [to_candid_ContactSettings(value.contactSettings)]
+        : [];
+    return {
+        metadata: {
+            exportDate: value.metadata.exportDate,
+            exportVersion: value.metadata.exportVersion,
+            exportedBy: value.metadata.exportedBy,
+            totalRecords: {
+                portfolio: value.metadata.totalRecords.portfolio,
+                services: value.metadata.totalRecords.services,
+                testimonials: value.metadata.totalRecords.testimonials,
+            },
+        },
+        portfolio: portfolioArr,
+        services: servicesArr,
+        testimonials: testimonialsArr,
+        contactSettings: csOpt,
+    };
 }

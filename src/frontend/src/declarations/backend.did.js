@@ -200,6 +200,45 @@ export const PaginatedServices = IDL.Record({
   'total' : IDL.Nat,
   'items' : IDL.Vec(Service),
 });
+export const BusinessHours = IDL.Record({
+  'monday' : IDL.Text,
+  'tuesday' : IDL.Text,
+  'wednesday' : IDL.Text,
+  'thursday' : IDL.Text,
+  'friday' : IDL.Text,
+  'saturday' : IDL.Text,
+  'sunday' : IDL.Text,
+});
+export const ContactWhatsApp = IDL.Record({
+  'number' : IDL.Opt(IDL.Text),
+  'isEnabled' : IDL.Bool,
+});
+export const ContactEmail = IDL.Record({
+  'primary' : IDL.Text,
+  'secondary' : IDL.Opt(IDL.Text),
+  'responseTime' : IDL.Text,
+});
+export const ContactPhone = IDL.Record({
+  'primary' : IDL.Opt(IDL.Text),
+  'secondary' : IDL.Opt(IDL.Text),
+  'isEnabled' : IDL.Bool,
+});
+export const ContactAddress = IDL.Record({
+  'fullAddress' : IDL.Text,
+  'businessHours' : BusinessHours,
+});
+export const ContactMap = IDL.Record({
+  'latitude' : IDL.Float64,
+  'longitude' : IDL.Float64,
+});
+export const ContactSettings = IDL.Record({
+  'whatsapp' : ContactWhatsApp,
+  'email' : ContactEmail,
+  'phone' : ContactPhone,
+  'address' : ContactAddress,
+  'map' : ContactMap,
+  'lastUpdated' : IDL.Int,
+});
 
 export const idlService = IDL.Service({
   '_caffeineStorageBlobIsLive' : IDL.Func(
@@ -307,6 +346,10 @@ export const idlService = IDL.Service({
       [IDL.Opt(Service)],
       [],
     ),
+  'getContactSettings' : IDL.Func([], [ContactSettings], ['query']),
+  'updateContactSettings' : IDL.Func([ContactSettings], [ContactSettings], []),
+  'getPreviousContactSettings' : IDL.Func([], [IDL.Opt(ContactSettings)], ['query']),
+  'resetContactSettings' : IDL.Func([], [ContactSettings], []),
 });
 
 export const idlInitArgs = [];
@@ -504,8 +547,87 @@ export const idlFactory = ({ IDL }) => {
     'total' : IDL.Nat,
     'items' : IDL.Vec(Service),
   });
+  const BusinessHours = IDL.Record({
+    'monday' : IDL.Text,
+    'tuesday' : IDL.Text,
+    'wednesday' : IDL.Text,
+    'thursday' : IDL.Text,
+    'friday' : IDL.Text,
+    'saturday' : IDL.Text,
+    'sunday' : IDL.Text,
+  });
+  const ContactWhatsApp = IDL.Record({
+    'number' : IDL.Opt(IDL.Text),
+    'isEnabled' : IDL.Bool,
+  });
+  const ContactEmail = IDL.Record({
+    'primary' : IDL.Text,
+    'secondary' : IDL.Opt(IDL.Text),
+    'responseTime' : IDL.Text,
+  });
+  const ContactPhone = IDL.Record({
+    'primary' : IDL.Opt(IDL.Text),
+    'secondary' : IDL.Opt(IDL.Text),
+    'isEnabled' : IDL.Bool,
+  });
+  const ContactAddress = IDL.Record({
+    'fullAddress' : IDL.Text,
+    'businessHours' : BusinessHours,
+  });
+  const ContactMap = IDL.Record({
+    'latitude' : IDL.Float64,
+    'longitude' : IDL.Float64,
+  });
+  const ContactSettings = IDL.Record({
+    'whatsapp' : ContactWhatsApp,
+    'email' : ContactEmail,
+    'phone' : ContactPhone,
+    'address' : ContactAddress,
+    'map' : ContactMap,
+    'lastUpdated' : IDL.Int,
+  });
 
-  return IDL.Service({
+  const ExportTotalRecords = IDL.Record({
+    'portfolio' : IDL.Nat,
+    'services' : IDL.Nat,
+    'testimonials' : IDL.Nat,
+  });
+  const ExportMetadata = IDL.Record({
+    'exportDate' : IDL.Int,
+    'exportVersion' : IDL.Text,
+    'exportedBy' : IDL.Principal,
+    'totalRecords' : ExportTotalRecords,
+  });
+  const ExportData = IDL.Record({
+    'metadata' : ExportMetadata,
+    'portfolio' : IDL.Vec(PortfolioProject),
+    'services' : IDL.Vec(Service),
+    'testimonials' : IDL.Vec(Testimonial),
+    'contactSettings' : IDL.Opt(ContactSettings),
+  });
+  const ImportMode = IDL.Variant({
+    'createAndUpdate' : IDL.Null,
+    'createOnly' : IDL.Null,
+    'replaceAll' : IDL.Null,
+    'skip' : IDL.Null,
+  });
+  const ImportOptions = IDL.Record({
+    'portfolioMode' : ImportMode,
+    'servicesMode' : ImportMode,
+    'testimonialsMode' : ImportMode,
+    'importContactSettings' : IDL.Bool,
+  });
+  const ImportResultCounts = IDL.Record({
+    'created' : IDL.Nat,
+    'updated' : IDL.Nat,
+  });
+  const ImportResult = IDL.Record({
+    'portfolio' : ImportResultCounts,
+    'services' : ImportResultCounts,
+    'testimonials' : ImportResultCounts,
+    'contactSettingsUpdated' : IDL.Bool,
+  });
+    return IDL.Service({
     '_caffeineStorageBlobIsLive' : IDL.Func(
         [IDL.Vec(IDL.Nat8)],
         [IDL.Bool],
@@ -611,6 +733,12 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(Service)],
         [],
       ),
+    'getContactSettings' : IDL.Func([], [ContactSettings], ['query']),
+    'updateContactSettings' : IDL.Func([ContactSettings], [ContactSettings], []),
+    'getPreviousContactSettings' : IDL.Func([], [IDL.Opt(ContactSettings)], ['query']),
+    'resetContactSettings' : IDL.Func([], [ContactSettings], []),
+    'exportData' : IDL.Func([], [ExportData], ['query']),
+    'importData' : IDL.Func([ExportData, ImportOptions], [ImportResult], []),
   });
 };
 

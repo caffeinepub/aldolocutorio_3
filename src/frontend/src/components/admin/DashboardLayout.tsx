@@ -1,5 +1,6 @@
 import { Link, Outlet, useLocation } from "@tanstack/react-router";
 import {
+  Download,
   FileText,
   FolderOpen,
   Inbox,
@@ -9,6 +10,7 @@ import {
   MessageSquare,
   Settings,
   SlidersHorizontal,
+  Upload,
   Wrench,
   X,
 } from "lucide-react";
@@ -48,6 +50,18 @@ const navItems = [
     icon: Settings,
     label: "Config. Contacto",
     to: "/admin/contact-settings" as const,
+  },
+  {
+    id: "data-export",
+    icon: Upload,
+    label: "Exportar Datos",
+    to: "/admin/data-export" as const,
+  },
+  {
+    id: "data-import",
+    icon: Download,
+    label: "Importar Datos",
+    to: "/admin/data-import" as const,
   },
   {
     id: "settings",

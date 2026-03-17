@@ -1,11 +1,13 @@
 import { useNavigate } from "@tanstack/react-router";
 import {
+  Download,
   FileText,
   FolderOpen,
   Inbox,
   MessageSquare,
   Settings,
   SlidersHorizontal,
+  Upload,
   Wrench,
 } from "lucide-react";
 
@@ -23,6 +25,16 @@ const dashboardCards = [
     icon: Settings,
     label: "Config. Contacto",
     to: "/admin/contact-settings" as const,
+  },
+  {
+    icon: Upload,
+    label: "Exportar Datos",
+    to: "/admin/data-export" as const,
+  },
+  {
+    icon: Download,
+    label: "Importar Datos",
+    to: "/admin/data-import" as const,
   },
   { icon: SlidersHorizontal, label: "Ajustes", to: "/admin/settings" as const },
 ];

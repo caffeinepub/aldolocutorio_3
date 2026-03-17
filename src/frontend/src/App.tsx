@@ -15,6 +15,8 @@ import { useActor } from "./hooks/useActor";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import BlogPage from "./pages/admin/BlogPage";
 import ContactSettingsPage from "./pages/admin/ContactSettingsPage";
+import DataExportPage from "./pages/admin/DataExportPage";
+import DataImportPage from "./pages/admin/DataImportPage";
 import PortfolioPage from "./pages/admin/PortfolioPage";
 import ServicesPage from "./pages/admin/ServicesPage";
 import SettingsPage from "./pages/admin/SettingsPage";
@@ -45,7 +47,6 @@ function AdminPage() {
     if (isLoginSuccess || !hasValidSession()) {
       verifiedRef.current = true;
       setIsVerifying(true);
-      // Register user first (first caller becomes admin), then check role
       actor
         ._initializeAccessControlWithSecret("")
         .then(() => actor.isCallerAdmin())
@@ -122,6 +123,18 @@ const contactSettingsRoute = createRoute({
   component: ContactSettingsPage,
 });
 
+const dataExportRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: "/data-export",
+  component: DataExportPage,
+});
+
+const dataImportRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: "/data-import",
+  component: DataImportPage,
+});
+
 const settingsRoute = createRoute({
   getParentRoute: () => adminRoute,
   path: "/settings",
@@ -143,6 +156,8 @@ const routeTree = rootRoute.addChildren([
     servicesRoute,
     testimonialsRoute,
     contactSettingsRoute,
+    dataExportRoute,
+    dataImportRoute,
     settingsRoute,
   ]),
 ]);
