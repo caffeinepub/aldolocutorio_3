@@ -15,6 +15,7 @@ import type {
   Testimonial,
 } from "../../backend";
 import { useActor } from "../../hooks/useActor";
+import { safeBigIntToString } from "../../utils/BigIntSerializer";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -83,9 +84,11 @@ function SectionHeader({
 
 function ServiceCard({ service }: { service: Service }) {
   const iconUrl = service.icon?.getDirectURL?.();
+  const serviceIdStr = safeBigIntToString(service.id);
   return (
     <Link
-      to="/servicios"
+      to="/servicios/$serviceid"
+      params={{ serviceid: serviceIdStr }}
       className="group block rounded-2xl border border-border bg-card p-6 hover:border-primary hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
       data-ocid="services.item.1"
     >

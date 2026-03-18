@@ -109,9 +109,21 @@ const serviciosRoute = createRoute({
   component: ServiciosPage,
 });
 
+const serviciosServiceRoute = createRoute({
+  getParentRoute: () => publicLayoutRoute,
+  path: "/servicios/$serviceid",
+  component: ServiciosPage,
+});
+
 const portafolioPublicRoute = createRoute({
   getParentRoute: () => publicLayoutRoute,
   path: "/portafolio",
+  component: PortafolioPage,
+});
+
+const portafolioProjectRoute = createRoute({
+  getParentRoute: () => publicLayoutRoute,
+  path: "/portafolio/$projectid",
   component: PortafolioPage,
 });
 
@@ -210,7 +222,9 @@ const routeTree = rootRoute.addChildren([
   publicLayoutRoute.addChildren([
     homeRoute,
     serviciosRoute,
+    serviciosServiceRoute,
     portafolioPublicRoute,
+    portafolioProjectRoute,
     sobreNosotrosRoute,
     contactoRoute,
     privacidadRoute,

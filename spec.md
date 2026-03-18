@@ -1,36 +1,36 @@
 # AldoLocutorio
 
 ## Current State
-- Public layout (header, footer, side panel) is live with placeholder pages.
-- Backend `getHomepageData()` returns `HomepageData { services, featuredProjects, testimonials }` (max 3 each).
-- Homepage (`/`) is a minimal placeholder with no dynamic content.
-- Logo currently uses `height: 40px` (header) and `height: 60px` (footer).
+The `/portafolio` route exists as a placeholder page with no real content. The `App.tsx` has a single route `portafolioPublicRoute` for `/portafolio` but no deep-link route for `/portafolio/$projectid`. The backend exposes `getPortfolioProjects(page, pageSize, filter)` returning `PaginatedPortfolioProjects` with `items: PortfolioProject[]`.
 
 ## Requested Changes (Diff)
 
 ### Add
-- `HomePage` component with hero section, services grid, featured projects grid, testimonials carousel.
-- `ServiceCard` component.
-- `ProjectCard` component.
-- `TestimonialCard` component.
-- `TestimonialsCarousel` component with auto-rotate, prev/next, dot indicators, swipe support.
-- Loading skeleton shown during `getHomepageData()` fetch.
+- `/portafolio/$projectid` deep-link route in `App.tsx`
+- Full `PortafolioPage` replacing the placeholder, with:
+  - Page header ("Nuestro Trabajo" / "Selección de proyectos recientes")
+  - Vertical list of `ProjectCard` components (one per row)
+  - `GalleryCarousel` component for `galleryImages: ExternalBlob[]`
+  - Description, Technologies & Tags two-column, Results sections
+  - Loading skeletons (2-3 cards)
+  - Empty/error states with Spanish messages
+  - Deep-link scroll + highlight for `/portafolio/$projectid`
 
 ### Modify
-- Replace placeholder `HomePage` with the full dynamic implementation.
-- Update logo width to 200px everywhere (header + footer) while keeping height auto.
+- `App.tsx`: add `portafolioProjectRoute` for `/portafolio/$projectid`
+- `src/frontend/src/pages/public/PortafolioPage.tsx`: replace placeholder
 
 ### Remove
-- Placeholder homepage text.
+- Placeholder content from PortafolioPage
 
 ## Implementation Plan
-1. Update `PublicHeader` logo: `width: 200px, height: auto`.
-2. Update `PublicFooter` logo: `width: 200px, height: auto`.
-3. Create `src/pages/public/HomePage.tsx` with:
-   - `useQuery` calling `actor.getHomepageData()` (stable actor from `useActor`).
-   - HeroSection (hardcoded).
-   - ServicesSection (ServiceCard grid, max 3, hidden if empty).
-   - FeaturedProjectsSection (ProjectCard grid, max 3, hidden if empty).
-   - TestimonialsSection (carousel, max 3, hidden if empty).
-   - Loading skeleton while fetching.
-4. Validate and build.
+1. Update `App.tsx` to add `/portafolio/$projectid` route pointing to the same `PortafolioPage` component
+2. Rewrite `PortafolioPage.tsx` with:
+   - `useActor` stable actor pattern + `useQuery` fetching `getPortfolioProjects(1n, 1000n, { status: PublishStatus.published, category: undefined, search: undefined })`
+   - `GalleryCarousel` sub-component with left/right nav, dot indicators, touch swipe, lazy loading via IntersectionObserver
+   - `ProjectCard` sub-component with id attribute for deep linking
+   - Deep-link: after data loads, scroll to card matching `projectid` param and apply highlight class
+   - Loading: 2-3 skeleton cards
+   - Empty/error states
+   - `useQueryClient` cleanup on unmount
+   - Use `safeBigIntToString()` for ID conversions
