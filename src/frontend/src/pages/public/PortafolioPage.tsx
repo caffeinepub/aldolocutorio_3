@@ -118,7 +118,7 @@ function GalleryCarousel({ images }: GalleryCarouselProps) {
           <img
             src={images[current].getDirectURL()}
             alt={`Imagen ${current + 1}`}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
             loading="lazy"
           />
         ) : (
@@ -335,10 +335,10 @@ export default function PortafolioPage() {
     }, 150);
   }, [projects, params.projectid]);
 
-  // Auto-clear highlight after 3s
+  // Auto-clear highlight after 2s
   useEffect(() => {
     if (!highlightedId) return;
-    const timer = setTimeout(() => setHighlightedId(null), 3000);
+    const timer = setTimeout(() => setHighlightedId(null), 2000);
     return () => clearTimeout(timer);
   }, [highlightedId]);
 

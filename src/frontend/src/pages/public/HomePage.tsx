@@ -123,9 +123,11 @@ function ServiceCard({ service }: { service: Service }) {
 function ProjectCard({ project }: { project: PortfolioProject }) {
   const thumbUrl = project.thumbnail?.getDirectURL?.();
   const firstResult = project.results[0];
+  const projectIdStr = safeBigIntToString(project.id);
   return (
     <Link
-      to="/portafolio"
+      to="/portafolio/$projectid"
+      params={{ projectid: projectIdStr }}
       className="group block rounded-2xl border border-border bg-card overflow-hidden hover:shadow-xl hover:shadow-black/10 hover:-translate-y-1 transition-all duration-300"
       data-ocid="projects.item.1"
     >
