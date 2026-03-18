@@ -1,31 +1,36 @@
 # AldoLocutorio
 
 ## Current State
-Full admin panel exists with portfolio, testimonials, services, contact settings, data export/import pages. All backend logic in main.mo. Frontend uses TanStack Router with routes under /admin. The root `/` route renders an empty div. No public-facing pages exist yet.
+- Public layout (header, footer, side panel) is live with placeholder pages.
+- Backend `getHomepageData()` returns `HomepageData { services, featuredProjects, testimonials }` (max 3 each).
+- Homepage (`/`) is a minimal placeholder with no dynamic content.
+- Logo currently uses `height: 40px` (header) and `height: 60px` (footer).
 
 ## Requested Changes (Diff)
 
 ### Add
-- `HomepageData` type and `getHomepageData()` query function to main.mo
-- `HomepageData` interface + `getHomepageData` to backend.d.ts and backend.did.js
-- `PublicLayout` component (header + footer + container wrapper + Outlet)
-- `PublicHeader` component (logo, desktop nav, hamburger)
-- `SidePanel` component (mobile slide-in navigation overlay)
-- `PublicFooter` component (4-column desktop, stacked mobile, legal links)
-- Placeholder pages: Home, Servicios, Portafolio, Sobre Nosotros, Contacto, Privacidad, Terminos, Testimonios
-- Public routes in App.tsx: /, /servicios, /portafolio, /sobre-nosotros, /contacto, /privacidad, /terminos, /testimonios
+- `HomePage` component with hero section, services grid, featured projects grid, testimonials carousel.
+- `ServiceCard` component.
+- `ProjectCard` component.
+- `TestimonialCard` component.
+- `TestimonialsCarousel` component with auto-rotate, prev/next, dot indicators, swipe support.
+- Loading skeleton shown during `getHomepageData()` fetch.
 
 ### Modify
-- App.tsx: replace the empty `/` route with PublicLayout and all public sub-routes
-- backend.d.ts: add HomepageData and getHomepageData to backendInterface
-- backend.did.js: add HomepageData IDL record and getHomepageData function
+- Replace placeholder `HomePage` with the full dynamic implementation.
+- Update logo width to 200px everywhere (header + footer) while keeping height auto.
 
 ### Remove
-- The empty `indexRoute` component (`() => <div />`) replaced by public layout routes
+- Placeholder homepage text.
 
 ## Implementation Plan
-1. Add `HomepageData` type and `getHomepageData()` to main.mo (filter visible services, published projects, visible testimonials; sort by displayOrder; take first 3 each)
-2. Add `HomepageData` to backend.d.ts and idlService/idlFactory in backend.did.js
-3. Create src/frontend/src/components/public/ directory with PublicHeader, SidePanel, PublicFooter, PublicLayout
-4. Create placeholder page components for all 8 public routes
-5. Update App.tsx with public route tree using PublicLayout as parent
+1. Update `PublicHeader` logo: `width: 200px, height: auto`.
+2. Update `PublicFooter` logo: `width: 200px, height: auto`.
+3. Create `src/pages/public/HomePage.tsx` with:
+   - `useQuery` calling `actor.getHomepageData()` (stable actor from `useActor`).
+   - HeroSection (hardcoded).
+   - ServicesSection (ServiceCard grid, max 3, hidden if empty).
+   - FeaturedProjectsSection (ProjectCard grid, max 3, hidden if empty).
+   - TestimonialsSection (carousel, max 3, hidden if empty).
+   - Loading skeleton while fetching.
+4. Validate and build.

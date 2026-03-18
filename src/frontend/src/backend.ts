@@ -293,6 +293,7 @@ export interface ExportMetadata {
   exportVersion: string;
   totalRecords: ExportTotalRecords;
 }
+export interface HomepageData { services: Array<Service>; featuredProjects: Array<PortfolioProject>; testimonials: Array<Testimonial>; }
 export interface ExportData {
   metadata: ExportMetadata;
   portfolio: Array<PortfolioProject>;
@@ -365,6 +366,7 @@ export interface backendInterface {
     resetContactSettings(): Promise<ContactSettings>;
     exportData(): Promise<ExportData>;
     importData(data: ExportData, options: ImportOptions): Promise<ImportResult>;
+    getHomepageData(): Promise<HomepageData>;
 }
 import type { ImportMode as _ImportMode, ImportOptions as _ImportOptions, ImportResultCounts as _ImportResultCounts, ImportResult as _ImportResult, ExportData as _ExportData, ExportMetadata as _ExportMetadata, ExportTotalRecords as _ExportTotalRecords, ExternalBlob as _ExternalBlob, PaginatedPortfolioProjects as _PaginatedPortfolioProjects, PortfolioCategory as _PortfolioCategory, PortfolioFilter as _PortfolioFilter, PortfolioProject as _PortfolioProject, PortfolioProjectInput as _PortfolioProjectInput, PortfolioProjectUpdate as _PortfolioProjectUpdate, PublishStatus as _PublishStatus, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult, Testimonial as _Testimonial, TestimonialInput as _TestimonialInput, TestimonialUpdate as _TestimonialUpdate, TestimonialFilter as _TestimonialFilter, PaginatedTestimonials as _PaginatedTestimonials, Service as _Service, ServiceInput as _ServiceInput, ServiceUpdate as _ServiceUpdate, ServiceFilter as _ServiceFilter, PaginatedServices as _PaginatedServices, ServiceProcessStep as _ServiceProcessStep, ServiceFaq as _ServiceFaq, ContactSettings as _ContactSettings, BusinessHours as _BusinessHours, ContactWhatsApp as _ContactWhatsApp, ContactEmail as _ContactEmail, ContactPhone as _ContactPhone, ContactAddress as _ContactAddress, ContactMap as _ContactMap } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -853,6 +855,19 @@ export class Backend implements backendInterface {
         const candid_options = to_candid_ImportOptions(options);
         const result = await this.actor.importData(candid_data, candid_options);
         return from_candid_ImportResult(result);
+    }
+    async getHomepageData(): Promise<HomepageData> {
+        if (this.processError) {
+            try { return await this._getHomepageData_impl(); } catch (e) { this.processError(e); throw new Error('unreachable'); }
+        } else { return await this._getHomepageData_impl(); }
+    }
+    private async _getHomepageData_impl(): Promise<HomepageData> {
+        const result = await (this.actor as any).getHomepageData();
+        return {
+            services: await Promise.all((result.services || []).map((s: any) => from_candid_Service(this._uploadFile, this._downloadFile, s))),
+            featuredProjects: await Promise.all((result.featuredProjects || []).map((p: any) => from_candid_PortfolioProject_n18(this._uploadFile, this._downloadFile, p))),
+            testimonials: await Promise.all((result.testimonials || []).map((t: any) => from_candid_Testimonial(this._uploadFile, this._downloadFile, t))),
+        };
     }
 }
 async function from_candid_ExternalBlob_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExternalBlob): Promise<ExternalBlob> {

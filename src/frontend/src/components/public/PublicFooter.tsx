@@ -15,7 +15,7 @@ export function PublicFooter() {
             <img
               src="https://i.imgur.com/xGJXblj.png"
               alt="AldoLocutorio"
-              style={{ height: "60px" }}
+              style={{ width: "200px", height: "auto" }}
               className="object-contain self-start"
             />
             <p className="text-sm text-muted-foreground max-w-xs">
@@ -63,7 +63,7 @@ export function PublicFooter() {
             </nav>
           </div>
 
-          {/* Caffeine Attribution */}
+          {/* Contact */}
           <div className="flex flex-col gap-3">
             <h4 className="text-sm font-semibold text-foreground">Contacto</h4>
             <p className="text-sm text-muted-foreground">Málaga, España</p>

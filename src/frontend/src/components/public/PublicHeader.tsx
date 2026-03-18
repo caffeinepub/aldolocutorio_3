@@ -26,7 +26,7 @@ export function PublicHeader({ onMenuToggle }: PublicHeaderProps) {
             <img
               src="https://i.imgur.com/xGJXblj.png"
               alt="AldoLocutorio"
-              style={{ height: "40px" }}
+              style={{ width: "200px", height: "auto" }}
               className="object-contain"
             />
           </Link>
