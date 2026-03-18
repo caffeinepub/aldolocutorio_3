@@ -243,7 +243,6 @@ export interface ExportTotalRecords {
 export interface ExportMetadata {
   'exportDate' : bigint,
   'exportVersion' : string,
-  'exportedBy' : Principal,
   'totalRecords' : ExportTotalRecords,
 }
 export interface ExportData {

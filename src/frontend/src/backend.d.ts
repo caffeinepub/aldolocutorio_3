@@ -235,6 +235,11 @@ export interface ContactSettings {
     map: ContactMap;
     lastUpdated: bigint;
 }
+export interface HomepageData {
+    services: Array<Service>;
+    featuredProjects: Array<PortfolioProject>;
+    testimonials: Array<Testimonial>;
+}
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     bulkDeletePortfolioProjects(ids: Array<bigint>): Promise<bigint>;
@@ -270,4 +275,5 @@ export interface backendInterface {
     updateContactSettings(input: ContactSettings): Promise<ContactSettings>;
     getPreviousContactSettings(): Promise<ContactSettings | null>;
     resetContactSettings(): Promise<ContactSettings>;
+    getHomepageData(): Promise<HomepageData>;
 }

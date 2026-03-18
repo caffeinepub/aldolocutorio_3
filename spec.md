@@ -1,29 +1,31 @@
 # AldoLocutorio
 
 ## Current State
-- `/admin/services` exists as a placeholder stub (18 lines, no functionality)
-- Portfolio and Testimonials are fully implemented in `main.mo` and `backend.did.js`
-- Shared utilities exist: BigIntSerializer, SafeSelect, NumericConverter, ApiResponseHandler, StorageClient
-- Blob-storage and authorization components are integrated
+Full admin panel exists with portfolio, testimonials, services, contact settings, data export/import pages. All backend logic in main.mo. Frontend uses TanStack Router with routes under /admin. The root `/` route renders an empty div. No public-facing pages exist yet.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Service data type in `main.mo`: id, title, icon (Storage.ExternalBlob), shortDescription, fullDescription, useCases, processSteps, targetAudience, faqs, displayOrder, isVisible, createdDate, lastUpdatedDate
-- Backend CRUD functions: createService, updateService, deleteService, getService, getServices, reorderServices, bulkUpdateServiceVisibility, bulkDeleteServices
-- Service IDL types and methods in `backend.did.js`
-- Full `/admin/services` page with: header (H2 + Agregar/Filtros buttons), desktop table view, mobile card view, lazy-loaded pagination (10/25/50), drag-and-drop reorder, add/edit modal with all form sections, icon picker (upload or URL), filter panel, bulk operations
+- `HomepageData` type and `getHomepageData()` query function to main.mo
+- `HomepageData` interface + `getHomepageData` to backend.d.ts and backend.did.js
+- `PublicLayout` component (header + footer + container wrapper + Outlet)
+- `PublicHeader` component (logo, desktop nav, hamburger)
+- `SidePanel` component (mobile slide-in navigation overlay)
+- `PublicFooter` component (4-column desktop, stacked mobile, legal links)
+- Placeholder pages: Home, Servicios, Portafolio, Sobre Nosotros, Contacto, Privacidad, Terminos, Testimonios
+- Public routes in App.tsx: /, /servicios, /portafolio, /sobre-nosotros, /contacto, /privacidad, /terminos, /testimonios
 
 ### Modify
-- `main.mo`: append Service types and functions (no separate .mo file)
-- `backend.did.js`: add Service IDL types and methods to idlService and idlFactory
-- `ServicesPage.tsx`: replace stub with full implementation
+- App.tsx: replace the empty `/` route with PublicLayout and all public sub-routes
+- backend.d.ts: add HomepageData and getHomepageData to backendInterface
+- backend.did.js: add HomepageData IDL record and getHomepageData function
 
 ### Remove
-- Placeholder stub content in ServicesPage.tsx
+- The empty `indexRoute` component (`() => <div />`) replaced by public layout routes
 
 ## Implementation Plan
-1. Add Service types + CRUD to main.mo
-2. Add Service IDL to backend.did.js (both idlService and idlFactory)
-3. Build ServicesPage.tsx with all required features
-4. Validate and deploy
+1. Add `HomepageData` type and `getHomepageData()` to main.mo (filter visible services, published projects, visible testimonials; sort by displayOrder; take first 3 each)
+2. Add `HomepageData` to backend.d.ts and idlService/idlFactory in backend.did.js
+3. Create src/frontend/src/components/public/ directory with PublicHeader, SidePanel, PublicFooter, PublicLayout
+4. Create placeholder page components for all 8 public routes
+5. Update App.tsx with public route tree using PublicLayout as parent

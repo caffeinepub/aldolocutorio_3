@@ -11,6 +11,7 @@ import { DashboardHome } from "./components/admin/DashboardHome";
 import { DashboardLayout } from "./components/admin/DashboardLayout";
 import { FullPageSpinner } from "./components/admin/FullPageSpinner";
 import { LoginPage } from "./components/admin/LoginPage";
+import { PublicLayout } from "./components/public/PublicLayout";
 import { useActor } from "./hooks/useActor";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import BlogPage from "./pages/admin/BlogPage";
@@ -21,6 +22,14 @@ import PortfolioPage from "./pages/admin/PortfolioPage";
 import ServicesPage from "./pages/admin/ServicesPage";
 import SettingsPage from "./pages/admin/SettingsPage";
 import TestimonialsPage from "./pages/admin/TestimonialsPage";
+import ContactoPage from "./pages/public/ContactoPage";
+import HomePage from "./pages/public/HomePage";
+import PortafolioPage from "./pages/public/PortafolioPage";
+import PrivacidadPage from "./pages/public/PrivacidadPage";
+import ServiciosPage from "./pages/public/ServiciosPage";
+import SobreNosotrosPage from "./pages/public/SobreNosotrosPage";
+import TerminosPage from "./pages/public/TerminosPage";
+import TestimoniosPage from "./pages/public/TestimoniosPage";
 import { useAdminStore } from "./store/adminStore";
 
 function AdminPage() {
@@ -81,6 +90,62 @@ function AdminPage() {
 
 const rootRoute = createRootRoute({ component: () => <Outlet /> });
 
+// ── Public routes ──────────────────────────────────────────────
+const publicLayoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: "public",
+  component: PublicLayout,
+});
+
+const homeRoute = createRoute({
+  getParentRoute: () => publicLayoutRoute,
+  path: "/",
+  component: HomePage,
+});
+
+const serviciosRoute = createRoute({
+  getParentRoute: () => publicLayoutRoute,
+  path: "/servicios",
+  component: ServiciosPage,
+});
+
+const portafolioPublicRoute = createRoute({
+  getParentRoute: () => publicLayoutRoute,
+  path: "/portafolio",
+  component: PortafolioPage,
+});
+
+const sobreNosotrosRoute = createRoute({
+  getParentRoute: () => publicLayoutRoute,
+  path: "/sobre-nosotros",
+  component: SobreNosotrosPage,
+});
+
+const contactoRoute = createRoute({
+  getParentRoute: () => publicLayoutRoute,
+  path: "/contacto",
+  component: ContactoPage,
+});
+
+const privacidadRoute = createRoute({
+  getParentRoute: () => publicLayoutRoute,
+  path: "/privacidad",
+  component: PrivacidadPage,
+});
+
+const terminosRoute = createRoute({
+  getParentRoute: () => publicLayoutRoute,
+  path: "/terminos",
+  component: TerminosPage,
+});
+
+const testimoniosPublicRoute = createRoute({
+  getParentRoute: () => publicLayoutRoute,
+  path: "/testimonios",
+  component: TestimoniosPage,
+});
+
+// ── Admin routes ──────────────────────────────────────────────
 const adminRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/admin",
@@ -141,14 +206,17 @@ const settingsRoute = createRoute({
   component: SettingsPage,
 });
 
-const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/",
-  component: () => <div />,
-});
-
 const routeTree = rootRoute.addChildren([
-  indexRoute,
+  publicLayoutRoute.addChildren([
+    homeRoute,
+    serviciosRoute,
+    portafolioPublicRoute,
+    sobreNosotrosRoute,
+    contactoRoute,
+    privacidadRoute,
+    terminosRoute,
+    testimoniosPublicRoute,
+  ]),
   adminRoute.addChildren([
     adminIndexRoute,
     portfolioRoute,

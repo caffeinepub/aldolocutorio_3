@@ -1,5 +1,4 @@
 import Map "mo:core/Map";
-import Array "mo:core/Array";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Int "mo:core/Int";
@@ -881,7 +880,6 @@ actor {
   public type ExportMetadata = {
     exportDate : Int;
     exportVersion : Text;
-    exportedBy : Principal;
     totalRecords : ExportTotalRecords;
   };
 
@@ -901,7 +899,6 @@ actor {
       metadata = {
         exportDate = Time.now();
         exportVersion = "1.0";
-        exportedBy = caller;
         totalRecords = {
           portfolio = portfolioItems.size();
           services = serviceItems.size();
@@ -1258,6 +1255,49 @@ actor {
       services = { created = servicesCreated; updated = servicesUpdated };
       testimonials = { created = testimonialsCreated; updated = testimonialsUpdated };
       contactSettingsUpdated = contactUpdated;
+    };
+  };
+
+  // ─── Homepage Data ────────────────────────────────────────────
+
+  public type HomepageData = {
+    services : [Service];
+    featuredProjects : [PortfolioProject];
+    testimonials : [Testimonial];
+  };
+
+  public query func getHomepageData() : async HomepageData {
+    // Services: visible only, sorted by displayOrder desc, max 3
+    let visibleServices = services.values().toArray().filter(func(s) { s.isVisible });
+    let sortedServices = visibleServices.sort(func(a : Service, b : Service) : { #less; #equal; #greater } {
+      if (a.displayOrder > b.displayOrder) { #less }
+      else if (a.displayOrder < b.displayOrder) { #greater }
+      else { #equal }
+    });
+    let topServices = if (sortedServices.size() <= 3) { sortedServices } else { sortedServices.sliceToArray(0, 3) };
+
+    // Portfolio: published only, sorted by displayOrder desc, max 3
+    let publishedProjects = portfolioProjects.values().toArray().filter(func(p) { p.publishStatus == #published });
+    let sortedProjects = publishedProjects.sort(func(a : PortfolioProject, b : PortfolioProject) : { #less; #equal; #greater } {
+      if (a.displayOrder > b.displayOrder) { #less }
+      else if (a.displayOrder < b.displayOrder) { #greater }
+      else { #equal }
+    });
+    let topProjects = if (sortedProjects.size() <= 3) { sortedProjects } else { sortedProjects.sliceToArray(0, 3) };
+
+    // Testimonials: visible only, sorted by displayOrder desc, max 3
+    let visibleTestimonials = testimonials.values().toArray().filter(func(t) { t.isVisible });
+    let sortedTestimonials = visibleTestimonials.sort(func(a : Testimonial, b : Testimonial) : { #less; #equal; #greater } {
+      if (a.displayOrder > b.displayOrder) { #less }
+      else if (a.displayOrder < b.displayOrder) { #greater }
+      else { #equal }
+    });
+    let topTestimonials = if (sortedTestimonials.size() <= 3) { sortedTestimonials } else { sortedTestimonials.sliceToArray(0, 3) };
+
+    {
+      services = topServices;
+      featuredProjects = topProjects;
+      testimonials = topTestimonials;
     };
   };
 

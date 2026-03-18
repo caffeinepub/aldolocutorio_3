@@ -1,0 +1,25 @@
+import { Link } from "@tanstack/react-router";
+
+export default function ServiciosPage() {
+  return (
+    <div
+      style={{
+        minHeight: "60vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "2rem",
+        textAlign: "center",
+      }}
+    >
+      <h1 className="text-3xl font-bold mb-3">Servicios</h1>
+      <p className="text-muted-foreground mb-6">
+        Página de servicios - Próximamente
+      </p>
+      <Link to="/" className="text-primary hover:underline text-sm">
+        Volver al Inicio
+      </Link>
+    </div>
+  );
+}

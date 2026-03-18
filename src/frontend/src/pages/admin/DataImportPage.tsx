@@ -118,10 +118,6 @@ function normalizeImportData(raw: any): ExportData {
     metadata: {
       exportDate: toBigInt(meta.exportDate),
       exportVersion: String(meta.exportVersion ?? "1.0"),
-      // exportedBy may arrive as a Principal object, a plain string, or
-      // an object with a __principal__ key — pass through as-is since the
-      // backend wrapper handles Principal serialization.
-      exportedBy: meta.exportedBy,
       totalRecords: {
         portfolio: toBigInt(totalRec.portfolio),
         services: toBigInt(totalRec.services),
@@ -190,7 +186,12 @@ function normalizeImportData(raw: any): ExportData {
       createdDate: toOptBigInt(t.createdDate),
       lastUpdatedDate: toOptBigInt(t.lastUpdatedDate),
     })),
-    contactSettings: raw.contactSettings ?? null,
+    contactSettings: raw.contactSettings
+      ? {
+          ...raw.contactSettings,
+          lastUpdated: toBigInt(raw.contactSettings.lastUpdated),
+        }
+      : null,
   };
 }
 
@@ -198,12 +199,7 @@ function validateImportData(data: any): boolean {
   if (!data || typeof data !== "object") return false;
   const meta = data.metadata;
   if (!meta || typeof meta !== "object") return false;
-  if (
-    !meta.exportVersion ||
-    meta.exportDate === undefined ||
-    meta.exportedBy === undefined
-  )
-    return false;
+  if (!meta.exportVersion || meta.exportDate === undefined) return false;
   if (!meta.totalRecords || typeof meta.totalRecords !== "object") return false;
   if (!Array.isArray(data.portfolio)) return false;
   if (!Array.isArray(data.services)) return false;
@@ -468,14 +464,6 @@ export default function DataImportPage() {
                 </p>
                 <p className="text-sm font-medium text-foreground">
                   {formatBigIntDate(parsedData.metadata.exportDate)}
-                </p>
-              </div>
-              <div className="rounded-lg bg-muted/50 p-3">
-                <p className="text-xs text-muted-foreground mb-1">
-                  Exportado por
-                </p>
-                <p className="text-sm font-medium text-foreground truncate">
-                  {String(parsedData.metadata.exportedBy)}
                 </p>
               </div>
               <div className="rounded-lg bg-muted/50 p-3">

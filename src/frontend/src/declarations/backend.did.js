@@ -239,6 +239,11 @@ export const ContactSettings = IDL.Record({
   'map' : ContactMap,
   'lastUpdated' : IDL.Int,
 });
+export const HomepageData = IDL.Record({
+  'services' : IDL.Vec(Service),
+  'featuredProjects' : IDL.Vec(PortfolioProject),
+  'testimonials' : IDL.Vec(Testimonial),
+});
 
 export const idlService = IDL.Service({
   '_caffeineStorageBlobIsLive' : IDL.Func(
@@ -350,6 +355,7 @@ export const idlService = IDL.Service({
   'updateContactSettings' : IDL.Func([ContactSettings], [ContactSettings], []),
   'getPreviousContactSettings' : IDL.Func([], [IDL.Opt(ContactSettings)], ['query']),
   'resetContactSettings' : IDL.Func([], [ContactSettings], []),
+  'getHomepageData' : IDL.Func([], [HomepageData], ['query']),
 });
 
 export const idlInitArgs = [];
@@ -586,6 +592,11 @@ export const idlFactory = ({ IDL }) => {
     'map' : ContactMap,
     'lastUpdated' : IDL.Int,
   });
+  const HomepageData = IDL.Record({
+    'services' : IDL.Vec(Service),
+    'featuredProjects' : IDL.Vec(PortfolioProject),
+    'testimonials' : IDL.Vec(Testimonial),
+  });
 
   const ExportTotalRecords = IDL.Record({
     'portfolio' : IDL.Nat,
@@ -595,7 +606,6 @@ export const idlFactory = ({ IDL }) => {
   const ExportMetadata = IDL.Record({
     'exportDate' : IDL.Int,
     'exportVersion' : IDL.Text,
-    'exportedBy' : IDL.Principal,
     'totalRecords' : ExportTotalRecords,
   });
   const ExportData = IDL.Record({
@@ -739,6 +749,7 @@ export const idlFactory = ({ IDL }) => {
     'resetContactSettings' : IDL.Func([], [ContactSettings], []),
     'exportData' : IDL.Func([], [ExportData], ['query']),
     'importData' : IDL.Func([ExportData, ImportOptions], [ImportResult], []),
+    'getHomepageData' : IDL.Func([], [HomepageData], ['query']),
   });
 };
 

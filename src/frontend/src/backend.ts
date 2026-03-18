@@ -291,7 +291,6 @@ export interface ExportTotalRecords {
 export interface ExportMetadata {
   exportDate: bigint;
   exportVersion: string;
-  exportedBy: Principal;
   totalRecords: ExportTotalRecords;
 }
 export interface ExportData {
@@ -1344,7 +1343,6 @@ async function from_candid_ExportData(_uploadFile: (file: ExternalBlob) => Promi
         metadata: {
             exportDate: value.metadata.exportDate,
             exportVersion: value.metadata.exportVersion,
-            exportedBy: value.metadata.exportedBy,
             totalRecords: {
                 portfolio: value.metadata.totalRecords.portfolio,
                 services: value.metadata.totalRecords.services,
@@ -1526,7 +1524,6 @@ async function to_candid_ExportData(_uploadFile: (file: ExternalBlob) => Promise
         metadata: {
             exportDate: value.metadata.exportDate,
             exportVersion: value.metadata.exportVersion,
-            exportedBy: value.metadata.exportedBy,
             totalRecords: {
                 portfolio: value.metadata.totalRecords.portfolio,
                 services: value.metadata.totalRecords.services,
