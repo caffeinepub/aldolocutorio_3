@@ -319,6 +319,9 @@ function TestimonialsCarousel({
 
 export default function HomePage() {
   const { actor } = useActor();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const { data, isLoading } = useQuery({
     queryKey: ["homepageData"],
     queryFn: () => actor!.getHomepageData(),

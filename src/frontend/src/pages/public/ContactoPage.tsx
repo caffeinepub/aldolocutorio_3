@@ -278,6 +278,10 @@ export default function ContactoPage() {
   });
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     return () => {
       queryClient.removeQueries({ queryKey: ["contact-settings", "public"] });
     };

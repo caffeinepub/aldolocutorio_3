@@ -167,6 +167,10 @@ export default function TestimoniosPage() {
   });
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     return () => {
       queryClient.removeQueries({ queryKey: ["testimonials", "all-visible"] });
     };

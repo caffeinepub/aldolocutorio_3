@@ -325,6 +325,26 @@ export default function ContactSettingsPage() {
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [initialized, setInitialized] = useState(false);
 
+  // Defensive: suppress errors from browser autofill/password manager extensions
+  useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      const msg = event.message || "";
+      const src = event.filename || "";
+      if (
+        msg.includes("Cannot read properties of null") ||
+        src.includes("autofill") ||
+        src.includes("password") ||
+        src.includes("content-script") ||
+        src.includes("chrome-extension")
+      ) {
+        event.preventDefault();
+        return false;
+      }
+    };
+    window.addEventListener("error", handleError);
+    return () => window.removeEventListener("error", handleError);
+  }, []);
+
   const { data: settings, isLoading } = useQuery({
     queryKey: ["contactSettings"],
     queryFn: async () => {
@@ -389,6 +409,7 @@ export default function ContactSettingsPage() {
   });
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
+    if (!key) return;
     setForm((prev) => ({ ...prev, [key]: value }));
     if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
   }
@@ -507,6 +528,8 @@ export default function ContactSettingsPage() {
                         updateField("whatsappNumber", e.target.value)
                       }
                       data-ocid="contact_settings.input"
+                      data-lpignore="true"
+                      data-form-type="other"
                     />
                     <p className="text-xs text-muted-foreground">
                       Incluir código de país (ej. 34695250655)
@@ -565,6 +588,8 @@ export default function ContactSettingsPage() {
                         errors.emailPrimary ? "border-destructive" : ""
                       }
                       data-ocid="contact_settings.input"
+                      data-lpignore="true"
+                      data-form-type="other"
                     />
                     {errors.emailPrimary && (
                       <p
@@ -593,6 +618,8 @@ export default function ContactSettingsPage() {
                         errors.emailSecondary ? "border-destructive" : ""
                       }
                       data-ocid="contact_settings.input"
+                      data-lpignore="true"
+                      data-form-type="other"
                     />
                     {errors.emailSecondary && (
                       <p
@@ -614,6 +641,8 @@ export default function ContactSettingsPage() {
                         updateField("emailResponseTime", e.target.value)
                       }
                       data-ocid="contact_settings.input"
+                      data-lpignore="true"
+                      data-form-type="other"
                     />
                     <p className="text-xs text-muted-foreground">
                       Ej. 'Usualmente responde en 2 horas'
@@ -654,6 +683,8 @@ export default function ContactSettingsPage() {
                         updateField("phonePrimary", e.target.value)
                       }
                       data-ocid="contact_settings.input"
+                      data-lpignore="true"
+                      data-form-type="other"
                     />
                     <p className="text-xs text-muted-foreground">
                       Formato internacional recomendado
@@ -682,6 +713,8 @@ export default function ContactSettingsPage() {
                         updateField("phoneSecondary", e.target.value)
                       }
                       data-ocid="contact_settings.input"
+                      data-lpignore="true"
+                      data-form-type="other"
                     />
                     {form.phoneSecondary && (
                       <a
@@ -725,6 +758,8 @@ export default function ContactSettingsPage() {
                         updateField("fullAddress", e.target.value)
                       }
                       data-ocid="contact_settings.input"
+                      data-lpignore="true"
+                      data-form-type="other"
                     />
                   </div>
                   <Separator />
@@ -752,6 +787,8 @@ export default function ContactSettingsPage() {
                           placeholder="09:30 - 22:00"
                           className="h-8 text-sm"
                           data-ocid="contact_settings.input"
+                          data-lpignore="true"
+                          data-form-type="other"
                         />
                       </div>
                     ))}

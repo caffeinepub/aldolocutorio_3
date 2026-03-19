@@ -465,6 +465,12 @@ export default function ServiciosPage() {
   });
 
   useEffect(() => {
+    if (!params.serviceid) {
+      window.scrollTo(0, 0);
+    }
+  }, [params.serviceid]);
+
+  useEffect(() => {
     return () => {
       queryClient.removeQueries({ queryKey: ["services", "all-visible"] });
     };

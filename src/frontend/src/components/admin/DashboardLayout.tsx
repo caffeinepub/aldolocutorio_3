@@ -1,20 +1,20 @@
 import { Link, Outlet, useLocation } from "@tanstack/react-router";
 import {
+  Copy,
   Download,
-  FileText,
   FolderOpen,
-  Inbox,
   LayoutDashboard,
   LogOut,
+  Mail,
   Menu,
   MessageSquare,
-  Settings,
-  SlidersHorizontal,
   Upload,
+  User,
   Wrench,
   X,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { useInternetIdentity } from "../../hooks/useInternetIdentity";
 import { useAdminStore } from "../../store/adminStore";
 
@@ -31,7 +31,6 @@ const navItems = [
     label: "Portafolio",
     to: "/admin/portfolio" as const,
   },
-  { id: "blog", icon: FileText, label: "Blog", to: "/admin/blog" as const },
   {
     id: "services",
     icon: Wrench,
@@ -44,11 +43,10 @@ const navItems = [
     label: "Testimonios",
     to: "/admin/testimonials" as const,
   },
-  { id: "inbox", icon: Inbox, label: "Buzón de Contacto", to: null as null },
   {
     id: "contact-settings",
-    icon: Settings,
-    label: "Config. Contacto",
+    icon: Mail,
+    label: "Contacto",
     to: "/admin/contact-settings" as const,
   },
   {
@@ -63,32 +61,13 @@ const navItems = [
     label: "Importar Datos",
     to: "/admin/data-import" as const,
   },
-  {
-    id: "settings",
-    icon: SlidersHorizontal,
-    label: "Ajustes",
-    to: "/admin/settings" as const,
-  },
 ];
-
-function NavItemContent({
-  icon: Icon,
-  label,
-  expanded,
-}: { icon: React.ElementType; label: string; expanded: boolean }) {
-  return (
-    <>
-      <Icon className="h-5 w-5 flex-shrink-0" />
-      <span className={expanded ? "" : "lg:hidden"}>{label}</span>
-    </>
-  );
-}
 
 export function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const { clear } = useInternetIdentity();
-  const { clearAuth } = useAdminStore();
+  const { clearAuth, principal } = useAdminStore();
   const location = useLocation();
 
   const handleLogout = () => {
@@ -96,35 +75,56 @@ export function DashboardLayout() {
     clearAuth();
   };
 
+  const truncatedPrincipal = principal
+    ? `${principal.slice(0, 5)}...${principal.slice(-5)}`
+    : "—";
+
+  const handleCopyPrincipal = async () => {
+    if (!principal) return;
+    try {
+      await navigator.clipboard.writeText(principal);
+      toast.success("Principal ID copiado");
+    } catch {
+      // Fallback for browsers without clipboard API
+      const el = document.createElement("textarea");
+      el.value = principal;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+      toast.success("Principal ID copiado");
+    }
+  };
+
   const getItemClass = (active: boolean, expanded: boolean) =>
     [
-      "flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg transition-colors text-sm font-medium",
+      "flex items-center gap-3 px-4 py-3 mx-2 rounded-lg transition-all duration-150 text-sm font-medium",
       active
-        ? "bg-accent text-primary"
-        : "text-muted-foreground hover:bg-accent hover:text-foreground",
-      !expanded && "lg:justify-center lg:px-2",
+        ? "bg-primary/10 text-primary border-l-2 border-primary rounded-l-none -ml-0"
+        : "text-muted-foreground hover:bg-muted hover:text-foreground",
+      !expanded && "lg:justify-center lg:px-0",
     ].join(" ");
 
   return (
-    <div className="min-h-screen bg-secondary flex">
+    <div className="min-h-screen bg-secondary">
       {/* Mobile overlay */}
       {sidebarOpen && (
-        // biome-ignore lint/a11y/useKeyWithClickEvents: overlay backdrop closes on click only
+        // biome-ignore lint/a11y/useKeyWithClickEvents: overlay backdrop
         <div
           className="fixed inset-0 bg-foreground/20 z-20 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - fixed full height */}
       <aside
         className={[
-          "fixed top-0 left-0 h-full bg-card border-r border-border z-30 transition-all duration-200 flex flex-col",
-          "lg:static lg:translate-x-0",
+          "fixed top-0 left-0 h-screen bg-card border-r border-border z-30 transition-all duration-200 flex flex-col",
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
-          sidebarExpanded ? "w-60" : "lg:w-20 w-60",
+          sidebarExpanded ? "w-64" : "w-64 lg:w-16",
         ].join(" ")}
       >
+        {/* Brand */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-border flex-shrink-0">
           {sidebarExpanded && (
             <span className="font-display font-semibold text-sm text-primary truncate">
@@ -141,49 +141,74 @@ export function DashboardLayout() {
           </button>
         </div>
 
-        <nav className="flex-1 py-4 overflow-y-auto">
+        {/* Nav */}
+        <nav className="flex-1 py-4 overflow-y-auto space-y-1">
           {navItems.map((item, idx) => {
             const active =
               item.to === "/admin"
                 ? location.pathname === "/admin"
-                : item.to
-                  ? location.pathname.startsWith(item.to)
-                  : false;
+                : location.pathname.startsWith(item.to);
 
-            return item.to ? (
+            return (
               <Link
                 key={item.id}
                 to={item.to}
                 data-ocid={`nav.link.${idx + 1}`}
+                title={!sidebarExpanded ? item.label : undefined}
                 onClick={() => setSidebarOpen(false)}
                 className={`block ${getItemClass(active, sidebarExpanded)}`}
               >
-                <NavItemContent
-                  icon={item.icon}
-                  label={item.label}
-                  expanded={sidebarExpanded}
-                />
+                <item.icon className="h-5 w-5 flex-shrink-0" />
+                <span className={sidebarExpanded ? "" : "lg:hidden"}>
+                  {item.label}
+                </span>
               </Link>
-            ) : (
-              <div
-                key={item.id}
-                data-ocid={`nav.link.${idx + 1}`}
-                className={`block cursor-default ${getItemClass(false, sidebarExpanded)}`}
-              >
-                <NavItemContent
-                  icon={item.icon}
-                  label={item.label}
-                  expanded={sidebarExpanded}
-                />
-              </div>
             );
           })}
         </nav>
+
+        {/* User Principal - pinned bottom */}
+        <div className="border-t border-border p-4 flex-shrink-0">
+          {sidebarExpanded ? (
+            <div className="flex items-center gap-2">
+              <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              <span className="text-xs text-muted-foreground font-mono flex-1 truncate">
+                {truncatedPrincipal}
+              </span>
+              <button
+                type="button"
+                onClick={handleCopyPrincipal}
+                title="Copiar Principal ID"
+                data-ocid="dashboard.secondary_button"
+                className="p-1 hover:bg-muted rounded transition-colors"
+              >
+                <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={handleCopyPrincipal}
+                title={principal || "Principal ID"}
+                data-ocid="dashboard.secondary_button"
+                className="p-1 hover:bg-muted rounded transition-colors"
+              >
+                <User className="h-4 w-4 text-muted-foreground" />
+              </button>
+            </div>
+          )}
+        </div>
       </aside>
 
-      {/* Main column */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 flex-shrink-0 relative">
+      {/* Main column - offset by sidebar width */}
+      <div
+        className={[
+          "flex flex-col min-h-screen transition-all duration-200",
+          sidebarExpanded ? "lg:pl-64" : "lg:pl-16",
+        ].join(" ")}
+      >
+        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 flex-shrink-0 sticky top-0 z-10">
           <button
             type="button"
             data-ocid="dashboard.toggle"

@@ -277,6 +277,39 @@ function ProjectCard({ project, isHighlighted, index }: ProjectCardProps) {
           </ul>
         </div>
       )}
+
+      {/* Project URL */}
+      {project.projectUrl && (
+        <div className="pt-1">
+          <a
+            href={project.projectUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Visitar sitio web del proyecto: ${project.projectUrl}`}
+            className="inline-flex items-center gap-2 text-sm text-primary hover:underline max-w-full"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4 shrink-0"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="2" y1="12" x2="22" y2="12" />
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            </svg>
+            <span className="truncate">{project.projectUrl}</span>
+          </a>
+          <p className="text-xs text-muted-foreground mt-0.5 ml-6">
+            abre en nueva pestaña
+          </p>
+        </div>
+      )}
     </article>
   );
 }
@@ -302,6 +335,12 @@ export default function PortafolioPage() {
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   });
+
+  useEffect(() => {
+    if (!params.projectid) {
+      window.scrollTo(0, 0);
+    }
+  }, [params.projectid]);
 
   useEffect(() => {
     return () => {

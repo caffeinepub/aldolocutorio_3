@@ -10,10 +10,93 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface BusinessHours {
+  'tuesday' : string,
+  'wednesday' : string,
+  'saturday' : string,
+  'thursday' : string,
+  'sunday' : string,
+  'friday' : string,
+  'monday' : string,
+}
+export interface ContactAddress {
+  'businessHours' : BusinessHours,
+  'fullAddress' : string,
+}
+export interface ContactEmail {
+  'secondary' : [] | [string],
+  'primary' : string,
+  'responseTime' : string,
+}
+export interface ContactMap { 'latitude' : number, 'longitude' : number }
+export interface ContactPhone {
+  'secondary' : [] | [string],
+  'isEnabled' : boolean,
+  'primary' : [] | [string],
+}
+export interface ContactSettings {
+  'map' : ContactMap,
+  'lastUpdated' : bigint,
+  'whatsapp' : ContactWhatsApp,
+  'email' : ContactEmail,
+  'address' : ContactAddress,
+  'phone' : ContactPhone,
+}
+export interface ContactWhatsApp {
+  'isEnabled' : boolean,
+  'number' : [] | [string],
+}
+export interface ExportData {
+  'portfolio' : Array<PortfolioProject>,
+  'metadata' : ExportMetadata,
+  'testimonials' : Array<Testimonial>,
+  'services' : Array<Service>,
+  'contactSettings' : [] | [ContactSettings],
+}
+export interface ExportMetadata {
+  'exportVersion' : string,
+  'exportDate' : bigint,
+  'totalRecords' : ExportTotalRecords,
+}
+export interface ExportTotalRecords {
+  'portfolio' : bigint,
+  'testimonials' : bigint,
+  'services' : bigint,
+}
 export type ExternalBlob = Uint8Array;
+export interface HomepageData {
+  'featuredProjects' : Array<PortfolioProject>,
+  'testimonials' : Array<Testimonial>,
+  'services' : Array<Service>,
+}
+export type ImportMode = { 'createAndUpdate' : null } |
+  { 'skip' : null } |
+  { 'createOnly' : null } |
+  { 'replaceAll' : null };
+export interface ImportOptions {
+  'portfolioMode' : ImportMode,
+  'importContactSettings' : boolean,
+  'servicesMode' : ImportMode,
+  'testimonialsMode' : ImportMode,
+}
+export interface ImportResult {
+  'portfolio' : ImportResultCounts,
+  'contactSettingsUpdated' : boolean,
+  'testimonials' : ImportResultCounts,
+  'services' : ImportResultCounts,
+}
+export interface ImportResultCounts { 'created' : bigint, 'updated' : bigint }
 export interface PaginatedPortfolioProjects {
   'total' : bigint,
   'items' : Array<PortfolioProject>,
+}
+export interface PaginatedServices {
+  'total' : bigint,
+  'items' : Array<Service>,
+}
+export interface PaginatedTestimonials {
+  'total' : bigint,
+  'items' : Array<Testimonial>,
 }
 export type PortfolioCategory = { 'ai' : null } |
   { 'web' : null } |
@@ -42,6 +125,7 @@ export interface PortfolioProject {
   'linkedTestimonialId' : [] | [bigint],
   'category' : PortfolioCategory,
   'lastUpdatedDate' : [] | [bigint],
+  'projectUrl' : [] | [string],
   'industry' : string,
 }
 export interface PortfolioProjectInput {
@@ -57,6 +141,7 @@ export interface PortfolioProjectInput {
   'results' : Array<string>,
   'linkedTestimonialId' : [] | [bigint],
   'category' : PortfolioCategory,
+  'projectUrl' : [] | [string],
   'industry' : string,
 }
 export interface PortfolioProjectUpdate {
@@ -73,11 +158,101 @@ export interface PortfolioProjectUpdate {
   'results' : Array<string>,
   'linkedTestimonialId' : [] | [bigint],
   'category' : PortfolioCategory,
+  'projectUrl' : [] | [string],
   'industry' : string,
 }
 export type PublishStatus = { 'published' : null } |
   { 'draft' : null } |
   { 'archived' : null };
+export interface Service {
+  'id' : bigint,
+  'useCases' : Array<string>,
+  'title' : string,
+  'displayOrder' : bigint,
+  'faqs' : Array<ServiceFaq>,
+  'icon' : [] | [ExternalBlob],
+  'createdDate' : [] | [bigint],
+  'processSteps' : Array<ServiceProcessStep>,
+  'targetAudience' : string,
+  'shortDescription' : string,
+  'isVisible' : boolean,
+  'lastUpdatedDate' : [] | [bigint],
+  'fullDescription' : string,
+}
+export interface ServiceFaq { 'question' : string, 'answer' : string }
+export interface ServiceFilter {
+  'search' : [] | [string],
+  'isVisible' : [] | [boolean],
+}
+export interface ServiceInput {
+  'useCases' : Array<string>,
+  'title' : string,
+  'displayOrder' : bigint,
+  'faqs' : Array<ServiceFaq>,
+  'icon' : [] | [ExternalBlob],
+  'processSteps' : Array<ServiceProcessStep>,
+  'targetAudience' : string,
+  'shortDescription' : string,
+  'isVisible' : boolean,
+  'fullDescription' : string,
+}
+export interface ServiceProcessStep { 'step' : string, 'description' : string }
+export interface ServiceUpdate {
+  'id' : bigint,
+  'useCases' : Array<string>,
+  'title' : string,
+  'displayOrder' : bigint,
+  'faqs' : Array<ServiceFaq>,
+  'icon' : [] | [ExternalBlob],
+  'processSteps' : Array<ServiceProcessStep>,
+  'targetAudience' : string,
+  'shortDescription' : string,
+  'isVisible' : boolean,
+  'fullDescription' : string,
+}
+export interface Testimonial {
+  'id' : bigint,
+  'displayOrder' : bigint,
+  'authorName' : string,
+  'createdDate' : [] | [bigint],
+  'quote' : string,
+  'linkedPortfolioId' : [] | [bigint],
+  'jobTitle' : string,
+  'isVisible' : boolean,
+  'companyName' : string,
+  'lastUpdatedDate' : [] | [bigint],
+  'rating' : bigint,
+  'photo' : [] | [ExternalBlob],
+}
+export interface TestimonialFilter {
+  'minRating' : [] | [bigint],
+  'search' : [] | [string],
+  'isVisible' : [] | [boolean],
+  'maxRating' : [] | [bigint],
+}
+export interface TestimonialInput {
+  'displayOrder' : bigint,
+  'authorName' : string,
+  'quote' : string,
+  'linkedPortfolioId' : [] | [bigint],
+  'jobTitle' : string,
+  'isVisible' : boolean,
+  'companyName' : string,
+  'rating' : bigint,
+  'photo' : [] | [ExternalBlob],
+}
+export interface TestimonialUpdate {
+  'id' : bigint,
+  'displayOrder' : bigint,
+  'authorName' : string,
+  'quote' : string,
+  'linkedPortfolioId' : [] | [bigint],
+  'jobTitle' : string,
+  'isVisible' : boolean,
+  'companyName' : string,
+  'rating' : bigint,
+  'photo' : [] | [ExternalBlob],
+}
 export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
@@ -92,185 +267,6 @@ export interface _CaffeineStorageRefillInformation {
 export interface _CaffeineStorageRefillResult {
   'success' : [] | [boolean],
   'topped_up_amount' : [] | [bigint],
-}
-export interface Testimonial {
-  'id' : bigint,
-  'quote' : string,
-  'authorName' : string,
-  'jobTitle' : string,
-  'companyName' : string,
-  'photo' : [] | [ExternalBlob],
-  'linkedPortfolioId' : [] | [bigint],
-  'rating' : bigint,
-  'displayOrder' : bigint,
-  'isVisible' : boolean,
-  'createdDate' : [] | [bigint],
-  'lastUpdatedDate' : [] | [bigint],
-}
-export interface TestimonialInput {
-  'quote' : string,
-  'authorName' : string,
-  'jobTitle' : string,
-  'companyName' : string,
-  'photo' : [] | [ExternalBlob],
-  'linkedPortfolioId' : [] | [bigint],
-  'rating' : bigint,
-  'displayOrder' : bigint,
-  'isVisible' : boolean,
-}
-export interface TestimonialUpdate {
-  'id' : bigint,
-  'quote' : string,
-  'authorName' : string,
-  'jobTitle' : string,
-  'companyName' : string,
-  'photo' : [] | [ExternalBlob],
-  'linkedPortfolioId' : [] | [bigint],
-  'rating' : bigint,
-  'displayOrder' : bigint,
-  'isVisible' : boolean,
-}
-export interface TestimonialFilter {
-  'isVisible' : [] | [boolean],
-  'minRating' : [] | [bigint],
-  'maxRating' : [] | [bigint],
-  'search' : [] | [string],
-}
-export interface PaginatedTestimonials {
-  'total' : bigint,
-  'items' : Array<Testimonial>,
-}
-export interface ServiceProcessStep {
-  'step' : string,
-  'description' : string,
-}
-export interface ServiceFaq {
-  'question' : string,
-  'answer' : string,
-}
-export interface Service {
-  'id' : bigint,
-  'title' : string,
-  'icon' : [] | [ExternalBlob],
-  'shortDescription' : string,
-  'fullDescription' : string,
-  'useCases' : Array<string>,
-  'processSteps' : Array<ServiceProcessStep>,
-  'targetAudience' : string,
-  'faqs' : Array<ServiceFaq>,
-  'displayOrder' : bigint,
-  'isVisible' : boolean,
-  'createdDate' : [] | [bigint],
-  'lastUpdatedDate' : [] | [bigint],
-}
-export interface ServiceInput {
-  'title' : string,
-  'icon' : [] | [ExternalBlob],
-  'shortDescription' : string,
-  'fullDescription' : string,
-  'useCases' : Array<string>,
-  'processSteps' : Array<ServiceProcessStep>,
-  'targetAudience' : string,
-  'faqs' : Array<ServiceFaq>,
-  'displayOrder' : bigint,
-  'isVisible' : boolean,
-}
-export interface ServiceUpdate {
-  'id' : bigint,
-  'title' : string,
-  'icon' : [] | [ExternalBlob],
-  'shortDescription' : string,
-  'fullDescription' : string,
-  'useCases' : Array<string>,
-  'processSteps' : Array<ServiceProcessStep>,
-  'targetAudience' : string,
-  'faqs' : Array<ServiceFaq>,
-  'displayOrder' : bigint,
-  'isVisible' : boolean,
-}
-export interface ServiceFilter {
-  'isVisible' : [] | [boolean],
-  'search' : [] | [string],
-}
-export interface PaginatedServices {
-  'total' : bigint,
-  'items' : Array<Service>,
-}
-export interface BusinessHours {
-  'monday' : string,
-  'tuesday' : string,
-  'wednesday' : string,
-  'thursday' : string,
-  'friday' : string,
-  'saturday' : string,
-  'sunday' : string,
-}
-export interface ContactWhatsApp {
-  'number' : [] | [string],
-  'isEnabled' : boolean,
-}
-export interface ContactEmail {
-  'primary' : string,
-  'secondary' : [] | [string],
-  'responseTime' : string,
-}
-export interface ContactPhone {
-  'primary' : [] | [string],
-  'secondary' : [] | [string],
-  'isEnabled' : boolean,
-}
-export interface ContactAddress {
-  'fullAddress' : string,
-  'businessHours' : BusinessHours,
-}
-export interface ContactMap {
-  'latitude' : number,
-  'longitude' : number,
-}
-export interface ContactSettings {
-  'whatsapp' : ContactWhatsApp,
-  'email' : ContactEmail,
-  'phone' : ContactPhone,
-  'address' : ContactAddress,
-  'map' : ContactMap,
-  'lastUpdated' : bigint,
-}
-export interface ExportTotalRecords {
-  'portfolio' : bigint,
-  'services' : bigint,
-  'testimonials' : bigint,
-}
-export interface ExportMetadata {
-  'exportDate' : bigint,
-  'exportVersion' : string,
-  'totalRecords' : ExportTotalRecords,
-}
-export interface ExportData {
-  'metadata' : ExportMetadata,
-  'portfolio' : Array<PortfolioProject>,
-  'services' : Array<Service>,
-  'testimonials' : Array<Testimonial>,
-  'contactSettings' : [] | [ContactSettings],
-}
-export type ImportMode = { 'createAndUpdate' : null } |
-  { 'createOnly' : null } |
-  { 'replaceAll' : null } |
-  { 'skip' : null };
-export interface ImportOptions {
-  'portfolioMode' : ImportMode,
-  'servicesMode' : ImportMode,
-  'testimonialsMode' : ImportMode,
-  'importContactSettings' : boolean,
-}
-export interface ImportResultCounts {
-  'created' : bigint,
-  'updated' : bigint,
-}
-export interface ImportResult {
-  'portfolio' : ImportResultCounts,
-  'services' : ImportResultCounts,
-  'testimonials' : ImportResultCounts,
-  'contactSettingsUpdated' : boolean,
 }
 export interface _SERVICE {
   '_caffeineStorageBlobIsLive' : ActorMethod<[Uint8Array], boolean>,
@@ -291,58 +287,62 @@ export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'bulkDeletePortfolioProjects' : ActorMethod<[Array<bigint>], bigint>,
+  'bulkDeleteServices' : ActorMethod<[Array<bigint>], bigint>,
+  'bulkDeleteTestimonials' : ActorMethod<[Array<bigint>], bigint>,
   'bulkUpdatePortfolioStatus' : ActorMethod<
     [Array<bigint>, PublishStatus],
+    bigint
+  >,
+  'bulkUpdateServiceVisibility' : ActorMethod<[Array<bigint>, boolean], bigint>,
+  'bulkUpdateTestimonialVisibility' : ActorMethod<
+    [Array<bigint>, boolean],
     bigint
   >,
   'createPortfolioProject' : ActorMethod<
     [PortfolioProjectInput],
     PortfolioProject
   >,
+  'createService' : ActorMethod<[ServiceInput], Service>,
+  'createTestimonial' : ActorMethod<[TestimonialInput], Testimonial>,
   'deletePortfolioProject' : ActorMethod<[bigint], boolean>,
+  'deleteService' : ActorMethod<[bigint], boolean>,
+  'deleteTestimonial' : ActorMethod<[bigint], boolean>,
+  'exportData' : ActorMethod<[], ExportData>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getContactSettings' : ActorMethod<[], ContactSettings>,
+  'getHomepageData' : ActorMethod<[], HomepageData>,
   'getPortfolioProject' : ActorMethod<[bigint], [] | [PortfolioProject]>,
   'getPortfolioProjects' : ActorMethod<
     [bigint, bigint, [] | [PortfolioFilter]],
     PaginatedPortfolioProjects
   >,
-  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
-  'isCallerAdmin' : ActorMethod<[], boolean>,
-  'reorderPortfolioProjects' : ActorMethod<[Array<bigint>], boolean>,
-  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
-  'updatePortfolioProject' : ActorMethod<
-    [PortfolioProjectUpdate],
-    [] | [PortfolioProject]
-  >,
-  'bulkDeleteTestimonials' : ActorMethod<[Array<bigint>], bigint>,
-  'bulkUpdateTestimonialVisibility' : ActorMethod<[Array<bigint>, boolean], bigint>,
-  'createTestimonial' : ActorMethod<[TestimonialInput], Testimonial>,
-  'deleteTestimonial' : ActorMethod<[bigint], boolean>,
-  'getTestimonial' : ActorMethod<[bigint], [] | [Testimonial]>,
-  'getTestimonials' : ActorMethod<
-    [bigint, bigint, [] | [TestimonialFilter]],
-    PaginatedTestimonials
-  >,
-  'reorderTestimonials' : ActorMethod<[Array<bigint>], boolean>,
-  'updateTestimonial' : ActorMethod<[TestimonialUpdate], [] | [Testimonial]>,
-  'bulkDeleteServices' : ActorMethod<[Array<bigint>], bigint>,
-  'bulkUpdateServiceVisibility' : ActorMethod<[Array<bigint>, boolean], bigint>,
-  'createService' : ActorMethod<[ServiceInput], Service>,
-  'deleteService' : ActorMethod<[bigint], boolean>,
+  'getPreviousContactSettings' : ActorMethod<[], [] | [ContactSettings]>,
   'getService' : ActorMethod<[bigint], [] | [Service]>,
   'getServices' : ActorMethod<
     [bigint, bigint, [] | [ServiceFilter]],
     PaginatedServices
   >,
-  'reorderServices' : ActorMethod<[Array<bigint>], boolean>,
-  'updateService' : ActorMethod<[ServiceUpdate], [] | [Service]>,
-  'getContactSettings' : ActorMethod<[], ContactSettings>,
-  'updateContactSettings' : ActorMethod<[ContactSettings], ContactSettings>,
-  'getPreviousContactSettings' : ActorMethod<[], [] | [ContactSettings]>,
-  'resetContactSettings' : ActorMethod<[], ContactSettings>,
-  'exportData' : ActorMethod<[], ExportData>,
+  'getTestimonial' : ActorMethod<[bigint], [] | [Testimonial]>,
+  'getTestimonials' : ActorMethod<
+    [bigint, bigint, [] | [TestimonialFilter]],
+    PaginatedTestimonials
+  >,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'importData' : ActorMethod<[ExportData, ImportOptions], ImportResult>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
+  'reorderPortfolioProjects' : ActorMethod<[Array<bigint>], boolean>,
+  'reorderServices' : ActorMethod<[Array<bigint>], boolean>,
+  'reorderTestimonials' : ActorMethod<[Array<bigint>], boolean>,
+  'resetContactSettings' : ActorMethod<[], ContactSettings>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'updateContactSettings' : ActorMethod<[ContactSettings], ContactSettings>,
+  'updatePortfolioProject' : ActorMethod<
+    [PortfolioProjectUpdate],
+    [] | [PortfolioProject]
+  >,
+  'updateService' : ActorMethod<[ServiceUpdate], [] | [Service]>,
+  'updateTestimonial' : ActorMethod<[TestimonialUpdate], [] | [Testimonial]>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

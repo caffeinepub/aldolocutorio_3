@@ -10,7 +10,9 @@ import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
 import MixinStorage "blob-storage/Mixin";
 import Storage "blob-storage/Storage";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
@@ -76,6 +78,7 @@ actor {
     linkedTestimonialId : ?Nat;
     publishStatus : PublishStatus;
     displayOrder : Nat;
+    projectUrl : ?Text;
     createdDate : ?Int;
     lastUpdatedDate : ?Int;
   };
@@ -94,6 +97,7 @@ actor {
     linkedTestimonialId : ?Nat;
     publishStatus : PublishStatus;
     displayOrder : Nat;
+    projectUrl : ?Text;
   };
 
   public type PortfolioProjectUpdate = {
@@ -111,6 +115,7 @@ actor {
     linkedTestimonialId : ?Nat;
     publishStatus : PublishStatus;
     displayOrder : Nat;
+    projectUrl : ?Text;
   };
 
   public type PaginatedPortfolioProjects = {
@@ -152,6 +157,7 @@ actor {
       linkedTestimonialId = input.linkedTestimonialId;
       publishStatus = input.publishStatus;
       displayOrder = input.displayOrder;
+      projectUrl = input.projectUrl;
       createdDate = ?Time.now();
       lastUpdatedDate = ?Time.now();
     };
@@ -183,6 +189,7 @@ actor {
           linkedTestimonialId = input.linkedTestimonialId;
           publishStatus = input.publishStatus;
           displayOrder = input.displayOrder;
+          projectUrl = input.projectUrl;
           createdDate = existingProject.createdDate;
           lastUpdatedDate = ?Time.now();
         };
@@ -239,8 +246,12 @@ actor {
       };
     };
 
-    let total = filteredProjects.size();
-    if (pageSize == 0) { Runtime.trap("Page size must be greater than 0") };
+    let sortedProjects = filteredProjects.sort(func(a : PortfolioProject, b : PortfolioProject) : { #less; #equal; #greater } {
+      if (a.displayOrder > b.displayOrder) { #less }
+      else if (a.displayOrder < b.displayOrder) { #greater }
+      else { #equal }
+    });
+    let total = sortedProjects.size();
     let start = (if (page > 0) { page - 1 } else { 0 }) * pageSize;
     if (start >= total) {
       return {
@@ -251,7 +262,7 @@ actor {
 
     let end = Nat.min(start + pageSize, total);
     {
-      items = filteredProjects.sliceToArray(start, end);
+      items = sortedProjects.sliceToArray(start, end);
       total;
     };
   };
@@ -482,13 +493,18 @@ actor {
       };
     };
 
-    let total = filtered.size();
+    let sortedTestimonials = filtered.sort(func(a : Testimonial, b : Testimonial) : { #less; #equal; #greater } {
+      if (a.displayOrder > b.displayOrder) { #less }
+      else if (a.displayOrder < b.displayOrder) { #greater }
+      else { #equal }
+    });
+    let total = sortedTestimonials.size();
     let start = (if (page > 0) { page - 1 } else { 0 }) * pageSize;
     if (start >= total) {
       return { items = []; total };
     };
     let end = Nat.min(start + pageSize, total);
-    { items = filtered.sliceToArray(start, end); total };
+    { items = sortedTestimonials.sliceToArray(start, end); total };
   };
 
   public shared ({ caller }) func reorderTestimonials(ids : [Nat]) : async Bool {
@@ -702,13 +718,18 @@ actor {
         });
       };
     };
-    let total = filtered.size();
+    let sortedServices = filtered.sort(func(a : Service, b : Service) : { #less; #equal; #greater } {
+      if (a.displayOrder > b.displayOrder) { #less }
+      else if (a.displayOrder < b.displayOrder) { #greater }
+      else { #equal }
+    });
+    let total = sortedServices.size();
     let start = (if (page > 0) { page - 1 } else { 0 }) * pageSize;
     if (start >= total) {
       return { items = []; total };
     };
     let end = Nat.min(start + pageSize, total);
-    { items = filtered.sliceToArray(start, end); total };
+    { items = sortedServices.sliceToArray(start, end); total };
   };
 
   public shared ({ caller }) func reorderServices(ids : [Nat]) : async Bool {
@@ -892,6 +913,9 @@ actor {
   };
 
   public shared query ({ caller }) func exportData() : async ExportData {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can export data");
+    };
     let portfolioItems = portfolioProjects.values().toArray();
     let serviceItems = services.values().toArray();
     let testimonialItems = testimonials.values().toArray();
@@ -977,7 +1001,7 @@ actor {
             thumbnail = p.thumbnail; galleryImages = p.galleryImages;
             description = p.description; technologiesUsed = p.technologiesUsed;
             results = p.results; linkedTestimonialId = null;
-            publishStatus = p.publishStatus; displayOrder = p.displayOrder;
+            publishStatus = p.publishStatus; displayOrder = p.displayOrder; projectUrl = p.projectUrl;
             createdDate = ?Time.now(); lastUpdatedDate = ?Time.now();
           });
           portfolioCreated += 1;
@@ -1002,7 +1026,7 @@ actor {
                 thumbnail = p.thumbnail; galleryImages = p.galleryImages;
                 description = p.description; technologiesUsed = p.technologiesUsed;
                 results = p.results; linkedTestimonialId = null;
-                publishStatus = p.publishStatus; displayOrder = p.displayOrder;
+                publishStatus = p.publishStatus; displayOrder = p.displayOrder; projectUrl = p.projectUrl;
                 createdDate = ?Time.now(); lastUpdatedDate = ?Time.now();
               });
               portfolioCreated += 1;
@@ -1026,7 +1050,7 @@ actor {
                 thumbnail = p.thumbnail; galleryImages = p.galleryImages;
                 description = p.description; technologiesUsed = p.technologiesUsed;
                 results = p.results; linkedTestimonialId = null;
-                publishStatus = p.publishStatus; displayOrder = p.displayOrder;
+                publishStatus = p.publishStatus; displayOrder = p.displayOrder; projectUrl = p.projectUrl;
                 createdDate = e.createdDate; lastUpdatedDate = ?Time.now();
               });
               portfolioUpdated += 1;
@@ -1045,7 +1069,7 @@ actor {
                 thumbnail = p.thumbnail; galleryImages = p.galleryImages;
                 description = p.description; technologiesUsed = p.technologiesUsed;
                 results = p.results; linkedTestimonialId = null;
-                publishStatus = p.publishStatus; displayOrder = p.displayOrder;
+                publishStatus = p.publishStatus; displayOrder = p.displayOrder; projectUrl = p.projectUrl;
                 createdDate = ?Time.now(); lastUpdatedDate = ?Time.now();
               });
               portfolioCreated += 1;
@@ -1231,7 +1255,7 @@ actor {
             thumbnail = p.thumbnail; galleryImages = p.galleryImages;
             description = p.description; technologiesUsed = p.technologiesUsed;
             results = p.results; linkedTestimonialId = remappedTid;
-            publishStatus = p.publishStatus; displayOrder = p.displayOrder;
+            publishStatus = p.publishStatus; displayOrder = p.displayOrder; projectUrl = p.projectUrl;
             createdDate = p.createdDate; lastUpdatedDate = p.lastUpdatedDate;
           });
         };
@@ -1300,5 +1324,4 @@ actor {
       testimonials = topTestimonials;
     };
   };
-
 };

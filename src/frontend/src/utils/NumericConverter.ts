@@ -6,10 +6,10 @@
 const isDev = import.meta.env.DEV;
 
 /**
- * Convierte de forma segura strings, números, null o undefined a número.
+ * Convierte de forma segura strings, números, bigints, null o undefined a número.
  * Retorna null para entradas inválidas.
  *
- * Ejemplos: "10" → 10, "4.5" → 4.5, "" → null, "abc" → null
+ * Ejemplos: "10" → 10, "4.5" → 4.5, "" → null, "abc" → null, 5n → 5
  */
 export function safeConvertToNumber(value: unknown): number | null {
   if (value === null || value === undefined) return null;
@@ -24,6 +24,21 @@ export function safeConvertToNumber(value: unknown): number | null {
       return null;
     }
     return value;
+  }
+
+  if (typeof value === "bigint") {
+    if (
+      value > BigInt(Number.MAX_SAFE_INTEGER) ||
+      value < BigInt(Number.MIN_SAFE_INTEGER)
+    ) {
+      if (isDev)
+        console.warn(
+          "[NumericConverter] safeConvertToNumber: BigInt fuera del rango seguro (Number.MAX_SAFE_INTEGER), posible pérdida de precisión:",
+          value.toString(),
+        );
+      return null;
+    }
+    return Number(value);
   }
 
   if (typeof value === "string") {

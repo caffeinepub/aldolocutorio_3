@@ -1,29 +1,24 @@
 import { useNavigate } from "@tanstack/react-router";
 import {
   Download,
-  FileText,
   FolderOpen,
-  Inbox,
+  Mail,
   MessageSquare,
-  Settings,
-  SlidersHorizontal,
   Upload,
   Wrench,
 } from "lucide-react";
 
 const dashboardCards = [
   { icon: FolderOpen, label: "Portafolio", to: "/admin/portfolio" as const },
-  { icon: FileText, label: "Blog", to: "/admin/blog" as const },
   { icon: Wrench, label: "Servicios", to: "/admin/services" as const },
   {
     icon: MessageSquare,
     label: "Testimonios",
     to: "/admin/testimonials" as const,
   },
-  { icon: Inbox, label: "Buzón de Contacto", to: null },
   {
-    icon: Settings,
-    label: "Config. Contacto",
+    icon: Mail,
+    label: "Contacto",
     to: "/admin/contact-settings" as const,
   },
   {
@@ -36,7 +31,6 @@ const dashboardCards = [
     label: "Importar Datos",
     to: "/admin/data-import" as const,
   },
-  { icon: SlidersHorizontal, label: "Ajustes", to: "/admin/settings" as const },
 ];
 
 export function DashboardHome() {
@@ -55,9 +49,8 @@ export function DashboardHome() {
             type="button"
             key={card.label}
             data-ocid={`dashboard.card.${i + 1}`}
-            onClick={() => card.to && navigate({ to: card.to })}
-            disabled={!card.to}
-            className="bg-card rounded-xl shadow-card p-6 flex flex-col items-center justify-center gap-3 h-40 transition-all duration-200 hover:shadow-card-hover hover:scale-[1.02] cursor-pointer disabled:cursor-default disabled:opacity-70 disabled:hover:scale-100 disabled:hover:shadow-card text-center group"
+            onClick={() => navigate({ to: card.to })}
+            className="bg-card rounded-xl shadow-card p-6 flex flex-col items-center justify-center gap-3 h-40 transition-all duration-200 hover:shadow-card-hover hover:scale-[1.02] cursor-pointer text-center group"
           >
             <card.icon className="h-12 w-12 text-muted-foreground group-hover:text-primary transition-colors" />
             <span className="font-display text-base font-semibold text-foreground">
@@ -74,9 +67,8 @@ export function DashboardHome() {
             type="button"
             key={card.label}
             data-ocid={`dashboard.card.${i + 1}`}
-            onClick={() => card.to && navigate({ to: card.to })}
-            disabled={!card.to}
-            className="bg-card rounded-xl shadow-card px-5 flex items-center gap-4 h-20 w-full text-left disabled:opacity-70 disabled:cursor-default transition-colors hover:bg-accent"
+            onClick={() => navigate({ to: card.to })}
+            className="bg-card rounded-xl shadow-card px-5 flex items-center gap-4 h-20 w-full text-left transition-colors hover:bg-accent"
           >
             <card.icon className="h-8 w-8 text-muted-foreground flex-shrink-0" />
             <span className="font-display text-base font-semibold text-foreground">

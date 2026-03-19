@@ -14,21 +14,17 @@ import { LoginPage } from "./components/admin/LoginPage";
 import { PublicLayout } from "./components/public/PublicLayout";
 import { useActor } from "./hooks/useActor";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
-import BlogPage from "./pages/admin/BlogPage";
 import ContactSettingsPage from "./pages/admin/ContactSettingsPage";
 import DataExportPage from "./pages/admin/DataExportPage";
 import DataImportPage from "./pages/admin/DataImportPage";
 import PortfolioPage from "./pages/admin/PortfolioPage";
 import ServicesPage from "./pages/admin/ServicesPage";
-import SettingsPage from "./pages/admin/SettingsPage";
 import TestimonialsPage from "./pages/admin/TestimonialsPage";
 import ContactoPage from "./pages/public/ContactoPage";
 import HomePage from "./pages/public/HomePage";
 import PortafolioPage from "./pages/public/PortafolioPage";
 import PrivacidadPage from "./pages/public/PrivacidadPage";
 import ServiciosPage from "./pages/public/ServiciosPage";
-import SobreNosotrosPage from "./pages/public/SobreNosotrosPage";
-import TerminosPage from "./pages/public/TerminosPage";
 import TestimoniosPage from "./pages/public/TestimoniosPage";
 import { useAdminStore } from "./store/adminStore";
 
@@ -127,12 +123,6 @@ const portafolioProjectRoute = createRoute({
   component: PortafolioPage,
 });
 
-const sobreNosotrosRoute = createRoute({
-  getParentRoute: () => publicLayoutRoute,
-  path: "/sobre-nosotros",
-  component: SobreNosotrosPage,
-});
-
 const contactoRoute = createRoute({
   getParentRoute: () => publicLayoutRoute,
   path: "/contacto",
@@ -143,12 +133,6 @@ const privacidadRoute = createRoute({
   getParentRoute: () => publicLayoutRoute,
   path: "/privacidad",
   component: PrivacidadPage,
-});
-
-const terminosRoute = createRoute({
-  getParentRoute: () => publicLayoutRoute,
-  path: "/terminos",
-  component: TerminosPage,
 });
 
 const testimoniosPublicRoute = createRoute({
@@ -174,12 +158,6 @@ const portfolioRoute = createRoute({
   getParentRoute: () => adminRoute,
   path: "/portfolio",
   component: PortfolioPage,
-});
-
-const blogRoute = createRoute({
-  getParentRoute: () => adminRoute,
-  path: "/blog",
-  component: BlogPage,
 });
 
 const servicesRoute = createRoute({
@@ -212,12 +190,6 @@ const dataImportRoute = createRoute({
   component: DataImportPage,
 });
 
-const settingsRoute = createRoute({
-  getParentRoute: () => adminRoute,
-  path: "/settings",
-  component: SettingsPage,
-});
-
 const routeTree = rootRoute.addChildren([
   publicLayoutRoute.addChildren([
     homeRoute,
@@ -225,22 +197,18 @@ const routeTree = rootRoute.addChildren([
     serviciosServiceRoute,
     portafolioPublicRoute,
     portafolioProjectRoute,
-    sobreNosotrosRoute,
     contactoRoute,
     privacidadRoute,
-    terminosRoute,
     testimoniosPublicRoute,
   ]),
   adminRoute.addChildren([
     adminIndexRoute,
     portfolioRoute,
-    blogRoute,
     servicesRoute,
     testimonialsRoute,
     contactSettingsRoute,
     dataExportRoute,
     dataImportRoute,
-    settingsRoute,
   ]),
 ]);
 

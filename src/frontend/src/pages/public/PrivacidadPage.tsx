@@ -87,6 +87,10 @@ export default function PrivacidadPage() {
   const [activeId, setActiveId] = useState("introduccion");
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     function onScroll() {
       let current = TOC_ITEMS[0].id;
       for (const item of TOC_ITEMS) {

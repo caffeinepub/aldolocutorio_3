@@ -97,6 +97,7 @@ type FormState = {
   publishStatus: string;
   displayOrder: string;
   linkedTestimonialId: string;
+  projectUrl: string;
 };
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -219,6 +220,7 @@ const EMPTY_FORM: FormState = {
   publishStatus: PublishStatus.draft,
   displayOrder: "0",
   linkedTestimonialId: "",
+  projectUrl: "",
 };
 
 // ─── TagInput ─────────────────────────────────────────────────────────────────
@@ -636,6 +638,7 @@ export default function PortfolioPage() {
       linkedTestimonialId: project.linkedTestimonialId
         ? String(project.linkedTestimonialId)
         : "",
+      projectUrl: project.projectUrl ?? "",
     });
     // Load existing thumbnail
     if (project.thumbnail) {
@@ -704,6 +707,7 @@ export default function PortfolioPage() {
         publishStatus: form.publishStatus as PublishStatus,
         displayOrder,
         linkedTestimonialId: linkedId,
+        projectUrl: form.projectUrl.trim() || undefined,
       };
       updateMutation.mutate(input);
     } else {
@@ -721,6 +725,7 @@ export default function PortfolioPage() {
         publishStatus: form.publishStatus as PublishStatus,
         displayOrder,
         linkedTestimonialId: linkedId,
+        projectUrl: form.projectUrl.trim() || undefined,
       };
       createMutation.mutate(input);
     }
@@ -1566,6 +1571,21 @@ export default function PortfolioPage() {
                       data-ocid="portfolio.order.input"
                     />
                   </div>
+                </div>
+                <div className="space-y-1">
+                  <Label>URL del Proyecto</Label>
+                  <Input
+                    type="url"
+                    value={form.projectUrl}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, projectUrl: e.target.value }))
+                    }
+                    placeholder="https://ejemplo.com"
+                    data-ocid="portfolio.project_url.input"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Opcional - Enlace al sitio web del proyecto
+                  </p>
                 </div>
               </section>
             </div>

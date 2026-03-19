@@ -51,6 +51,7 @@ export const PortfolioProjectInput = IDL.Record({
   'results' : IDL.Vec(IDL.Text),
   'linkedTestimonialId' : IDL.Opt(IDL.Nat),
   'category' : PortfolioCategory,
+  'projectUrl' : IDL.Opt(IDL.Text),
   'industry' : IDL.Text,
 });
 export const PortfolioProject = IDL.Record({
@@ -69,9 +70,131 @@ export const PortfolioProject = IDL.Record({
   'linkedTestimonialId' : IDL.Opt(IDL.Nat),
   'category' : PortfolioCategory,
   'lastUpdatedDate' : IDL.Opt(IDL.Int),
+  'projectUrl' : IDL.Opt(IDL.Text),
   'industry' : IDL.Text,
 });
+export const ServiceFaq = IDL.Record({
+  'question' : IDL.Text,
+  'answer' : IDL.Text,
+});
+export const ServiceProcessStep = IDL.Record({
+  'step' : IDL.Text,
+  'description' : IDL.Text,
+});
+export const ServiceInput = IDL.Record({
+  'useCases' : IDL.Vec(IDL.Text),
+  'title' : IDL.Text,
+  'displayOrder' : IDL.Nat,
+  'faqs' : IDL.Vec(ServiceFaq),
+  'icon' : IDL.Opt(ExternalBlob),
+  'processSteps' : IDL.Vec(ServiceProcessStep),
+  'targetAudience' : IDL.Text,
+  'shortDescription' : IDL.Text,
+  'isVisible' : IDL.Bool,
+  'fullDescription' : IDL.Text,
+});
+export const Service = IDL.Record({
+  'id' : IDL.Nat,
+  'useCases' : IDL.Vec(IDL.Text),
+  'title' : IDL.Text,
+  'displayOrder' : IDL.Nat,
+  'faqs' : IDL.Vec(ServiceFaq),
+  'icon' : IDL.Opt(ExternalBlob),
+  'createdDate' : IDL.Opt(IDL.Int),
+  'processSteps' : IDL.Vec(ServiceProcessStep),
+  'targetAudience' : IDL.Text,
+  'shortDescription' : IDL.Text,
+  'isVisible' : IDL.Bool,
+  'lastUpdatedDate' : IDL.Opt(IDL.Int),
+  'fullDescription' : IDL.Text,
+});
+export const TestimonialInput = IDL.Record({
+  'displayOrder' : IDL.Nat,
+  'authorName' : IDL.Text,
+  'quote' : IDL.Text,
+  'linkedPortfolioId' : IDL.Opt(IDL.Nat),
+  'jobTitle' : IDL.Text,
+  'isVisible' : IDL.Bool,
+  'companyName' : IDL.Text,
+  'rating' : IDL.Nat,
+  'photo' : IDL.Opt(ExternalBlob),
+});
+export const Testimonial = IDL.Record({
+  'id' : IDL.Nat,
+  'displayOrder' : IDL.Nat,
+  'authorName' : IDL.Text,
+  'createdDate' : IDL.Opt(IDL.Int),
+  'quote' : IDL.Text,
+  'linkedPortfolioId' : IDL.Opt(IDL.Nat),
+  'jobTitle' : IDL.Text,
+  'isVisible' : IDL.Bool,
+  'companyName' : IDL.Text,
+  'lastUpdatedDate' : IDL.Opt(IDL.Int),
+  'rating' : IDL.Nat,
+  'photo' : IDL.Opt(ExternalBlob),
+});
+export const ExportTotalRecords = IDL.Record({
+  'portfolio' : IDL.Nat,
+  'testimonials' : IDL.Nat,
+  'services' : IDL.Nat,
+});
+export const ExportMetadata = IDL.Record({
+  'exportVersion' : IDL.Text,
+  'exportDate' : IDL.Int,
+  'totalRecords' : ExportTotalRecords,
+});
+export const ContactMap = IDL.Record({
+  'latitude' : IDL.Float64,
+  'longitude' : IDL.Float64,
+});
+export const ContactWhatsApp = IDL.Record({
+  'isEnabled' : IDL.Bool,
+  'number' : IDL.Opt(IDL.Text),
+});
+export const ContactEmail = IDL.Record({
+  'secondary' : IDL.Opt(IDL.Text),
+  'primary' : IDL.Text,
+  'responseTime' : IDL.Text,
+});
+export const BusinessHours = IDL.Record({
+  'tuesday' : IDL.Text,
+  'wednesday' : IDL.Text,
+  'saturday' : IDL.Text,
+  'thursday' : IDL.Text,
+  'sunday' : IDL.Text,
+  'friday' : IDL.Text,
+  'monday' : IDL.Text,
+});
+export const ContactAddress = IDL.Record({
+  'businessHours' : BusinessHours,
+  'fullAddress' : IDL.Text,
+});
+export const ContactPhone = IDL.Record({
+  'secondary' : IDL.Opt(IDL.Text),
+  'isEnabled' : IDL.Bool,
+  'primary' : IDL.Opt(IDL.Text),
+});
+export const ContactSettings = IDL.Record({
+  'map' : ContactMap,
+  'lastUpdated' : IDL.Int,
+  'whatsapp' : ContactWhatsApp,
+  'email' : ContactEmail,
+  'address' : ContactAddress,
+  'phone' : ContactPhone,
+});
+export const ExportData = IDL.Record({
+  'portfolio' : IDL.Vec(PortfolioProject),
+  'metadata' : ExportMetadata,
+  'testimonials' : IDL.Vec(Testimonial),
+  'services' : IDL.Vec(Service),
+  'contactSettings' : IDL.Opt(ContactSettings),
+});
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const HomepageData = IDL.Record({
+  'featuredProjects' : IDL.Vec(PortfolioProject),
+  'testimonials' : IDL.Vec(Testimonial),
+  'services' : IDL.Vec(Service),
+});
 export const PortfolioFilter = IDL.Record({
   'status' : IDL.Opt(PublishStatus),
   'search' : IDL.Opt(IDL.Text),
@@ -80,6 +203,46 @@ export const PortfolioFilter = IDL.Record({
 export const PaginatedPortfolioProjects = IDL.Record({
   'total' : IDL.Nat,
   'items' : IDL.Vec(PortfolioProject),
+});
+export const ServiceFilter = IDL.Record({
+  'search' : IDL.Opt(IDL.Text),
+  'isVisible' : IDL.Opt(IDL.Bool),
+});
+export const PaginatedServices = IDL.Record({
+  'total' : IDL.Nat,
+  'items' : IDL.Vec(Service),
+});
+export const TestimonialFilter = IDL.Record({
+  'minRating' : IDL.Opt(IDL.Nat),
+  'search' : IDL.Opt(IDL.Text),
+  'isVisible' : IDL.Opt(IDL.Bool),
+  'maxRating' : IDL.Opt(IDL.Nat),
+});
+export const PaginatedTestimonials = IDL.Record({
+  'total' : IDL.Nat,
+  'items' : IDL.Vec(Testimonial),
+});
+export const ImportMode = IDL.Variant({
+  'createAndUpdate' : IDL.Null,
+  'skip' : IDL.Null,
+  'createOnly' : IDL.Null,
+  'replaceAll' : IDL.Null,
+});
+export const ImportOptions = IDL.Record({
+  'portfolioMode' : ImportMode,
+  'importContactSettings' : IDL.Bool,
+  'servicesMode' : ImportMode,
+  'testimonialsMode' : ImportMode,
+});
+export const ImportResultCounts = IDL.Record({
+  'created' : IDL.Nat,
+  'updated' : IDL.Nat,
+});
+export const ImportResult = IDL.Record({
+  'portfolio' : ImportResultCounts,
+  'contactSettingsUpdated' : IDL.Bool,
+  'testimonials' : ImportResultCounts,
+  'services' : ImportResultCounts,
 });
 export const PortfolioProjectUpdate = IDL.Record({
   'id' : IDL.Nat,
@@ -95,154 +258,33 @@ export const PortfolioProjectUpdate = IDL.Record({
   'results' : IDL.Vec(IDL.Text),
   'linkedTestimonialId' : IDL.Opt(IDL.Nat),
   'category' : PortfolioCategory,
+  'projectUrl' : IDL.Opt(IDL.Text),
   'industry' : IDL.Text,
-});
-export const TestimonialInput = IDL.Record({
-  'quote' : IDL.Text,
-  'authorName' : IDL.Text,
-  'jobTitle' : IDL.Text,
-  'companyName' : IDL.Text,
-  'photo' : IDL.Opt(ExternalBlob),
-  'linkedPortfolioId' : IDL.Opt(IDL.Nat),
-  'rating' : IDL.Nat,
-  'displayOrder' : IDL.Nat,
-  'isVisible' : IDL.Bool,
-});
-export const Testimonial = IDL.Record({
-  'id' : IDL.Nat,
-  'quote' : IDL.Text,
-  'authorName' : IDL.Text,
-  'jobTitle' : IDL.Text,
-  'companyName' : IDL.Text,
-  'photo' : IDL.Opt(ExternalBlob),
-  'linkedPortfolioId' : IDL.Opt(IDL.Nat),
-  'rating' : IDL.Nat,
-  'displayOrder' : IDL.Nat,
-  'isVisible' : IDL.Bool,
-  'createdDate' : IDL.Opt(IDL.Int),
-  'lastUpdatedDate' : IDL.Opt(IDL.Int),
-});
-export const TestimonialFilter = IDL.Record({
-  'isVisible' : IDL.Opt(IDL.Bool),
-  'minRating' : IDL.Opt(IDL.Nat),
-  'maxRating' : IDL.Opt(IDL.Nat),
-  'search' : IDL.Opt(IDL.Text),
-});
-export const PaginatedTestimonials = IDL.Record({
-  'total' : IDL.Nat,
-  'items' : IDL.Vec(Testimonial),
-});
-export const TestimonialUpdate = IDL.Record({
-  'id' : IDL.Nat,
-  'quote' : IDL.Text,
-  'authorName' : IDL.Text,
-  'jobTitle' : IDL.Text,
-  'companyName' : IDL.Text,
-  'photo' : IDL.Opt(ExternalBlob),
-  'linkedPortfolioId' : IDL.Opt(IDL.Nat),
-  'rating' : IDL.Nat,
-  'displayOrder' : IDL.Nat,
-  'isVisible' : IDL.Bool,
-});
-export const ServiceProcessStep = IDL.Record({
-  'step' : IDL.Text,
-  'description' : IDL.Text,
-});
-export const ServiceFaq = IDL.Record({
-  'question' : IDL.Text,
-  'answer' : IDL.Text,
-});
-export const ServiceInput = IDL.Record({
-  'title' : IDL.Text,
-  'icon' : IDL.Opt(ExternalBlob),
-  'shortDescription' : IDL.Text,
-  'fullDescription' : IDL.Text,
-  'useCases' : IDL.Vec(IDL.Text),
-  'processSteps' : IDL.Vec(ServiceProcessStep),
-  'targetAudience' : IDL.Text,
-  'faqs' : IDL.Vec(ServiceFaq),
-  'displayOrder' : IDL.Nat,
-  'isVisible' : IDL.Bool,
-});
-export const Service = IDL.Record({
-  'id' : IDL.Nat,
-  'title' : IDL.Text,
-  'icon' : IDL.Opt(ExternalBlob),
-  'shortDescription' : IDL.Text,
-  'fullDescription' : IDL.Text,
-  'useCases' : IDL.Vec(IDL.Text),
-  'processSteps' : IDL.Vec(ServiceProcessStep),
-  'targetAudience' : IDL.Text,
-  'faqs' : IDL.Vec(ServiceFaq),
-  'displayOrder' : IDL.Nat,
-  'isVisible' : IDL.Bool,
-  'createdDate' : IDL.Opt(IDL.Int),
-  'lastUpdatedDate' : IDL.Opt(IDL.Int),
 });
 export const ServiceUpdate = IDL.Record({
   'id' : IDL.Nat,
-  'title' : IDL.Text,
-  'icon' : IDL.Opt(ExternalBlob),
-  'shortDescription' : IDL.Text,
-  'fullDescription' : IDL.Text,
   'useCases' : IDL.Vec(IDL.Text),
+  'title' : IDL.Text,
+  'displayOrder' : IDL.Nat,
+  'faqs' : IDL.Vec(ServiceFaq),
+  'icon' : IDL.Opt(ExternalBlob),
   'processSteps' : IDL.Vec(ServiceProcessStep),
   'targetAudience' : IDL.Text,
-  'faqs' : IDL.Vec(ServiceFaq),
-  'displayOrder' : IDL.Nat,
+  'shortDescription' : IDL.Text,
   'isVisible' : IDL.Bool,
+  'fullDescription' : IDL.Text,
 });
-export const ServiceFilter = IDL.Record({
-  'isVisible' : IDL.Opt(IDL.Bool),
-  'search' : IDL.Opt(IDL.Text),
-});
-export const PaginatedServices = IDL.Record({
-  'total' : IDL.Nat,
-  'items' : IDL.Vec(Service),
-});
-export const BusinessHours = IDL.Record({
-  'monday' : IDL.Text,
-  'tuesday' : IDL.Text,
-  'wednesday' : IDL.Text,
-  'thursday' : IDL.Text,
-  'friday' : IDL.Text,
-  'saturday' : IDL.Text,
-  'sunday' : IDL.Text,
-});
-export const ContactWhatsApp = IDL.Record({
-  'number' : IDL.Opt(IDL.Text),
-  'isEnabled' : IDL.Bool,
-});
-export const ContactEmail = IDL.Record({
-  'primary' : IDL.Text,
-  'secondary' : IDL.Opt(IDL.Text),
-  'responseTime' : IDL.Text,
-});
-export const ContactPhone = IDL.Record({
-  'primary' : IDL.Opt(IDL.Text),
-  'secondary' : IDL.Opt(IDL.Text),
-  'isEnabled' : IDL.Bool,
-});
-export const ContactAddress = IDL.Record({
-  'fullAddress' : IDL.Text,
-  'businessHours' : BusinessHours,
-});
-export const ContactMap = IDL.Record({
-  'latitude' : IDL.Float64,
-  'longitude' : IDL.Float64,
-});
-export const ContactSettings = IDL.Record({
-  'whatsapp' : ContactWhatsApp,
-  'email' : ContactEmail,
-  'phone' : ContactPhone,
-  'address' : ContactAddress,
-  'map' : ContactMap,
-  'lastUpdated' : IDL.Int,
-});
-export const HomepageData = IDL.Record({
-  'services' : IDL.Vec(Service),
-  'featuredProjects' : IDL.Vec(PortfolioProject),
-  'testimonials' : IDL.Vec(Testimonial),
+export const TestimonialUpdate = IDL.Record({
+  'id' : IDL.Nat,
+  'displayOrder' : IDL.Nat,
+  'authorName' : IDL.Text,
+  'quote' : IDL.Text,
+  'linkedPortfolioId' : IDL.Opt(IDL.Nat),
+  'jobTitle' : IDL.Text,
+  'isVisible' : IDL.Bool,
+  'companyName' : IDL.Text,
+  'rating' : IDL.Nat,
+  'photo' : IDL.Opt(ExternalBlob),
 });
 
 export const idlService = IDL.Service({
@@ -275,8 +317,20 @@ export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'bulkDeletePortfolioProjects' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Nat], []),
+  'bulkDeleteServices' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Nat], []),
+  'bulkDeleteTestimonials' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Nat], []),
   'bulkUpdatePortfolioStatus' : IDL.Func(
       [IDL.Vec(IDL.Nat), PublishStatus],
+      [IDL.Nat],
+      [],
+    ),
+  'bulkUpdateServiceVisibility' : IDL.Func(
+      [IDL.Vec(IDL.Nat), IDL.Bool],
+      [IDL.Nat],
+      [],
+    ),
+  'bulkUpdateTestimonialVisibility' : IDL.Func(
+      [IDL.Vec(IDL.Nat), IDL.Bool],
       [IDL.Nat],
       [],
     ),
@@ -285,9 +339,16 @@ export const idlService = IDL.Service({
       [PortfolioProject],
       [],
     ),
+  'createService' : IDL.Func([ServiceInput], [Service], []),
+  'createTestimonial' : IDL.Func([TestimonialInput], [Testimonial], []),
   'deletePortfolioProject' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+  'deleteService' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+  'deleteTestimonial' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+  'exportData' : IDL.Func([], [ExportData], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getContactSettings' : IDL.Func([], [ContactSettings], ['query']),
+  'getHomepageData' : IDL.Func([], [HomepageData], ['query']),
   'getPortfolioProject' : IDL.Func(
       [IDL.Nat],
       [IDL.Opt(PortfolioProject)],
@@ -298,64 +359,47 @@ export const idlService = IDL.Service({
       [PaginatedPortfolioProjects],
       ['query'],
     ),
-  'getUserProfile' : IDL.Func(
-      [IDL.Principal],
-      [IDL.Opt(UserProfile)],
+  'getPreviousContactSettings' : IDL.Func(
+      [],
+      [IDL.Opt(ContactSettings)],
       ['query'],
     ),
-  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
-  'reorderPortfolioProjects' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Bool], []),
-  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
-  'updatePortfolioProject' : IDL.Func(
-      [PortfolioProjectUpdate],
-      [IDL.Opt(PortfolioProject)],
-      [],
-    ),
-  'bulkDeleteTestimonials' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Nat], []),
-  'bulkUpdateTestimonialVisibility' : IDL.Func(
-      [IDL.Vec(IDL.Nat), IDL.Bool],
-      [IDL.Nat],
-      [],
-    ),
-  'createTestimonial' : IDL.Func([TestimonialInput], [Testimonial], []),
-  'deleteTestimonial' : IDL.Func([IDL.Nat], [IDL.Bool], []),
-  'getTestimonial' : IDL.Func([IDL.Nat], [IDL.Opt(Testimonial)], ['query']),
-  'getTestimonials' : IDL.Func(
-      [IDL.Nat, IDL.Nat, IDL.Opt(TestimonialFilter)],
-      [PaginatedTestimonials],
-      ['query'],
-    ),
-  'reorderTestimonials' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Bool], []),
-  'updateTestimonial' : IDL.Func(
-      [TestimonialUpdate],
-      [IDL.Opt(Testimonial)],
-      [],
-    ),
-  'bulkDeleteServices' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Nat], []),
-  'bulkUpdateServiceVisibility' : IDL.Func(
-      [IDL.Vec(IDL.Nat), IDL.Bool],
-      [IDL.Nat],
-      [],
-    ),
-  'createService' : IDL.Func([ServiceInput], [Service], []),
-  'deleteService' : IDL.Func([IDL.Nat], [IDL.Bool], []),
   'getService' : IDL.Func([IDL.Nat], [IDL.Opt(Service)], ['query']),
   'getServices' : IDL.Func(
       [IDL.Nat, IDL.Nat, IDL.Opt(ServiceFilter)],
       [PaginatedServices],
       ['query'],
     ),
+  'getTestimonial' : IDL.Func([IDL.Nat], [IDL.Opt(Testimonial)], ['query']),
+  'getTestimonials' : IDL.Func(
+      [IDL.Nat, IDL.Nat, IDL.Opt(TestimonialFilter)],
+      [PaginatedTestimonials],
+      ['query'],
+    ),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
+  'importData' : IDL.Func([ExportData, ImportOptions], [ImportResult], []),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'reorderPortfolioProjects' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Bool], []),
   'reorderServices' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Bool], []),
-  'updateService' : IDL.Func(
-      [ServiceUpdate],
-      [IDL.Opt(Service)],
+  'reorderTestimonials' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Bool], []),
+  'resetContactSettings' : IDL.Func([], [ContactSettings], []),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'updateContactSettings' : IDL.Func([ContactSettings], [ContactSettings], []),
+  'updatePortfolioProject' : IDL.Func(
+      [PortfolioProjectUpdate],
+      [IDL.Opt(PortfolioProject)],
       [],
     ),
-  'getContactSettings' : IDL.Func([], [ContactSettings], ['query']),
-  'updateContactSettings' : IDL.Func([ContactSettings], [ContactSettings], []),
-  'getPreviousContactSettings' : IDL.Func([], [IDL.Opt(ContactSettings)], ['query']),
-  'resetContactSettings' : IDL.Func([], [ContactSettings], []),
-  'getHomepageData' : IDL.Func([], [HomepageData], ['query']),
+  'updateService' : IDL.Func([ServiceUpdate], [IDL.Opt(Service)], []),
+  'updateTestimonial' : IDL.Func(
+      [TestimonialUpdate],
+      [IDL.Opt(Testimonial)],
+      [],
+    ),
 });
 
 export const idlInitArgs = [];
@@ -404,6 +448,7 @@ export const idlFactory = ({ IDL }) => {
     'results' : IDL.Vec(IDL.Text),
     'linkedTestimonialId' : IDL.Opt(IDL.Nat),
     'category' : PortfolioCategory,
+    'projectUrl' : IDL.Opt(IDL.Text),
     'industry' : IDL.Text,
   });
   const PortfolioProject = IDL.Record({
@@ -422,9 +467,128 @@ export const idlFactory = ({ IDL }) => {
     'linkedTestimonialId' : IDL.Opt(IDL.Nat),
     'category' : PortfolioCategory,
     'lastUpdatedDate' : IDL.Opt(IDL.Int),
+    'projectUrl' : IDL.Opt(IDL.Text),
     'industry' : IDL.Text,
   });
+  const ServiceFaq = IDL.Record({ 'question' : IDL.Text, 'answer' : IDL.Text });
+  const ServiceProcessStep = IDL.Record({
+    'step' : IDL.Text,
+    'description' : IDL.Text,
+  });
+  const ServiceInput = IDL.Record({
+    'useCases' : IDL.Vec(IDL.Text),
+    'title' : IDL.Text,
+    'displayOrder' : IDL.Nat,
+    'faqs' : IDL.Vec(ServiceFaq),
+    'icon' : IDL.Opt(ExternalBlob),
+    'processSteps' : IDL.Vec(ServiceProcessStep),
+    'targetAudience' : IDL.Text,
+    'shortDescription' : IDL.Text,
+    'isVisible' : IDL.Bool,
+    'fullDescription' : IDL.Text,
+  });
+  const Service = IDL.Record({
+    'id' : IDL.Nat,
+    'useCases' : IDL.Vec(IDL.Text),
+    'title' : IDL.Text,
+    'displayOrder' : IDL.Nat,
+    'faqs' : IDL.Vec(ServiceFaq),
+    'icon' : IDL.Opt(ExternalBlob),
+    'createdDate' : IDL.Opt(IDL.Int),
+    'processSteps' : IDL.Vec(ServiceProcessStep),
+    'targetAudience' : IDL.Text,
+    'shortDescription' : IDL.Text,
+    'isVisible' : IDL.Bool,
+    'lastUpdatedDate' : IDL.Opt(IDL.Int),
+    'fullDescription' : IDL.Text,
+  });
+  const TestimonialInput = IDL.Record({
+    'displayOrder' : IDL.Nat,
+    'authorName' : IDL.Text,
+    'quote' : IDL.Text,
+    'linkedPortfolioId' : IDL.Opt(IDL.Nat),
+    'jobTitle' : IDL.Text,
+    'isVisible' : IDL.Bool,
+    'companyName' : IDL.Text,
+    'rating' : IDL.Nat,
+    'photo' : IDL.Opt(ExternalBlob),
+  });
+  const Testimonial = IDL.Record({
+    'id' : IDL.Nat,
+    'displayOrder' : IDL.Nat,
+    'authorName' : IDL.Text,
+    'createdDate' : IDL.Opt(IDL.Int),
+    'quote' : IDL.Text,
+    'linkedPortfolioId' : IDL.Opt(IDL.Nat),
+    'jobTitle' : IDL.Text,
+    'isVisible' : IDL.Bool,
+    'companyName' : IDL.Text,
+    'lastUpdatedDate' : IDL.Opt(IDL.Int),
+    'rating' : IDL.Nat,
+    'photo' : IDL.Opt(ExternalBlob),
+  });
+  const ExportTotalRecords = IDL.Record({
+    'portfolio' : IDL.Nat,
+    'testimonials' : IDL.Nat,
+    'services' : IDL.Nat,
+  });
+  const ExportMetadata = IDL.Record({
+    'exportVersion' : IDL.Text,
+    'exportDate' : IDL.Int,
+    'totalRecords' : ExportTotalRecords,
+  });
+  const ContactMap = IDL.Record({
+    'latitude' : IDL.Float64,
+    'longitude' : IDL.Float64,
+  });
+  const ContactWhatsApp = IDL.Record({
+    'isEnabled' : IDL.Bool,
+    'number' : IDL.Opt(IDL.Text),
+  });
+  const ContactEmail = IDL.Record({
+    'secondary' : IDL.Opt(IDL.Text),
+    'primary' : IDL.Text,
+    'responseTime' : IDL.Text,
+  });
+  const BusinessHours = IDL.Record({
+    'tuesday' : IDL.Text,
+    'wednesday' : IDL.Text,
+    'saturday' : IDL.Text,
+    'thursday' : IDL.Text,
+    'sunday' : IDL.Text,
+    'friday' : IDL.Text,
+    'monday' : IDL.Text,
+  });
+  const ContactAddress = IDL.Record({
+    'businessHours' : BusinessHours,
+    'fullAddress' : IDL.Text,
+  });
+  const ContactPhone = IDL.Record({
+    'secondary' : IDL.Opt(IDL.Text),
+    'isEnabled' : IDL.Bool,
+    'primary' : IDL.Opt(IDL.Text),
+  });
+  const ContactSettings = IDL.Record({
+    'map' : ContactMap,
+    'lastUpdated' : IDL.Int,
+    'whatsapp' : ContactWhatsApp,
+    'email' : ContactEmail,
+    'address' : ContactAddress,
+    'phone' : ContactPhone,
+  });
+  const ExportData = IDL.Record({
+    'portfolio' : IDL.Vec(PortfolioProject),
+    'metadata' : ExportMetadata,
+    'testimonials' : IDL.Vec(Testimonial),
+    'services' : IDL.Vec(Service),
+    'contactSettings' : IDL.Opt(ContactSettings),
+  });
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const HomepageData = IDL.Record({
+    'featuredProjects' : IDL.Vec(PortfolioProject),
+    'testimonials' : IDL.Vec(Testimonial),
+    'services' : IDL.Vec(Service),
+  });
   const PortfolioFilter = IDL.Record({
     'status' : IDL.Opt(PublishStatus),
     'search' : IDL.Opt(IDL.Text),
@@ -433,6 +597,46 @@ export const idlFactory = ({ IDL }) => {
   const PaginatedPortfolioProjects = IDL.Record({
     'total' : IDL.Nat,
     'items' : IDL.Vec(PortfolioProject),
+  });
+  const ServiceFilter = IDL.Record({
+    'search' : IDL.Opt(IDL.Text),
+    'isVisible' : IDL.Opt(IDL.Bool),
+  });
+  const PaginatedServices = IDL.Record({
+    'total' : IDL.Nat,
+    'items' : IDL.Vec(Service),
+  });
+  const TestimonialFilter = IDL.Record({
+    'minRating' : IDL.Opt(IDL.Nat),
+    'search' : IDL.Opt(IDL.Text),
+    'isVisible' : IDL.Opt(IDL.Bool),
+    'maxRating' : IDL.Opt(IDL.Nat),
+  });
+  const PaginatedTestimonials = IDL.Record({
+    'total' : IDL.Nat,
+    'items' : IDL.Vec(Testimonial),
+  });
+  const ImportMode = IDL.Variant({
+    'createAndUpdate' : IDL.Null,
+    'skip' : IDL.Null,
+    'createOnly' : IDL.Null,
+    'replaceAll' : IDL.Null,
+  });
+  const ImportOptions = IDL.Record({
+    'portfolioMode' : ImportMode,
+    'importContactSettings' : IDL.Bool,
+    'servicesMode' : ImportMode,
+    'testimonialsMode' : ImportMode,
+  });
+  const ImportResultCounts = IDL.Record({
+    'created' : IDL.Nat,
+    'updated' : IDL.Nat,
+  });
+  const ImportResult = IDL.Record({
+    'portfolio' : ImportResultCounts,
+    'contactSettingsUpdated' : IDL.Bool,
+    'testimonials' : ImportResultCounts,
+    'services' : ImportResultCounts,
   });
   const PortfolioProjectUpdate = IDL.Record({
     'id' : IDL.Nat,
@@ -448,196 +652,36 @@ export const idlFactory = ({ IDL }) => {
     'results' : IDL.Vec(IDL.Text),
     'linkedTestimonialId' : IDL.Opt(IDL.Nat),
     'category' : PortfolioCategory,
+    'projectUrl' : IDL.Opt(IDL.Text),
     'industry' : IDL.Text,
-  });
-  const TestimonialInput = IDL.Record({
-    'quote' : IDL.Text,
-    'authorName' : IDL.Text,
-    'jobTitle' : IDL.Text,
-    'companyName' : IDL.Text,
-    'photo' : IDL.Opt(ExternalBlob),
-    'linkedPortfolioId' : IDL.Opt(IDL.Nat),
-    'rating' : IDL.Nat,
-    'displayOrder' : IDL.Nat,
-    'isVisible' : IDL.Bool,
-  });
-  const Testimonial = IDL.Record({
-    'id' : IDL.Nat,
-    'quote' : IDL.Text,
-    'authorName' : IDL.Text,
-    'jobTitle' : IDL.Text,
-    'companyName' : IDL.Text,
-    'photo' : IDL.Opt(ExternalBlob),
-    'linkedPortfolioId' : IDL.Opt(IDL.Nat),
-    'rating' : IDL.Nat,
-    'displayOrder' : IDL.Nat,
-    'isVisible' : IDL.Bool,
-    'createdDate' : IDL.Opt(IDL.Int),
-    'lastUpdatedDate' : IDL.Opt(IDL.Int),
-  });
-  const TestimonialFilter = IDL.Record({
-    'isVisible' : IDL.Opt(IDL.Bool),
-    'minRating' : IDL.Opt(IDL.Nat),
-    'maxRating' : IDL.Opt(IDL.Nat),
-    'search' : IDL.Opt(IDL.Text),
-  });
-  const PaginatedTestimonials = IDL.Record({
-    'total' : IDL.Nat,
-    'items' : IDL.Vec(Testimonial),
-  });
-  const TestimonialUpdate = IDL.Record({
-    'id' : IDL.Nat,
-    'quote' : IDL.Text,
-    'authorName' : IDL.Text,
-    'jobTitle' : IDL.Text,
-    'companyName' : IDL.Text,
-    'photo' : IDL.Opt(ExternalBlob),
-    'linkedPortfolioId' : IDL.Opt(IDL.Nat),
-    'rating' : IDL.Nat,
-    'displayOrder' : IDL.Nat,
-    'isVisible' : IDL.Bool,
-  });
-  const ServiceProcessStep = IDL.Record({
-    'step' : IDL.Text,
-    'description' : IDL.Text,
-  });
-  const ServiceFaq = IDL.Record({
-    'question' : IDL.Text,
-    'answer' : IDL.Text,
-  });
-  const ServiceInput = IDL.Record({
-    'title' : IDL.Text,
-    'icon' : IDL.Opt(ExternalBlob),
-    'shortDescription' : IDL.Text,
-    'fullDescription' : IDL.Text,
-    'useCases' : IDL.Vec(IDL.Text),
-    'processSteps' : IDL.Vec(ServiceProcessStep),
-    'targetAudience' : IDL.Text,
-    'faqs' : IDL.Vec(ServiceFaq),
-    'displayOrder' : IDL.Nat,
-    'isVisible' : IDL.Bool,
-  });
-  const Service = IDL.Record({
-    'id' : IDL.Nat,
-    'title' : IDL.Text,
-    'icon' : IDL.Opt(ExternalBlob),
-    'shortDescription' : IDL.Text,
-    'fullDescription' : IDL.Text,
-    'useCases' : IDL.Vec(IDL.Text),
-    'processSteps' : IDL.Vec(ServiceProcessStep),
-    'targetAudience' : IDL.Text,
-    'faqs' : IDL.Vec(ServiceFaq),
-    'displayOrder' : IDL.Nat,
-    'isVisible' : IDL.Bool,
-    'createdDate' : IDL.Opt(IDL.Int),
-    'lastUpdatedDate' : IDL.Opt(IDL.Int),
   });
   const ServiceUpdate = IDL.Record({
     'id' : IDL.Nat,
-    'title' : IDL.Text,
-    'icon' : IDL.Opt(ExternalBlob),
-    'shortDescription' : IDL.Text,
-    'fullDescription' : IDL.Text,
     'useCases' : IDL.Vec(IDL.Text),
+    'title' : IDL.Text,
+    'displayOrder' : IDL.Nat,
+    'faqs' : IDL.Vec(ServiceFaq),
+    'icon' : IDL.Opt(ExternalBlob),
     'processSteps' : IDL.Vec(ServiceProcessStep),
     'targetAudience' : IDL.Text,
-    'faqs' : IDL.Vec(ServiceFaq),
-    'displayOrder' : IDL.Nat,
+    'shortDescription' : IDL.Text,
     'isVisible' : IDL.Bool,
+    'fullDescription' : IDL.Text,
   });
-  const ServiceFilter = IDL.Record({
-    'isVisible' : IDL.Opt(IDL.Bool),
-    'search' : IDL.Opt(IDL.Text),
+  const TestimonialUpdate = IDL.Record({
+    'id' : IDL.Nat,
+    'displayOrder' : IDL.Nat,
+    'authorName' : IDL.Text,
+    'quote' : IDL.Text,
+    'linkedPortfolioId' : IDL.Opt(IDL.Nat),
+    'jobTitle' : IDL.Text,
+    'isVisible' : IDL.Bool,
+    'companyName' : IDL.Text,
+    'rating' : IDL.Nat,
+    'photo' : IDL.Opt(ExternalBlob),
   });
-  const PaginatedServices = IDL.Record({
-    'total' : IDL.Nat,
-    'items' : IDL.Vec(Service),
-  });
-  const BusinessHours = IDL.Record({
-    'monday' : IDL.Text,
-    'tuesday' : IDL.Text,
-    'wednesday' : IDL.Text,
-    'thursday' : IDL.Text,
-    'friday' : IDL.Text,
-    'saturday' : IDL.Text,
-    'sunday' : IDL.Text,
-  });
-  const ContactWhatsApp = IDL.Record({
-    'number' : IDL.Opt(IDL.Text),
-    'isEnabled' : IDL.Bool,
-  });
-  const ContactEmail = IDL.Record({
-    'primary' : IDL.Text,
-    'secondary' : IDL.Opt(IDL.Text),
-    'responseTime' : IDL.Text,
-  });
-  const ContactPhone = IDL.Record({
-    'primary' : IDL.Opt(IDL.Text),
-    'secondary' : IDL.Opt(IDL.Text),
-    'isEnabled' : IDL.Bool,
-  });
-  const ContactAddress = IDL.Record({
-    'fullAddress' : IDL.Text,
-    'businessHours' : BusinessHours,
-  });
-  const ContactMap = IDL.Record({
-    'latitude' : IDL.Float64,
-    'longitude' : IDL.Float64,
-  });
-  const ContactSettings = IDL.Record({
-    'whatsapp' : ContactWhatsApp,
-    'email' : ContactEmail,
-    'phone' : ContactPhone,
-    'address' : ContactAddress,
-    'map' : ContactMap,
-    'lastUpdated' : IDL.Int,
-  });
-  const HomepageData = IDL.Record({
-    'services' : IDL.Vec(Service),
-    'featuredProjects' : IDL.Vec(PortfolioProject),
-    'testimonials' : IDL.Vec(Testimonial),
-  });
-
-  const ExportTotalRecords = IDL.Record({
-    'portfolio' : IDL.Nat,
-    'services' : IDL.Nat,
-    'testimonials' : IDL.Nat,
-  });
-  const ExportMetadata = IDL.Record({
-    'exportDate' : IDL.Int,
-    'exportVersion' : IDL.Text,
-    'totalRecords' : ExportTotalRecords,
-  });
-  const ExportData = IDL.Record({
-    'metadata' : ExportMetadata,
-    'portfolio' : IDL.Vec(PortfolioProject),
-    'services' : IDL.Vec(Service),
-    'testimonials' : IDL.Vec(Testimonial),
-    'contactSettings' : IDL.Opt(ContactSettings),
-  });
-  const ImportMode = IDL.Variant({
-    'createAndUpdate' : IDL.Null,
-    'createOnly' : IDL.Null,
-    'replaceAll' : IDL.Null,
-    'skip' : IDL.Null,
-  });
-  const ImportOptions = IDL.Record({
-    'portfolioMode' : ImportMode,
-    'servicesMode' : ImportMode,
-    'testimonialsMode' : ImportMode,
-    'importContactSettings' : IDL.Bool,
-  });
-  const ImportResultCounts = IDL.Record({
-    'created' : IDL.Nat,
-    'updated' : IDL.Nat,
-  });
-  const ImportResult = IDL.Record({
-    'portfolio' : ImportResultCounts,
-    'services' : ImportResultCounts,
-    'testimonials' : ImportResultCounts,
-    'contactSettingsUpdated' : IDL.Bool,
-  });
-    return IDL.Service({
+  
+  return IDL.Service({
     '_caffeineStorageBlobIsLive' : IDL.Func(
         [IDL.Vec(IDL.Nat8)],
         [IDL.Bool],
@@ -667,8 +711,20 @@ export const idlFactory = ({ IDL }) => {
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'bulkDeletePortfolioProjects' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Nat], []),
+    'bulkDeleteServices' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Nat], []),
+    'bulkDeleteTestimonials' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Nat], []),
     'bulkUpdatePortfolioStatus' : IDL.Func(
         [IDL.Vec(IDL.Nat), PublishStatus],
+        [IDL.Nat],
+        [],
+      ),
+    'bulkUpdateServiceVisibility' : IDL.Func(
+        [IDL.Vec(IDL.Nat), IDL.Bool],
+        [IDL.Nat],
+        [],
+      ),
+    'bulkUpdateTestimonialVisibility' : IDL.Func(
+        [IDL.Vec(IDL.Nat), IDL.Bool],
         [IDL.Nat],
         [],
       ),
@@ -677,9 +733,16 @@ export const idlFactory = ({ IDL }) => {
         [PortfolioProject],
         [],
       ),
+    'createService' : IDL.Func([ServiceInput], [Service], []),
+    'createTestimonial' : IDL.Func([TestimonialInput], [Testimonial], []),
     'deletePortfolioProject' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+    'deleteService' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+    'deleteTestimonial' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+    'exportData' : IDL.Func([], [ExportData], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getContactSettings' : IDL.Func([], [ContactSettings], ['query']),
+    'getHomepageData' : IDL.Func([], [HomepageData], ['query']),
     'getPortfolioProject' : IDL.Func(
         [IDL.Nat],
         [IDL.Opt(PortfolioProject)],
@@ -690,66 +753,51 @@ export const idlFactory = ({ IDL }) => {
         [PaginatedPortfolioProjects],
         ['query'],
       ),
-    'getUserProfile' : IDL.Func(
-        [IDL.Principal],
-        [IDL.Opt(UserProfile)],
+    'getPreviousContactSettings' : IDL.Func(
+        [],
+        [IDL.Opt(ContactSettings)],
         ['query'],
       ),
-    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
-    'reorderPortfolioProjects' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Bool], []),
-    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
-    'updatePortfolioProject' : IDL.Func(
-        [PortfolioProjectUpdate],
-        [IDL.Opt(PortfolioProject)],
-        [],
-      ),
-    'bulkDeleteTestimonials' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Nat], []),
-    'bulkUpdateTestimonialVisibility' : IDL.Func(
-        [IDL.Vec(IDL.Nat), IDL.Bool],
-        [IDL.Nat],
-        [],
-      ),
-    'createTestimonial' : IDL.Func([TestimonialInput], [Testimonial], []),
-    'deleteTestimonial' : IDL.Func([IDL.Nat], [IDL.Bool], []),
-    'getTestimonial' : IDL.Func([IDL.Nat], [IDL.Opt(Testimonial)], ['query']),
-    'getTestimonials' : IDL.Func(
-        [IDL.Nat, IDL.Nat, IDL.Opt(TestimonialFilter)],
-        [PaginatedTestimonials],
-        ['query'],
-      ),
-    'reorderTestimonials' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Bool], []),
-    'updateTestimonial' : IDL.Func(
-        [TestimonialUpdate],
-        [IDL.Opt(Testimonial)],
-        [],
-      ),
-    'bulkDeleteServices' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Nat], []),
-    'bulkUpdateServiceVisibility' : IDL.Func(
-        [IDL.Vec(IDL.Nat), IDL.Bool],
-        [IDL.Nat],
-        [],
-      ),
-    'createService' : IDL.Func([ServiceInput], [Service], []),
-    'deleteService' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'getService' : IDL.Func([IDL.Nat], [IDL.Opt(Service)], ['query']),
     'getServices' : IDL.Func(
         [IDL.Nat, IDL.Nat, IDL.Opt(ServiceFilter)],
         [PaginatedServices],
         ['query'],
       ),
+    'getTestimonial' : IDL.Func([IDL.Nat], [IDL.Opt(Testimonial)], ['query']),
+    'getTestimonials' : IDL.Func(
+        [IDL.Nat, IDL.Nat, IDL.Opt(TestimonialFilter)],
+        [PaginatedTestimonials],
+        ['query'],
+      ),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
+    'importData' : IDL.Func([ExportData, ImportOptions], [ImportResult], []),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'reorderPortfolioProjects' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Bool], []),
     'reorderServices' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Bool], []),
-    'updateService' : IDL.Func(
-        [ServiceUpdate],
-        [IDL.Opt(Service)],
+    'reorderTestimonials' : IDL.Func([IDL.Vec(IDL.Nat)], [IDL.Bool], []),
+    'resetContactSettings' : IDL.Func([], [ContactSettings], []),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'updateContactSettings' : IDL.Func(
+        [ContactSettings],
+        [ContactSettings],
         [],
       ),
-    'getContactSettings' : IDL.Func([], [ContactSettings], ['query']),
-    'updateContactSettings' : IDL.Func([ContactSettings], [ContactSettings], []),
-    'getPreviousContactSettings' : IDL.Func([], [IDL.Opt(ContactSettings)], ['query']),
-    'resetContactSettings' : IDL.Func([], [ContactSettings], []),
-    'exportData' : IDL.Func([], [ExportData], ['query']),
-    'importData' : IDL.Func([ExportData, ImportOptions], [ImportResult], []),
-    'getHomepageData' : IDL.Func([], [HomepageData], ['query']),
+    'updatePortfolioProject' : IDL.Func(
+        [PortfolioProjectUpdate],
+        [IDL.Opt(PortfolioProject)],
+        [],
+      ),
+    'updateService' : IDL.Func([ServiceUpdate], [IDL.Opt(Service)], []),
+    'updateTestimonial' : IDL.Func(
+        [TestimonialUpdate],
+        [IDL.Opt(Testimonial)],
+        [],
+      ),
   });
 };
 

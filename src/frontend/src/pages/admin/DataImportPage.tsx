@@ -10,7 +10,11 @@ import {
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { ExportData, ImportOptions, ImportResult } from "../../backend";
-import { PortfolioCategory, PublishStatus } from "../../backend";
+import {
+  type ImportMode as BackendImportMode,
+  PortfolioCategory,
+  PublishStatus,
+} from "../../backend";
 import { useActor } from "../../hooks/useActor";
 import { parseJSONWithBigInt } from "../../utils/BigIntSerializer";
 
@@ -327,9 +331,10 @@ export default function DataImportPage() {
     setIsImporting(true);
     try {
       const importOptions: ImportOptions = {
-        portfolioMode: options.portfolioMode,
-        servicesMode: options.servicesMode,
-        testimonialsMode: options.testimonialsMode,
+        portfolioMode: options.portfolioMode as unknown as BackendImportMode,
+        servicesMode: options.servicesMode as unknown as BackendImportMode,
+        testimonialsMode:
+          options.testimonialsMode as unknown as BackendImportMode,
         importContactSettings: options.importContactSettings,
       };
       const result = await actor.importData(parsedData, importOptions);
