@@ -44,6 +44,7 @@ import {
   ChevronRight,
   ChevronUp,
   Edit2,
+  Eye,
   GripVertical,
   ImageIcon,
   Loader2,
@@ -63,6 +64,7 @@ import {
   type PortfolioProjectUpdate,
   PublishStatus,
 } from "../../backend";
+import ImageLightbox from "../../components/ImageLightbox";
 import {
   SENTINEL_ALL,
   SENTINEL_NONE,
@@ -405,6 +407,8 @@ export default function PortfolioPage() {
 
   // ── Gallery state ──
   const [gallery, setGallery] = useState<GalleryImageItem[]>([]);
+  const [galleryLightboxOpen, setGalleryLightboxOpen] = useState(false);
+  const [galleryLightboxIndex, setGalleryLightboxIndex] = useState(0);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
   // ── Bulk operation progress ──
@@ -670,6 +674,22 @@ export default function PortfolioPage() {
   };
 
   // ─── Form submit ──────────────────────────────────────────────────────────
+
+  const moveGalleryItem = (index: number, direction: "up" | "down") => {
+    setGallery((prev) => {
+      const newArr = [...prev];
+      const swapIndex = direction === "up" ? index - 1 : index + 1;
+      if (swapIndex < 0 || swapIndex >= newArr.length) return prev;
+      [newArr[index], newArr[swapIndex]] = [newArr[swapIndex], newArr[index]];
+      return newArr;
+    });
+  };
+
+  const removeGalleryItem = (id: string) => {
+    if (window.confirm("¿Eliminar esta imagen de la galería?")) {
+      setGallery((prev) => prev.filter((g) => g.id !== id));
+    }
+  };
 
   const handleSubmit = () => {
     if (
@@ -1407,7 +1427,7 @@ export default function PortfolioPage() {
                   />
                 </button>
                 {gallery.length > 0 && (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                     {gallery.map((item, gIndex) => (
                       <div
                         key={item.id}
@@ -1436,17 +1456,67 @@ export default function PortfolioPage() {
                             />
                           </div>
                         )}
+
+                        {/* Up/Down arrow buttons - left side */}
+                        <div className="absolute top-1 left-1 flex flex-col gap-0.5">
+                          <button
+                            type="button"
+                            onClick={() => moveGalleryItem(gIndex, "up")}
+                            disabled={gIndex === 0}
+                            aria-label="Mover imagen hacia arriba"
+                            className={`rounded p-0.5 text-white transition-colors ${
+                              gIndex === 0
+                                ? "bg-black/20 opacity-30 cursor-not-allowed"
+                                : "bg-black/50 hover:bg-black/70"
+                            }`}
+                          >
+                            <ChevronUp className="h-3 w-3" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => moveGalleryItem(gIndex, "down")}
+                            disabled={gIndex === gallery.length - 1}
+                            aria-label="Mover imagen hacia abajo"
+                            className={`rounded p-0.5 text-white transition-colors ${
+                              gIndex === gallery.length - 1
+                                ? "bg-black/20 opacity-30 cursor-not-allowed"
+                                : "bg-black/50 hover:bg-black/70"
+                            }`}
+                          >
+                            <ChevronDown className="h-3 w-3" />
+                          </button>
+                        </div>
+
+                        {/* Delete button - top right */}
                         <button
                           type="button"
-                          onClick={() =>
-                            setGallery((prev) =>
-                              prev.filter((g) => g.id !== item.id),
-                            )
-                          }
-                          className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-0.5"
+                          onClick={() => removeGalleryItem(item.id)}
+                          aria-label="Eliminar imagen de la galería"
+                          className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-0.5 hover:bg-destructive/80 transition-colors"
                         >
                           <X className="h-3 w-3" />
                         </button>
+
+                        {/* Order badge - bottom left */}
+                        <div className="absolute bottom-1 left-1 bg-black/60 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                          {gIndex + 1}
+                        </div>
+
+                        {/* View button - bottom right */}
+                        {item.previewUrl && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setGalleryLightboxIndex(gIndex);
+                              setGalleryLightboxOpen(true);
+                            }}
+                            aria-label="Ver imagen ampliada"
+                            title="Ver imagen"
+                            className="absolute bottom-1 right-1 rounded-full bg-black/40 hover:bg-black/70 p-1 text-white transition-colors"
+                          >
+                            <Eye className="h-3 w-3" />
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -1590,6 +1660,21 @@ export default function PortfolioPage() {
               </section>
             </div>
           </ScrollArea>
+          {/* Gallery preview lightbox */}
+          {galleryLightboxOpen && (
+            <ImageLightbox
+              images={gallery
+                .filter((g) => g.previewUrl)
+                .map((g, idx) => ({
+                  id: g.id,
+                  url: g.previewUrl,
+                  filename: `imagen-${idx + 1}`,
+                }))}
+              initialIndex={galleryLightboxIndex}
+              isOpen={galleryLightboxOpen}
+              onClose={() => setGalleryLightboxOpen(false)}
+            />
+          )}
           <DialogFooter className="px-6 py-4 border-t border-border shrink-0">
             <Button
               type="button"
@@ -1613,8 +1698,6 @@ export default function PortfolioPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Delete Confirmation */}
       <AlertDialog
         open={deleteId !== null}
         onOpenChange={(o) => !o && setDeleteId(null)}
@@ -1647,8 +1730,6 @@ export default function PortfolioPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Bulk Delete Confirmation */}
       <AlertDialog
         open={bulkDeleteConfirm}
         onOpenChange={(o) => !o && setBulkDeleteConfirm(false)}

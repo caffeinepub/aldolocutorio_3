@@ -5,10 +5,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { ExternalBlob, PortfolioProject } from "../../backend";
 import { PortfolioCategory, PublishStatus } from "../../backend";
+import ImageLightbox from "../../components/ImageLightbox";
 import { useActor } from "../../hooks/useActor";
 import { useSEO } from "../../hooks/useSEO";
 import { safeBigIntToString } from "../../utils/BigIntSerializer";
-import ImageLightbox from "./ImageLightbox";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 

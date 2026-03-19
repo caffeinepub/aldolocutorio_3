@@ -320,11 +320,11 @@ function TestimonialsCarousel({
 
 export default function HomePage() {
   useSEO({
-    title: "AldoLocutorio | Desarrollo de Software en M00e1laga",
+    title: "AldoLocutorio | Desarrollo de Software en Málaga",
     description:
-      "AldoLocutorio es una empresa de desarrollo de software en M00e1laga especializada en tiendas online, paneles de administraci00f3n, soluciones para restaurantes y aplicaciones web descentralizadas. Creamos software a medida para negocios y particulares.",
+      "AldoLocutorio es una empresa de desarrollo de software en Málaga especializada en tiendas online, paneles de administración, soluciones para restaurantes y aplicaciones web descentralizadas. Creamos software a medida para negocios y particulares.",
     keywords:
-      "desarrollo software M00e1laga, tiendas online M00e1laga, paneles administraci00f3n, aplicaciones web, desarrollo web M00e1laga, e-commerce M00e1laga, restaurantes web, software a medida M00e1laga, Internet Computer, ICP, Internet Identity, desarrollo blockchain M00e1laga, programadores M00e1laga, creaci00f3n p00e1ginas web M00e1laga, apps m00f3viles M00e1laga, TPV digital, facturaci00f3n electr00f3nica",
+      "desarrollo software Málaga, tiendas online Málaga, paneles administración, aplicaciones web, desarrollo web Málaga, e-commerce Málaga, restaurantes web, software a medida Málaga, Internet Computer, ICP, Internet Identity, desarrollo blockchain Málaga, programadores Málaga, creación páginas web Málaga, apps móviles Málaga, TPV digital, facturación electrónica",
     canonical: "https://aldolocutorio.es/",
   });
   const { actor } = useActor();
