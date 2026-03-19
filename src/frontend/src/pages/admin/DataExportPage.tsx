@@ -139,7 +139,7 @@ export default function DataExportPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `aldolocutorio-export-${formatDate(new Date())}.json`;
+      a.download = `aldotelico-export-${formatDate(new Date())}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -328,7 +328,7 @@ export default function DataExportPage() {
                 <span className="text-primary mt-0.5">•</span>
                 Formato del archivo:{" "}
                 <code className="text-xs bg-secondary px-1 py-0.5 rounded">
-                  aldolocutorio-export-YYYY-MM-DD-HHmmss.json
+                  aldotelico-export-YYYY-MM-DD-HHmmss.json
                 </code>
               </li>
             </ul>

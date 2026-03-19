@@ -43,8 +43,8 @@ export function SidePanel({ isOpen, onClose }: SidePanelProps) {
       >
         <div className="flex items-center justify-between p-4 border-b border-border">
           <img
-            src="https://i.imgur.com/xGJXblj.png"
-            alt="AldoLocutorio"
+            src="https://i.imgur.com/pIzPFRP.png"
+            alt="Aldotelico"
             style={{ height: "36px" }}
             className="object-contain"
           />

@@ -121,8 +121,8 @@ export function PublicFooter() {
           {/* Company Info */}
           <div className="flex flex-col gap-3">
             <img
-              src="https://i.imgur.com/xGJXblj.png"
-              alt="AldoLocutorio"
+              src="https://i.imgur.com/pIzPFRP.png"
+              alt="Aldotelico"
               style={{ width: "200px", height: "auto" }}
               className="object-contain self-start"
             />
@@ -130,7 +130,7 @@ export function PublicFooter() {
               Soluciones digitales para negocios y particulares
             </p>
             <p className="text-xs text-muted-foreground">
-              © {year} AldoLocutorio. Todos los derechos reservados.
+              © {year} Aldotelico. Todos los derechos reservados.
             </p>
           </div>
 

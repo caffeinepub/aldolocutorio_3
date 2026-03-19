@@ -3,4 +3,4 @@ User-agent: *
 Disallow:
 
 # Link to sitemap
-Sitemap: https://aldolocutorio.es/sitemap.xml
+Sitemap: https://aldotelico.es/sitemap.xml

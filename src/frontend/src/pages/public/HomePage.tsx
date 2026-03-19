@@ -320,12 +320,12 @@ function TestimonialsCarousel({
 
 export default function HomePage() {
   useSEO({
-    title: "AldoLocutorio | Desarrollo de Software en Málaga",
+    title: "Aldotelico | Desarrollo de Software en Málaga",
     description:
-      "AldoLocutorio es una empresa de desarrollo de software en Málaga especializada en tiendas online, paneles de administración, soluciones para restaurantes y aplicaciones web descentralizadas. Creamos software a medida para negocios y particulares.",
+      "Aldotelico es una empresa de desarrollo de software en Málaga especializada en tiendas online, paneles de administración, soluciones para restaurantes y aplicaciones web descentralizadas. Creamos software a medida para negocios y particulares.",
     keywords:
       "desarrollo software Málaga, tiendas online Málaga, paneles administración, aplicaciones web, desarrollo web Málaga, e-commerce Málaga, restaurantes web, software a medida Málaga, Internet Computer, ICP, Internet Identity, desarrollo blockchain Málaga, programadores Málaga, creación páginas web Málaga, apps móviles Málaga, TPV digital, facturación electrónica",
-    canonical: "https://aldolocutorio.es/",
+    canonical: "https://aldotelico.es/",
   });
   const { actor } = useActor();
   useEffect(() => {
@@ -341,14 +341,14 @@ export default function HomePage() {
     const schema = {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
-      name: "AldoLocutorio",
+      name: "Aldotelico",
       description:
         "Desarrollo de software a medida en M\u00e1laga: tiendas online, paneles de administraci\u00f3n, soluciones para restaurantes y aplicaciones web descentralizadas.",
-      url: "https://aldolocutorio.es/",
+      url: "https://aldotelico.es/",
       telephone: "+34 695 250 655",
       email: "aldolocutoriomalaga@gmail.com",
-      logo: "https://i.imgur.com/xGJXblj.png",
-      image: "https://i.imgur.com/xGJXblj.png",
+      logo: "https://i.imgur.com/pIzPFRP.png",
+      image: "https://i.imgur.com/pIzPFRP.png",
       address: {
         "@type": "PostalAddress",
         streetAddress: "C. Albertillas, 5, LOCAL",

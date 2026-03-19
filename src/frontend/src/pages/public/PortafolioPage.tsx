@@ -351,12 +351,12 @@ function ProjectCard({ project, isHighlighted, index }: ProjectCardProps) {
 
 export default function PortafolioPage() {
   useSEO({
-    title: "Portafolio de Proyectos | AldoLocutorio Málaga",
+    title: "Portafolio de Proyectos | Aldotelico Málaga",
     description:
       "Explora nuestro portafolio de proyectos de desarrollo software en Málaga: tiendas online, plataformas e-commerce, soluciones para restaurantes, aplicaciones web descentralizadas y sistemas de gestión empresarial.",
     keywords:
-      "portafolio desarrollo software Málaga, proyectos web Málaga, tiendas online ejemplos, aplicaciones restaurantes, casos de éxito desarrollo, clientes AldoLocutorio",
-    canonical: "https://aldolocutorio.es/portafolio",
+      "portafolio desarrollo software Málaga, proyectos web Málaga, tiendas online ejemplos, aplicaciones restaurantes, casos de éxito desarrollo, clientes Aldotelico",
+    canonical: "https://aldotelico.es/portafolio",
   });
   const params = useParams({ strict: false }) as { projectid?: string };
   const queryClient = useQueryClient();

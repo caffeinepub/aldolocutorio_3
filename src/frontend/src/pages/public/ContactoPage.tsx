@@ -268,12 +268,12 @@ function LocationHoursCard({ settings }: { settings: ContactSettings }) {
 
 export default function ContactoPage() {
   useSEO({
-    title: "Contacto | AldoLocutorio Desarrollo Software Málaga",
+    title: "Contacto | Aldotelico Desarrollo Software Málaga",
     description:
-      "Contacta con AldoLocutorio para tu proyecto de desarrollo software en Málaga. Estamos en C. Albertillas, 5, LOCAL, 29003 Málaga. Email: aldolocutoriomalaga@gmail.com",
+      "Contacta con Aldotelico para tu proyecto de desarrollo software en Málaga. Estamos en C. Albertillas, 5, LOCAL, 29003 Málaga. Email: aldolocutoriomalaga@gmail.com",
     keywords:
-      "contacto desarrollo software Málaga, email AldoLocutorio, dirección Málaga, teléfono, WhatsApp, pedir presupuesto software Málaga",
-    canonical: "https://aldolocutorio.es/contacto",
+      "contacto desarrollo software Málaga, email Aldotelico, dirección Málaga, teléfono, WhatsApp, pedir presupuesto software Málaga",
+    canonical: "https://aldotelico.es/contacto",
   });
   const { actor, isFetching: actorFetching } = useActor();
   const queryClient = useQueryClient();

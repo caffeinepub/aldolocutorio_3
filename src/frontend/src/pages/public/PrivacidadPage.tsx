@@ -86,10 +86,10 @@ function Section({ children }: { children: React.ReactNode }) {
 
 export default function PrivacidadPage() {
   useSEO({
-    title: "Política de Privacidad | AldoLocutorio Málaga",
+    title: "Política de Privacidad | Aldotelico Málaga",
     description:
-      "Política de privacidad de AldoLocutorio. Información sobre cómo recopilamos, utilizamos y protegemos tus datos personales como empresa de desarrollo software en Málaga.",
-    canonical: "https://aldolocutorio.es/privacidad",
+      "Política de privacidad de Aldotelico. Información sobre cómo recopilamos, utilizamos y protegemos tus datos personales como empresa de desarrollo software en Málaga.",
+    canonical: "https://aldotelico.es/privacidad",
     robots: "noindex, follow",
   });
   const [activeId, setActiveId] = useState("introduccion");
@@ -192,7 +192,7 @@ export default function PrivacidadPage() {
           <Section>
             <SectionHeading id="introduccion">Introducción</SectionHeading>
             <Body>
-              En AldoLocutorio, nos tomamos muy en serio tu privacidad. Esta
+              En Aldotelico, nos tomamos muy en serio tu privacidad. Esta
               política describe cómo recopilamos, utilizamos y protegemos tu
               información personal cuando visitas nuestro sitio web o utilizamos
               nuestros servicios de desarrollo de software, consultoría

@@ -69,7 +69,7 @@ export function useSEO(config: SEOConfig) {
     setMeta('meta[name="twitter:description"]', ogDescription ?? description);
 
     return () => {
-      document.title = "AldoLocutorio | Desarrollo de Software en Málaga";
+      document.title = "Aldotelico | Desarrollo de Software en Málaga";
     };
   }, []);
 }

@@ -5,7 +5,7 @@ export function FullPageSpinner() {
       className="min-h-screen bg-secondary flex flex-col items-center justify-center gap-6"
     >
       <p className="font-display text-lg font-semibold text-muted-foreground tracking-wide">
-        AldoLocutorio
+        Aldotelico
       </p>
 
       <div

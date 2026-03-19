@@ -32,8 +32,8 @@ export function PublicHeader({
             {/* Logo */}
             <Link to="/" data-ocid="public.header.link">
               <img
-                src="https://i.imgur.com/xGJXblj.png"
-                alt="AldoLocutorio"
+                src="https://i.imgur.com/pIzPFRP.png"
+                alt="Aldotelico"
                 style={{ width: "200px", height: "auto" }}
                 className="object-contain"
               />

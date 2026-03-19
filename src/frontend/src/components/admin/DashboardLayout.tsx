@@ -128,7 +128,7 @@ export function DashboardLayout() {
         <div className="h-16 flex items-center justify-between px-4 border-b border-border flex-shrink-0">
           {sidebarExpanded && (
             <span className="font-display font-semibold text-sm text-primary truncate">
-              AldoLocutorio
+              Aldotelico
             </span>
           )}
           <button
@@ -230,7 +230,7 @@ export function DashboardLayout() {
             data-ocid="dashboard.link"
             className="font-display font-semibold text-lg text-foreground hover:text-primary transition-colors absolute left-1/2 -translate-x-1/2"
           >
-            AldoLocutorio
+            Aldotelico
           </Link>
 
           <button
