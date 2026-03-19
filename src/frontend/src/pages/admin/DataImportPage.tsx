@@ -145,6 +145,7 @@ function normalizeImportData(raw: any): ExportData {
       results: Array.isArray(p.results) ? p.results.map(String) : [],
       linkedTestimonialId: toOptBigInt(p.linkedTestimonialId),
       publishStatus: toPublishStatus(p.publishStatus),
+      projectUrl: p.projectUrl ? String(p.projectUrl) : null,
       displayOrder: toBigInt(p.displayOrder),
       createdDate: toOptBigInt(p.createdDate),
       lastUpdatedDate: toOptBigInt(p.lastUpdatedDate),
