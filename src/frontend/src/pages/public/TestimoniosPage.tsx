@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { Testimonial } from "../../backend";
 import { useActor } from "../../hooks/useActor";
+import { useSEO } from "../../hooks/useSEO";
 import { safeBigIntToString } from "../../utils/BigIntSerializer";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -146,6 +147,14 @@ function TestimonialCard({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function TestimoniosPage() {
+  useSEO({
+    title: "Testimonios de Clientes | AldoLocutorio Málaga",
+    description:
+      "Lee lo que nuestros clientes dicen sobre su experiencia con AldoLocutorio. Opiniones reales de negocios en Málaga que confiaron en nosotros para su desarrollo software.",
+    keywords:
+      "testimonios desarrollo software Málaga, opiniones clientes, reseñas AldoLocutorio, experiencias clientes Málaga, valoraciones desarrollo web",
+    canonical: "https://aldolocutorio.es/testimonios",
+  });
   const params = useParams({ strict: false }) as { testimonioid?: string };
   const queryClient = useQueryClient();
   const { actor, isFetching: actorFetching } = useActor();

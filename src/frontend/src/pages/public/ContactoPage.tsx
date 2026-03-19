@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import type { ContactSettings } from "../../backend.d";
 import { useActor } from "../../hooks/useActor";
+import { useSEO } from "../../hooks/useSEO";
 import { safeConvertToNumber } from "../../utils/NumericConverter";
 
 function formatSpanishPhoneDisplay(raw: string): string {
@@ -266,6 +267,14 @@ function LocationHoursCard({ settings }: { settings: ContactSettings }) {
 }
 
 export default function ContactoPage() {
+  useSEO({
+    title: "Contacto | AldoLocutorio Desarrollo Software Málaga",
+    description:
+      "Contacta con AldoLocutorio para tu proyecto de desarrollo software en Málaga. Estamos en C. Albertillas, 5, LOCAL, 29003 Málaga. Email: aldolocutoriomalaga@gmail.com",
+    keywords:
+      "contacto desarrollo software Málaga, email AldoLocutorio, dirección Málaga, teléfono, WhatsApp, pedir presupuesto software Málaga",
+    canonical: "https://aldolocutorio.es/contacto",
+  });
   const { actor, isFetching: actorFetching } = useActor();
   const queryClient = useQueryClient();
 

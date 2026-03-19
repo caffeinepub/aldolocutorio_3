@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useSEO } from "../../hooks/useSEO";
 
 const TOC_ITEMS = [
   { id: "introduccion", label: "Introducción" },
@@ -84,6 +85,13 @@ function Section({ children }: { children: React.ReactNode }) {
 }
 
 export default function PrivacidadPage() {
+  useSEO({
+    title: "Política de Privacidad | AldoLocutorio Málaga",
+    description:
+      "Política de privacidad de AldoLocutorio. Información sobre cómo recopilamos, utilizamos y protegemos tus datos personales como empresa de desarrollo software en Málaga.",
+    canonical: "https://aldolocutorio.es/privacidad",
+    robots: "noindex, follow",
+  });
   const [activeId, setActiveId] = useState("introduccion");
 
   useEffect(() => {

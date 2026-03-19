@@ -15,6 +15,7 @@ import type {
   Testimonial,
 } from "../../backend";
 import { useActor } from "../../hooks/useActor";
+import { useSEO } from "../../hooks/useSEO";
 import { safeBigIntToString } from "../../utils/BigIntSerializer";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -318,9 +319,138 @@ function TestimonialsCarousel({
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function HomePage() {
+  useSEO({
+    title: "AldoLocutorio | Desarrollo de Software en M00e1laga",
+    description:
+      "AldoLocutorio es una empresa de desarrollo de software en M00e1laga especializada en tiendas online, paneles de administraci00f3n, soluciones para restaurantes y aplicaciones web descentralizadas. Creamos software a medida para negocios y particulares.",
+    keywords:
+      "desarrollo software M00e1laga, tiendas online M00e1laga, paneles administraci00f3n, aplicaciones web, desarrollo web M00e1laga, e-commerce M00e1laga, restaurantes web, software a medida M00e1laga, Internet Computer, ICP, Internet Identity, desarrollo blockchain M00e1laga, programadores M00e1laga, creaci00f3n p00e1ginas web M00e1laga, apps m00f3viles M00e1laga, TPV digital, facturaci00f3n electr00f3nica",
+    canonical: "https://aldolocutorio.es/",
+  });
   const { actor } = useActor();
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.id = "local-business-schema";
+    // Remove any existing block to avoid duplicates
+    const existing = document.getElementById("local-business-schema");
+    if (existing) existing.remove();
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      name: "AldoLocutorio",
+      description:
+        "Desarrollo de software a medida en M\u00e1laga: tiendas online, paneles de administraci\u00f3n, soluciones para restaurantes y aplicaciones web descentralizadas.",
+      url: "https://aldolocutorio.es/",
+      telephone: "+34 695 250 655",
+      email: "aldolocutoriomalaga@gmail.com",
+      logo: "https://i.imgur.com/xGJXblj.png",
+      image: "https://i.imgur.com/xGJXblj.png",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "C. Albertillas, 5, LOCAL",
+        addressLocality: "M\u00e1laga",
+        postalCode: "29003",
+        addressCountry: "ES",
+      },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: 36.69699,
+        longitude: -4.447439,
+      },
+      openingHoursSpecification: [
+        {
+          "@type": "OpeningHoursSpecification",
+          dayOfWeek: [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+          ],
+          opens: "09:30",
+          closes: "22:00",
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          dayOfWeek: "Sunday",
+          opens: "10:00",
+          closes: "20:00",
+        },
+      ],
+      sameAs: ["https://wa.me/34695250655"],
+      priceRange: "\u20ac\u20ac",
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: "Servicios de Desarrollo Software",
+        itemListElement: [
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
+              name: "E-commerce y Plataformas Multi-Tienda",
+              description:
+                "Tiendas online y plataformas multi-tienda con gesti\u00f3n centralizada de inventario, pedidos y pagos.",
+            },
+          },
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
+              name: "Soluciones Digitales para Restauraci\u00f3n",
+              description:
+                "Webs para restaurantes con men\u00fas digitales interactivos, pedidos por WhatsApp y gesti\u00f3n aut\u00f3noma.",
+            },
+          },
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
+              name: "Paneles de Administraci\u00f3n y Gesti\u00f3n Empresarial",
+              description:
+                "Sistemas de gesti\u00f3n empresarial a medida con anal\u00edticas, roles de usuario y exportaci\u00f3n de datos.",
+            },
+          },
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
+              name: "Plataformas para ONGs y Organizaciones Sin \u00c1nimo de Lucro",
+              description:
+                "Plataformas digitales con sistemas de donaci\u00f3n seguros y gesti\u00f3n de contenido aut\u00f3noma.",
+            },
+          },
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
+              name: "Aplicaciones Web con Autenticaci\u00f3n Descentralizada",
+              description:
+                "Aplicaciones web seguras con autenticaci\u00f3n mediante Internet Identity y tecnolog\u00eda blockchain.",
+            },
+          },
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
+              name: "Sistemas de Facturaci\u00f3n y TPV Digital",
+              description:
+                "Sistemas de facturaci\u00f3n y TPV con generaci\u00f3n de PDF, historial auditado y anal\u00edticas de ventas.",
+            },
+          },
+        ],
+      },
+    };
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+    return () => {
+      const s = document.getElementById("local-business-schema");
+      if (s) s.remove();
+    };
   }, []);
   const { data, isLoading } = useQuery({
     queryKey: ["homepageData"],

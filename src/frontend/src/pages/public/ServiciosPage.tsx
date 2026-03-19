@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { Service } from "../../backend";
 import { useActor } from "../../hooks/useActor";
+import { useSEO } from "../../hooks/useSEO";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -447,6 +448,14 @@ function OverviewCard({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function ServiciosPage() {
+  useSEO({
+    title: "Servicios de Desarrollo Software | AldoLocutorio Málaga",
+    description:
+      "Descubre nuestros servicios de desarrollo software en Málaga: tiendas online, paneles de administración, soluciones para restaurantes, aplicaciones descentralizadas y sistemas de facturación. Soluciones a medida para tu negocio.",
+    keywords:
+      "servicios desarrollo software Málaga, desarrollo web Málaga, creación tiendas online, paneles administración, software restaurantes, aplicaciones descentralizadas, sistemas facturación, TPV digital Málaga",
+    canonical: "https://aldolocutorio.es/servicios",
+  });
   const params = useParams({ strict: false }) as { serviceid?: string };
   const navigate = useNavigate();
   const queryClient = useQueryClient();

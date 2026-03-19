@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import type { ExternalBlob, PortfolioProject } from "../../backend";
 import { PortfolioCategory, PublishStatus } from "../../backend";
 import { useActor } from "../../hooks/useActor";
+import { useSEO } from "../../hooks/useSEO";
 import { safeBigIntToString } from "../../utils/BigIntSerializer";
 import ImageLightbox from "./ImageLightbox";
 
@@ -349,6 +350,14 @@ function ProjectCard({ project, isHighlighted, index }: ProjectCardProps) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function PortafolioPage() {
+  useSEO({
+    title: "Portafolio de Proyectos | AldoLocutorio Málaga",
+    description:
+      "Explora nuestro portafolio de proyectos de desarrollo software en Málaga: tiendas online, plataformas e-commerce, soluciones para restaurantes, aplicaciones web descentralizadas y sistemas de gestión empresarial.",
+    keywords:
+      "portafolio desarrollo software Málaga, proyectos web Málaga, tiendas online ejemplos, aplicaciones restaurantes, casos de éxito desarrollo, clientes AldoLocutorio",
+    canonical: "https://aldolocutorio.es/portafolio",
+  });
   const params = useParams({ strict: false }) as { projectid?: string };
   const queryClient = useQueryClient();
   const { actor, isFetching: actorFetching } = useActor();

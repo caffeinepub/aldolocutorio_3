@@ -1,0 +1,6 @@
+# Allow all search engines to crawl the entire website
+User-agent: *
+Disallow:
+
+# Link to sitemap
+Sitemap: https://aldolocutorio.es/sitemap.xml
