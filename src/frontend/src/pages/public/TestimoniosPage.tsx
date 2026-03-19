@@ -102,7 +102,7 @@ function TestimonialCard({
           <img
             src={testimonial.photo.getDirectURL()}
             alt={testimonial.authorName}
-            className="w-14 h-14 rounded-full object-cover shrink-0"
+            className="w-14 h-14 rounded-full object-contain shrink-0"
             loading="lazy"
           />
         ) : (

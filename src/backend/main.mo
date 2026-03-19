@@ -985,6 +985,7 @@ actor {
     switch (options.portfolioMode) {
       case (#skip) {};
       case (#replaceAll) {
+        let savedPortfolioImages = portfolioProjects.values().toArray();
         let pkeys = portfolioProjects.keys().toArray();
         for (k in pkeys.vals()) { portfolioProjects.remove(k) };
         for (p in data.portfolio.vals()) {
@@ -995,10 +996,13 @@ actor {
             case (null) {};
             case (?tid) { portfolioTestimonialRefs.add(newId, tid) };
           };
+          let savedPrj = savedPortfolioImages.find(func(e) { e.title == p.title and e.clientName == p.clientName });
+          let existingThumbnail = switch (savedPrj) { case (?e) { e.thumbnail }; case (null) { null } };
+          let existingGallery = switch (savedPrj) { case (?e) { e.galleryImages }; case (null) { [] } };
           portfolioProjects.add(newId, {
             id = newId; title = p.title; clientName = p.clientName;
             industry = p.industry; category = p.category; tags = p.tags;
-            thumbnail = p.thumbnail; galleryImages = p.galleryImages;
+            thumbnail = existingThumbnail; galleryImages = existingGallery;
             description = p.description; technologiesUsed = p.technologiesUsed;
             results = p.results; linkedTestimonialId = null;
             publishStatus = p.publishStatus; displayOrder = p.displayOrder; projectUrl = p.projectUrl;
@@ -1047,7 +1051,7 @@ actor {
               portfolioProjects.add(e.id, {
                 id = e.id; title = p.title; clientName = p.clientName;
                 industry = p.industry; category = p.category; tags = p.tags;
-                thumbnail = p.thumbnail; galleryImages = p.galleryImages;
+                thumbnail = e.thumbnail; galleryImages = e.galleryImages;
                 description = p.description; technologiesUsed = p.technologiesUsed;
                 results = p.results; linkedTestimonialId = null;
                 publishStatus = p.publishStatus; displayOrder = p.displayOrder; projectUrl = p.projectUrl;
@@ -1083,13 +1087,16 @@ actor {
     switch (options.servicesMode) {
       case (#skip) {};
       case (#replaceAll) {
+        let savedServicesImages = services.values().toArray();
         let skeys = services.keys().toArray();
         for (k in skeys.vals()) { services.remove(k) };
         for (s in data.services.vals()) {
           let newId = lastServiceId + 1;
           lastServiceId := newId;
+          let savedSvc = savedServicesImages.find(func(e) { e.title == s.title });
+          let existingIcon = switch (savedSvc) { case (?e) { e.icon }; case (null) { null } };
           services.add(newId, {
-            id = newId; title = s.title; icon = s.icon;
+            id = newId; title = s.title; icon = existingIcon;
             shortDescription = s.shortDescription; fullDescription = s.fullDescription;
             useCases = s.useCases; processSteps = s.processSteps;
             targetAudience = s.targetAudience; faqs = s.faqs;
@@ -1126,7 +1133,7 @@ actor {
           switch (existing) {
             case (?e) {
               services.add(e.id, {
-                id = e.id; title = s.title; icon = s.icon;
+                id = e.id; title = s.title; icon = e.icon;
                 shortDescription = s.shortDescription; fullDescription = s.fullDescription;
                 useCases = s.useCases; processSteps = s.processSteps;
                 targetAudience = s.targetAudience; faqs = s.faqs;
@@ -1157,6 +1164,7 @@ actor {
     switch (options.testimonialsMode) {
       case (#skip) {};
       case (#replaceAll) {
+        let savedTestimonialsImages = testimonials.values().toArray();
         let tkeys = testimonials.keys().toArray();
         for (k in tkeys.vals()) { testimonials.remove(k) };
         for (t in data.testimonials.vals()) {
@@ -1167,9 +1175,11 @@ actor {
             case (null) { null };
             case (?pid) { portfolioIdMap.get(pid) };
           };
+          let savedTst = savedTestimonialsImages.find(func(e) { e.authorName == t.authorName and e.companyName == t.companyName });
+          let existingPhoto = switch (savedTst) { case (?e) { e.photo }; case (null) { null } };
           testimonials.add(newId, {
             id = newId; quote = t.quote; authorName = t.authorName;
-            jobTitle = t.jobTitle; companyName = t.companyName; photo = t.photo;
+            jobTitle = t.jobTitle; companyName = t.companyName; photo = existingPhoto;
             linkedPortfolioId = remappedPid; rating = t.rating;
             displayOrder = t.displayOrder; isVisible = t.isVisible;
             createdDate = ?Time.now(); lastUpdatedDate = ?Time.now();
@@ -1214,7 +1224,7 @@ actor {
               };
               testimonials.add(e.id, {
                 id = e.id; quote = t.quote; authorName = t.authorName;
-                jobTitle = t.jobTitle; companyName = t.companyName; photo = t.photo;
+                jobTitle = t.jobTitle; companyName = t.companyName; photo = e.photo;
                 linkedPortfolioId = remappedPid; rating = t.rating;
                 displayOrder = t.displayOrder; isVisible = t.isVisible;
                 createdDate = e.createdDate; lastUpdatedDate = ?Time.now();

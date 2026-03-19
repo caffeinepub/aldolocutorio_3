@@ -196,7 +196,7 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
           <img
             src={photoUrl}
             alt={testimonial.authorName}
-            className="w-10 h-10 rounded-full object-cover border-2 border-border"
+            className="w-10 h-10 rounded-full object-contain border-2 border-border"
           />
         ) : (
           <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">

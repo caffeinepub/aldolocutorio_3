@@ -7,6 +7,7 @@ import type { ExternalBlob, PortfolioProject } from "../../backend";
 import { PortfolioCategory, PublishStatus } from "../../backend";
 import { useActor } from "../../hooks/useActor";
 import { safeBigIntToString } from "../../utils/BigIntSerializer";
+import ImageLightbox from "./ImageLightbox";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -64,6 +65,8 @@ function GalleryCarousel({ images }: GalleryCarouselProps) {
   const [current, setCurrent] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -87,6 +90,18 @@ function GalleryCarousel({ images }: GalleryCarouselProps) {
     setCurrent((c) => (c + 1) % images.length);
   }, [images.length]);
 
+  const openLightbox = useCallback((idx: number) => {
+    setLightboxIndex(idx);
+    setLightboxOpen(true);
+  }, []);
+
+  // Map ExternalBlob[] to lightbox-compatible format
+  const lightboxImages = images.map((img, idx) => ({
+    id: String(idx),
+    url: img.getDirectURL(),
+    filename: `imagen-${idx + 1}`,
+  }));
+
   if (images.length === 0) {
     return (
       <div className="aspect-video bg-muted rounded-xl flex items-center justify-center">
@@ -98,77 +113,94 @@ function GalleryCarousel({ images }: GalleryCarouselProps) {
   const showControls = images.length > 1;
 
   return (
-    <div
-      ref={containerRef}
-      className="relative overflow-hidden rounded-xl group"
-      onTouchStart={(e) => setTouchStart(e.touches[0].clientX)}
-      onTouchEnd={(e) => {
-        if (touchStart === null) return;
-        const delta = touchStart - e.changedTouches[0].clientX;
-        if (Math.abs(delta) > 40) {
-          if (delta > 0) next();
-          else prev();
-        }
-        setTouchStart(null);
-      }}
-    >
-      {/* Image */}
-      <div className="aspect-video bg-muted">
-        {isVisible ? (
-          <img
-            src={images[current].getDirectURL()}
-            alt={`Imagen ${current + 1}`}
-            className="w-full h-full object-contain"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full animate-pulse bg-muted" />
+    <>
+      <div
+        ref={containerRef}
+        className="relative overflow-hidden rounded-xl group"
+        onTouchStart={(e) => setTouchStart(e.touches[0].clientX)}
+        onTouchEnd={(e) => {
+          if (touchStart === null) return;
+          const delta = touchStart - e.changedTouches[0].clientX;
+          if (Math.abs(delta) > 40) {
+            if (delta > 0) next();
+            else prev();
+          }
+          setTouchStart(null);
+        }}
+      >
+        {/* Clickable image */}
+        <div className="aspect-video bg-muted">
+          {isVisible ? (
+            <button
+              type="button"
+              className="w-full h-full cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-primary/50"
+              onClick={() => openLightbox(current)}
+              aria-label={`Ampliar imagen ${current + 1} de ${images.length}`}
+            >
+              <img
+                src={images[current].getDirectURL()}
+                alt={`Imagen ${current + 1}`}
+                className="w-full h-full object-contain pointer-events-none"
+                loading="lazy"
+              />
+            </button>
+          ) : (
+            <div className="w-full h-full animate-pulse bg-muted" />
+          )}
+        </div>
+
+        {/* Navigation arrows */}
+        {showControls && (
+          <>
+            <button
+              type="button"
+              onClick={prev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center shadow-sm hover:bg-background transition-all md:opacity-0 md:group-hover:opacity-100"
+              aria-label="Imagen anterior"
+              data-ocid="portfolio.secondary_button"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={next}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center shadow-sm hover:bg-background transition-all md:opacity-0 md:group-hover:opacity-100"
+              aria-label="Siguiente imagen"
+              data-ocid="portfolio.secondary_button"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </>
+        )}
+
+        {/* Dot indicators */}
+        {showControls && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+            {images.map((img, dotIndex) => (
+              <button
+                key={img.getDirectURL()}
+                type="button"
+                onClick={() => setCurrent(dotIndex)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  dotIndex === current
+                    ? "bg-white scale-110"
+                    : "bg-white/50 hover:bg-white/75"
+                }`}
+                aria-label={`Ir a imagen ${dotIndex + 1}`}
+              />
+            ))}
+          </div>
         )}
       </div>
 
-      {/* Navigation arrows */}
-      {showControls && (
-        <>
-          <button
-            type="button"
-            onClick={prev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center shadow-sm hover:bg-background transition-all md:opacity-0 md:group-hover:opacity-100"
-            aria-label="Imagen anterior"
-            data-ocid="portfolio.secondary_button"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <button
-            type="button"
-            onClick={next}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center shadow-sm hover:bg-background transition-all md:opacity-0 md:group-hover:opacity-100"
-            aria-label="Siguiente imagen"
-            data-ocid="portfolio.secondary_button"
-          >
-            <ChevronRight size={18} />
-          </button>
-        </>
-      )}
-
-      {/* Dot indicators */}
-      {showControls && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-          {images.map((img, dotIndex) => (
-            <button
-              key={img.getDirectURL()}
-              type="button"
-              onClick={() => setCurrent(dotIndex)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                dotIndex === current
-                  ? "bg-white scale-110"
-                  : "bg-white/50 hover:bg-white/75"
-              }`}
-              aria-label={`Ir a imagen ${dotIndex + 1}`}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+      {/* Lightbox */}
+      <ImageLightbox
+        images={lightboxImages}
+        initialIndex={lightboxIndex}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
+    </>
   );
 }
 
