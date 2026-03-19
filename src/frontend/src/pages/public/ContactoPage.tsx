@@ -270,7 +270,7 @@ export default function ContactoPage() {
   useSEO({
     title: "Contacto | Aldotelico Desarrollo Software Málaga",
     description:
-      "Contacta con Aldotelico para tu proyecto de desarrollo software en Málaga. Estamos en C. Albertillas, 5, LOCAL, 29003 Málaga. Email: aldolocutoriomalaga@gmail.com",
+      "Contacta con Aldotelico para tu proyecto de desarrollo software en Málaga. Estamos en C. Albertillas, 5, LOCAL, 29003 Málaga. Email: Aldotelicosl@hotmail.com",
     keywords:
       "contacto desarrollo software Málaga, email Aldotelico, dirección Málaga, teléfono, WhatsApp, pedir presupuesto software Málaga",
     canonical: "https://aldotelico.es/contacto",

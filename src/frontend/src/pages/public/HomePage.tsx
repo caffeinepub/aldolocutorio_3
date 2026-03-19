@@ -346,7 +346,7 @@ export default function HomePage() {
         "Desarrollo de software a medida en M\u00e1laga: tiendas online, paneles de administraci\u00f3n, soluciones para restaurantes y aplicaciones web descentralizadas.",
       url: "https://aldotelico.es/",
       telephone: "+34 695 250 655",
-      email: "aldolocutoriomalaga@gmail.com",
+      email: "Aldotelicosl@hotmail.com",
       logo: "https://i.imgur.com/pIzPFRP.png",
       image: "https://i.imgur.com/pIzPFRP.png",
       address: {

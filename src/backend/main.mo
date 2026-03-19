@@ -831,7 +831,7 @@ actor {
   let defaultContactSettings : ContactSettings = {
     whatsapp = { number = ?"34695250655"; isEnabled = true };
     email = {
-      primary = "aldolocutoriomalaga@gmail.com";
+      primary = "Aldotelicosl@hotmail.com";
       secondary = null;
       responseTime = "Usualmente responde en 2 horas";
     };
